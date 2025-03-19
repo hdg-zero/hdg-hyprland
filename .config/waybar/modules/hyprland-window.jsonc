@@ -1,0 +1,9 @@
+{
+	"hyprland/window": {
+		"format": " {} ",
+		"max-length": 60,
+		"separate-outputs": true,
+		"offscreen-css": true,
+		"offscreen-css-text": "(inactive)"
+	}
+}

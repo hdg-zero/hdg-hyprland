@@ -1,0 +1,17 @@
+{
+    "mpris": {
+		"interval": 10,
+		"format": " {title} ",
+		"format-paused": " {title} {status_icon} ",
+		"on-click": "playerctl play-pause",
+		"on-click-right": "playerctl next",
+		"scroll-step": 5.0,
+		"smooth-scrolling-threshold": 1,
+		"status-icons": {
+			"paused": "󰐎",
+			"playing": "🎶",
+			"stopped": ""
+		},
+		"max-length": 30
+	}
+}

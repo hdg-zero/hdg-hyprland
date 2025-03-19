@@ -1,0 +1,11 @@
+{
+    "pulseaudio": {
+        "format": "󰕾 {volume}%",
+        "format-bluetooth": "󰂰 {volume}%",
+        "format-muted": "󰝟",
+        "scroll-step": 5.0,
+        "on-click": "pavucontrol -t 3",
+        "tooltip-format": "{desc} | {volume}%",
+        "smooth-scrolling-threshold": 1
+    }
+}

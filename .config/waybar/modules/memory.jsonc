@@ -1,0 +1,10 @@
+{
+	"memory": {
+		"interval": 10,
+		"format": " {percentage}% RAM ",
+		"format-alt-click": "click",
+		"tooltip": true,
+		"tooltip-format": "{used:0.1f}GB/{total:0.1f}G",
+		"on-click-right": "kitty -c ~/.config/dotfiles/kitty/kitty.conf --title btop sh -c 'btop'"
+	}
+}

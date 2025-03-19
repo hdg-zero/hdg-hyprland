@@ -1,0 +1,77 @@
+* {
+  font-weight: bold;
+  font-size: 101%;
+  color: #273A5F;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+window#waybar {
+  background-color: rgba(0, 0, 0, 0);
+  transition-property: background-color;
+  transition-duration: .5s;
+}
+
+window#waybar.hidden {
+  opacity: 0.5;
+}
+
+window#waybar.empty #window {
+  background-color: rgba(0, 0, 0, 0);;
+}
+
+tooltip {
+  opacity: 0.8;
+  border-radius: 10px;
+  background-color: #ffffff;
+
+}
+
+tooltip label {
+  padding: 10px;
+  color: #273A5F;
+}
+
+#battery,
+#custom-power,
+#pulseaudio,
+#workspaces,
+#custom-menu,
+#custom-swaync,
+#cpu,
+#memory,
+#network,
+#mpris {
+  background-color: #7eb1dd;
+  box-shadow: none;
+  text-shadow: none;
+  border-radius: 20px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+#custom-launcher {
+  color: #ffffff;
+}
+
+.modules-left,
+.modules-right {
+  margin: 4px;
+  box-shadow: none;
+  text-shadow: none;
+  border-radius: 20px;
+  padding-left: 6px;
+  padding-right: 6px;
+  background-color: #7eb1dd;
+}
+
+.modules-center {
+  margin: 4px;
+  box-shadow: none;
+  text-shadow: none;
+  border-radius: 20px;
+  padding-left: 6px;
+  padding-right: 6px;
+  background-color: #ffffff;
+  opacity: .8;
+}

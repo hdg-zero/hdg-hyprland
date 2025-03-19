@@ -1,0 +1,22 @@
+{
+	"network#speed": {
+		"interval": 1,
+		"format": "{ifname}",
+		"format-wifi": "{icon} {bandwidthTotalBytes}",
+		"format-ethernet": "{icon} {bandwidthTotalBytes:}",
+		"format-disconnected": "󰌙",
+		"tooltip-format": "{ipaddr}",
+		"format-linked": "󰈁 {ifname} (No IP)",
+		"tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
+		"tooltip-format-ethernet": "{ifname} 󰌘",
+		"tooltip-format-disconnected": "󰌙 Disconnected",
+		"max-length": 30,
+		"format-icons": [
+			"󰤯",
+			"󰤟",
+			"󰤢",
+			"󰤥",
+			"󰤨"
+		]
+	}
+}

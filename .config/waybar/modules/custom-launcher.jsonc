@@ -1,0 +1,10 @@
+{
+  "custom/launcher": {
+    "format": "{icon}",
+    "on-click": "rofi -show drun",
+    "on-click-right": "killall rofi",
+    "format-icons": {
+      "default": "  "
+    }
+  }
+}

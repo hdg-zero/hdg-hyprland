@@ -1,0 +1,307 @@
+/*
+https://gitlab.ucc.asn.au/aburgess/dotfiles/-/blob/e08be56819dd7b67b3d504de231f3b3101b6d2f7/swaync/style.css.back 
+*/
+
+* {
+    color: #273A5F;
+    all: unset;
+    font-family: "JetBrains Mono Nerd Font 10";
+    transition: 200ms;
+}
+
+.blank-window {
+    background: transparent;
+}
+
+/* CONTROL CENTER ------------------------------------------------------------------------ */
+.control-center {
+    background: alpha(#ffffff, .90);
+    border-radius: 2rem;
+    box-shadow: 0 0 2rem 0 rgb(0, 0, 0);
+    margin: 1.5rem;
+    padding: 1rem;
+    font-size: 14px;
+    color: #273A5F;
+}
+
+/* Notifications  */
+.floating-notifications {
+    margin: 10px 1.5rem;
+    border-radius: 2rem;
+}
+
+.floating-notifications .notification {
+    background-color: #6a9bcd;
+    border: 0.1rem solid #ffffff;
+    border-radius: 2rem;
+    padding: 1.5rem;
+    margin-right: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0.5rem 0.5rem 0.5rem rgba(0, 0, 0, 0.5);
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .image {
+    border-radius: 100px;
+    margin-right: 1.5rem;
+}
+
+
+
+.close-button {
+    background-color: alpha(#ffffff, 0.7);
+    border-radius: 1rem;
+    color: #273A5F;
+    padding: 0.5rem;
+    margin-right: 2rem;
+    margin-top: .5rem;
+}
+
+
+.control-center .notification-row .notification-background,
+.control-center .notification-row .notification-background .notification.critical {
+    background-color: #7eb1dd;
+    border-radius: 16px;
+    border: 1px solid #273A5F;
+    margin: 0.5rem 0rem;
+    padding: 0.5rem;
+}
+
+.control-center .notification-row .notification-background .notification.critical {
+    color: #ff0000;
+}
+
+.control-center .notification-row .notification-background .notification .notification-content {
+    margin: 6px;
+    padding: 8px 6px 2px 2px;
+}
+
+.control-center .notification-row .notification-background .notification>*:last-child>* {
+    min-height: 3.4em;
+}
+
+.control-center .notification-row .notification-background .notification>*:last-child>* .notification-action {
+    background: alpha(#ffffff, .9);
+    color: #273A5F;
+    border-radius: 1rem;
+    margin: 0.5rem;
+}
+
+.control-center .notification-row .notification-background .notification>*:last-child>* .notification-action:hover {
+    background: #ffffff;
+}
+
+.control-center .notification-row .notification-background .notification>*:last-child>* .notification-action:active {
+    background-color: #ffffff;
+}
+
+
+.summary {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.time {
+    font-style: italic;
+}
+
+
+/* Buttons */
+
+.control-center .notification-row .notification-background .close-button {
+    background-color: alpha(#ffffff, 0.7);
+    border-radius: 1rem;
+    color: #273A5F;
+    margin: 0px;
+    padding: 0.5rem;
+}
+
+.control-center .notification-row .notification-background .close-button:hover {
+    background-color: #ffffff;
+}
+
+.control-center .notification-row .notification-background .close-button:active {
+    background-color: #ffffff;
+}
+
+
+/* Notifications expanded-group */
+
+.notification-group {
+    margin: 0.1rem 0.5rem 0.1rem 0.5rem;
+}
+
+.notification-group-headers {
+    font-weight: bold;
+    /* font-size: 1.5rem; */
+    color: #273A5F;
+    letter-spacing: 0.1rem;
+}
+
+.notification-group-icon {
+    color: #273A5F;
+}
+
+.notification-group-collapse-button,
+.notification-group-close-all-button {
+    background: transparent;
+    color: #273A5F;
+    margin: 0.5rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+
+.notification-group-collapse-button:hover,
+.notification-group-close-all-button:hover {
+    background: #6a9bcd;
+}
+
+/* WIDGETS --------------------------------------------------------------------------- */
+
+/* Notification clear button */
+.widget-title {
+    font-size: 1.5em;
+    margin: 0.5rem;
+}
+
+.widget-title button {
+    background: #7eb1dd;
+    border-radius: 0.5rem;
+    padding: 0.5rem 2rem;
+}
+
+.widget-title button:hover {
+    background-color: #6a9bcd;
+}
+
+.widget-title button:active {
+    background-color: #ffffff;
+}
+
+/* Do not disturb */
+.widget-dnd {
+    margin: 0.5rem;
+    /* font-size: 1.5rem; */
+}
+
+.widget-dnd>switch {
+    background: #7eb1dd;
+    font-size: initial;
+    border-radius: 0.5rem;
+    box-shadow: none;
+    padding: 0.1rem;
+}
+
+.widget-dnd>switch:hover {
+    background: #6a9bcd;
+}
+
+.widget-dnd>switch:checked {
+    background: #ffffff;
+}
+
+.widget-dnd>switch:checked:hover {
+    background: #6a9bcd;
+}
+
+.widget-dnd>switch slider {
+    background: #273A5F;
+    border-radius: 0.5rem;
+}
+
+/* Buttons menu */
+.widget-buttons-grid {
+    margin: 6px;
+    border-radius: 1.5rem;
+    background: #ffffff;
+    color: #6a9bcd;
+    font-weight: bold;
+    border: 1px solid #6a9bcd;
+}
+
+.widget-buttons-grid>flowbox>flowboxchild>button {
+    margin: .4rem .4rem;
+    padding: 1.8rem 3.6rem;
+    background: transparent;
+    border-radius: 0.5rem;
+    font-size: 2rem;
+}
+
+.widget-buttons-grid>flowbox>flowboxchild>button:hover {
+    background: alpha(#7eb1dd, 0.3);
+    border-radius: 10rem;
+    color: #273A5F;
+}
+
+
+/* Music player */
+.widget-mpris {
+    background: #7eb1dd;
+    border-radius: 1.5rem;
+    color: #273A5F;
+    margin: 1rem 0.5rem;
+}
+
+/* NOTE: Background need *opacity 1* otherwise will turn into the album art blurred  */
+.widget-mpris-player {
+    background-color: #7eb1dd;
+    border-radius: 6rem;
+    margin: 0.5rem;
+}
+
+.widget-mpris>box>button {
+    color: #273A5F;
+}
+
+.widget-mpris button {
+    color: #273A5F;
+}
+
+.widget-mpris button:hover {
+    color: #ffffff;
+}
+
+.widget-mpris-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.widget-mpris-subtitle {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+/* Volume */
+.widget-backlight,
+.widget-volume {
+    padding-top: .7rem;
+    padding: 0.5rem;
+    background: transparent;
+    border-radius: 0.5rem;
+}
+
+.widget-backlight label,
+.widget-volume label {
+    font-size: 1.5rem;
+    color: #273A5F;
+}
+
+trough {
+    border-radius: 20px;
+    background: #273A5F;
+    color: #273A5F;
+}
+
+trough highlight {
+    background: alpha(#7eb1dd, 0.99);
+    border: 0px solid #273A5F;
+    border-radius: 20px 0px 0px 20px;
+    padding-right: 0.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 0.5rem;
+}
+
+.widget-volume {
+    font-size: 25px;
+    border: 0px solid #273A5F;
+}

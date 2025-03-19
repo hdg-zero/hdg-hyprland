@@ -1,0 +1,55 @@
+{
+	"include": [
+		"~/.config/waybar/modules/backlight.jsonc",
+		"~/.config/waybar/modules/battery.jsonc",
+		"~/.config/waybar/modules/clock.jsonc",
+		"~/.config/waybar/modules/cpu.jsonc",
+		"~/.config/waybar/modules/custom-launcher.jsonc",
+		"~/.config/waybar/modules/custom-power.jsonc",
+		"~/.config/waybar/modules/custom-swaync.jsonc",
+		"~/.config/waybar/modules/hyprland-window.jsonc",
+		"~/.config/waybar/modules/memory.jsonc",
+		"~/.config/waybar/modules/mpris.jsonc",
+		"~/.config/waybar/modules/network.jsonc",
+		"~/.config/waybar/modules/pulseaudio.jsonc",
+		"~/.config/waybar/modules/wlr-taskbar.jsonc",
+		"~/.config/waybar/modules/workspace.jsonc"
+	],
+	"layer": "top",
+	"exclusive": true,
+	"passthrough": false,
+	"position": "top",
+	"spacing": 3,
+	"fixed-center": true,
+	"ipc": true,
+	"margin-top": 0,
+	"margin-left": 0,
+	"margin-right": 5,
+	"margin-bottom": 0,
+	"modules-left": [
+		"custom/launcher",
+		"hyprland/workspaces",
+		"group/left",
+		"mpris"
+	],
+	"modules-center": [
+		"hyprland/window"
+	],
+	"modules-right": [
+		"wlr/taskbar",
+		"custom/swaync",
+		"pulseaudio",
+		"backlight",
+		"battery",
+		"clock",
+		"custom/power"
+	],
+	"group/left": {
+		"orientation": "horizontal",
+		"modules": [
+			"cpu",
+			"memory",
+			"network#speed"
+		]
+	}
+}

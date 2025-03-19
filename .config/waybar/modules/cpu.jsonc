@@ -1,0 +1,7 @@
+{
+    "cpu": {
+        "format": "{usage}% CPU",
+        "interval": 1,
+        "on-click-right": "gnome-system-monitor"
+    }
+}

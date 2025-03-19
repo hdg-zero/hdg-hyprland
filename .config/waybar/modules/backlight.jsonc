@@ -1,0 +1,17 @@
+{
+    "backlight": {
+        "format": "{icon}",
+        "format-icons": [
+            "  ",
+            "  ",
+            "  ",
+            " 󰃝 ",
+            " 󰃞 ",
+            " 󰃟 ",
+            " 󰃠 "
+        ],
+        "on-scroll-down": "brightnessctl set 3%- -n 1%",
+        "on-scroll-up": "brightnessctl set +3%",
+        "tooltip-format": "Luminosité {percent}%"
+    }
+}
