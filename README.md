@@ -40,6 +40,8 @@ La configuration est organisée comme suit :
 │       ├── check-dependencies.sh   # Validation des dépendances système
 │       ├── gesture.sh              # Traduction des gestes tactiles vers Lua
 │       └── monitor.sh              # Gestion dynamique des écrans externes
+├── kitty
+│   └── kitty.conf                  # Configuration de l'émulateur de terminal
 ├── rofi
 │   ├── config.rasi                 # Configuration globale de Rofi
 │   └── themes/
@@ -97,6 +99,10 @@ L'ensemble de la configuration a été audité et modernisé pour respecter les 
   * **Déconnexion propre** : Remplacement de l'action agressive `loginctl terminate-user $USER` par la commande native d'arrêt de session `uwsm stop`.
   * **Icônes** : Ajout et suivi de l'icône manquante `veille.svg` pour le bouton de mise en veille.
 
+### 6. Kitty 🟢
+* **Statut** : Conforme et intégré.
+* **Description** : Configuration complète de l'émulateur de terminal Kitty (`kitty.conf`) pour harmoniser l'affichage avec le reste de l'environnement Hyprland.
+
 ---
 
 ## 📦 Dépendances requises
@@ -120,7 +126,20 @@ Pour garantir le bon fonctionnement de tous les modules :
    ```bash
    git clone https://github.com/hdg-zero/hdg-hyprland.git
    ```
-2. Créer des liens symboliques (plutôt qu'une simple copie) depuis le dépôt vers `~/.config/` pour maintenir vos modifications synchronisées avec Git.
+2. Créer des liens symboliques (plutôt qu'une simple copie) depuis le dépôt vers `~/.config/` pour maintenir vos modifications synchronisées avec Git :
+   ```bash
+   # Adaptez REPO_PATH avec le chemin absolu de votre dépôt local
+   REPO_PATH="$HOME/home/01_DEV/98_GITHUB/hdg-hyprland"
+
+   for dir in hypr kitty rofi swaync waybar wlogout; do
+     # Archivage de l'ancien dossier s'il existe et n'est pas déjà un lien
+     if [ -e "$HOME/.config/$dir" ] && [ ! -L "$HOME/.config/$dir" ]; then
+       mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
+     fi
+     # Création du lien symbolique
+     ln -sf "$REPO_PATH/.config/$dir" "$HOME/.config/$dir"
+   done
+   ```
 3. Recharger la configuration :
    ```bash
    hyprctl reload
