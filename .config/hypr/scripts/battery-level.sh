@@ -1,21 +1,22 @@
-#!/bin/sh
-echo "Starting battery-level.sh script..."
-export DISPLAY=:0
+#!/usr/bin/env sh
 
-battery_info=$(acpi -b)
-battery_percentage=$(echo "$battery_info" | grep -o '[0-9]*%' | tr -d '%')
-charging_status=$(echo "$battery_info" | grep -o 'Charging')
+set -eu
 
-if [ -n "$charging_status" ]; then
-    echo "Battery is charging. No notifications will be sent."
-else
-    if [ "$battery_percentage" -lt 10 ]; then
-        notify-send "Battery Critical" "Battery is at ${battery_percentage}%. Please charge immediately!"
-    elif [ "$battery_percentage" -lt 20 ]; then
-        notify-send "Battery Low" "Battery is at ${battery_percentage}%. Consider charging soon."
-    elif [ "$battery_percentage" -lt 50 ]; then
-        notify-send "Battery Warning" "Battery is at ${battery_percentage}%. You might want to charge."
-    fi
+if ! command -v acpi >/dev/null 2>&1 || ! command -v notify-send >/dev/null 2>&1; then
+    exit 0
 fi
 
-echo "Ending battery-level.sh script."
+battery_info=$(acpi -b | head -n 1)
+battery_percentage=$(printf '%s\n' "$battery_info" | grep -o '[0-9]\+%' | head -n 1 | tr -d '%')
+
+if [ -z "$battery_percentage" ] || printf '%s\n' "$battery_info" | grep -Eq 'Charging|Full'; then
+    exit 0
+fi
+
+if [ "$battery_percentage" -lt 10 ]; then
+    notify-send -u critical -a "Battery" "Batterie critique" "Batterie à ${battery_percentage} %. Branche le chargeur."
+elif [ "$battery_percentage" -lt 20 ]; then
+    notify-send -u normal -a "Battery" "Batterie faible" "Batterie à ${battery_percentage} %. Charge recommandée."
+fi
+
+# systemctl --user enable --now battery-notifier.timer
