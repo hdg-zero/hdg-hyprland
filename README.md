@@ -71,80 +71,31 @@ La configuration est organisée comme suit :
     └── icons/                      # Icônes SVG associées
 ```
 
----
+## 🔍 État de la Configuration & Modernisation (Juin 2026) 🟢
 
-## 🔍 Audit de la Configuration (Juin 2026)
-
-Suite à la migration réussie de la partie **hypr/** vers Lua, une analyse des autres composants de la configuration a été menée pour identifier les incohérences et opportunités d'amélioration.
+L'ensemble de la configuration a été audité et modernisé pour respecter les standards actuels d'un environnement **Hyprland** (Lua) géré sous **UWSM**.
 
 ### 1. Hyprland (Lua) & UWSM 🟢
 * **Statut** : Conforme et moderne.
-* **Observations** :
-  * Bonne séparation entre les raccourcis (`binds.lua`), les variables (`programs.lua`), et l'apparence (`hyprland.lua`).
-  * Les binaires et services complémentaires sont convenablement encapsulés via `uwsm app --`.
+* **Architecture** : Séparation complète de la logique (`hyprland.lua`), des raccourcis (`binds.lua`), et des autostarts/variables (`programs.lua`). L'autostart et les lancements d'applications se font via `uwsm app --`.
 
-### 2. Waybar 🟡
-* **Points d'attention** :
-  * **Incompatibilité de défilement (`workspace.jsonc`)** : Les actions `on-scroll-up` et `on-scroll-down` utilisent la commande legacy `hyprctl dispatch workspace e±1`. Cette syntaxe contourne ou peut entrer en conflit avec les dispatchers du provider Lua. Elles doivent appeler la commande compatible Lua : `hyprctl dispatch 'hl.dsp.focus({ workspace = "e±1" })'`.
-  * **Chemin cassé (`memory.jsonc`)** : L'action au clic droit tente d'exécuter `kitty -c ~/.config/dotfiles/kitty/kitty.conf ...`. Ce dossier `dotfiles` n'existe pas dans le dépôt (les fichiers étant placés directement à la racine de `.config/`), ce qui provoque l'échec de la commande.
-* **Recommandation** : Mettre à jour les commandes pour utiliser les dispatchers Lua et généraliser l'appel à Kitty.
+### 2. Waybar 🟢
+* **Correctifs appliqués** :
+  * **Défilement des workspaces** : Adapté pour appeler le dispatcher Lua `hl.dsp.focus` via `hyprctl dispatch 'hl.dsp.focus({ workspace = "e±1" })'` à la place de la syntaxe native obsolète.
+  * **Clic droit sur la RAM** : Correction du raccourci pour lancer `btop` directement dans `kitty` sans référencer un fichier de configuration inexistant.
 
-### 3. Rofi 🔴
-* **Point d'attention** :
-  * **Thème introuvable (`config.rasi`)** : La directive `@theme` pointe vers `"~/.config/rofi/themes/catppuccin-macchiato.rasi"`, un fichier qui n'existe pas dans le dépôt. Le seul thème réellement présent et personnalisé est `themes/theme.rasi`.
-* **Recommandation** : Pointer explicitement vers le thème local valide.
+### 3. Rofi 🟢
+* **Correctifs appliqués** :
+  * **Thème graphique** : Correction de la liaison du thème dans `config.rasi` pour cibler correctement le thème personnalisé local `themes/theme.rasi` au lieu d'une dépendance manquante.
 
-### 4. SwayNC 🟡
-* **Point d'attention** :
-  * **Dépendance matérielle (`config.json`)** : Le module `backlight` cible explicitement `"device": "amdgpu_bl1"`. Cette directive casse le widget sur les machines Intel (qui requièrent généralement `intel_backlight`) ou d'autres configurations AMD.
-* **Recommandation** : Retirer la clé `"device"` pour laisser SwayNC auto-détecter l'interface de rétroéclairage ou documenter cette spécificité matérielle.
+### 4. SwayNC 🟢
+* **Correctifs appliqués** :
+  * **Luminosité** : Suppression de la ligne hardware codée en dur `"device": "amdgpu_bl1"` pour permettre la détection automatique et assurer la portabilité de la barre de notifications sur n'importe quelle machine (Intel, AMD, Nvidia).
 
-### 5. Wlogout 🟡
-* **Point d'attention** :
-  * **Méthode de déconnexion (`layout`)** : L'action liée au bouton de déconnexion utilise `loginctl terminate-user $USER`. Dans un environnement géré par UWSM, il est recommandé de fermer proprement la session via la commande `uwsm stop`.
-* **Recommandation** : Remplacer l'action par la commande native UWSM pour un arrêt propre.
-
----
-
-## 🛠️ Plan de Modernisation
-
-Voici les modifications préconisées pour aligner l'ensemble de la configuration sur les nouveaux standards :
-
-### A. Correction Rofi
-Dans [.config/rofi/config.rasi](file:///.config/rofi/config.rasi#L16) :
-```diff
-- @theme "~/.config/rofi/themes/catppuccin-macchiato.rasi"
-+ @theme "~/.config/rofi/themes/theme.rasi"
-```
-
-### B. Correction Waybar
-Dans [.config/waybar/modules/workspace.jsonc](file:///.config/waybar/modules/workspace.jsonc#L8-L9) :
-```diff
-- 		"on-scroll-up": "hyprctl dispatch workspace e+1",
-- 		"on-scroll-down": "hyprctl dispatch workspace e-1",
-+ 		"on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'",
-+ 		"on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
-```
-
-Dans [.config/waybar/modules/memory.jsonc](file:///.config/waybar/modules/memory.jsonc#L8) :
-```diff
-- 		"on-click-right": "kitty -c ~/.config/dotfiles/kitty/kitty.conf --title btop sh -c 'btop'"
-+ 		"on-click-right": "kitty --title btop -e btop"
-```
-
-### C. Correction SwayNC
-Dans [.config/swaync/config.json](file:///.config/swaync/config.json#L83) :
-```diff
--       "device": "amdgpu_bl1"
-+       // Retirer cette ligne pour activer l'auto-détection du GPU
-```
-
-### D. Correction Wlogout
-Dans [.config/wlogout/layout](file:///.config/wlogout/layout#L33) :
-```diff
--     "action" : "loginctl terminate-user $USER",
-+     "action" : "uwsm stop",
-```
+### 5. Wlogout 🟢
+* **Correctifs appliqués** :
+  * **Déconnexion propre** : Remplacement de l'action agressive `loginctl terminate-user $USER` par la commande native d'arrêt de session `uwsm stop`.
+  * **Icônes** : Ajout et suivi de l'icône manquante `veille.svg` pour le bouton de mise en veille.
 
 ---
 
