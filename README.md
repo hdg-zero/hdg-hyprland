@@ -67,10 +67,11 @@ La configuration est organisée comme suit :
 │       ├── pulseaudio.jsonc
 │       ├── wlr-taskbar.jsonc
 │       └── workspace.jsonc
-└── wlogout
-    ├── layout                      # Disposition et actions des boutons
-    ├── style.css                   # Feuille de style Wlogout
-    └── icons/                      # Icônes SVG associées
+├── wlogout
+│   ├── layout                      # Disposition et actions des boutons
+│   ├── style.css                   # Feuille de style Wlogout
+│   └── icons/                      # Icônes SVG associées
+└── starship.toml                   # Configuration du prompt de terminal Starship
 ```
 
 ## 🔍 État de la Configuration & Modernisation (Juin 2026) 🟢
@@ -103,6 +104,10 @@ L'ensemble de la configuration a été audité et modernisé pour respecter les 
 * **Statut** : Conforme et intégré.
 * **Description** : Configuration complète de l'émulateur de terminal Kitty (`kitty.conf`) pour harmoniser l'affichage avec le reste de l'environnement Hyprland.
 
+### 7. Starship 🟢
+* **Statut** : Conforme et intégré.
+* **Description** : Thème et mise en page personnalisés du prompt de terminal via `starship.toml`.
+
 ---
 
 ## 📦 Dépendances requises
@@ -131,6 +136,7 @@ Pour garantir le bon fonctionnement de tous les modules :
    # Adaptez REPO_PATH avec le chemin absolu de votre dépôt local
    REPO_PATH="$HOME/home/01_DEV/98_GITHUB/hdg-hyprland"
 
+   # Liens pour les dossiers de configuration
    for dir in hypr kitty rofi swaync waybar wlogout; do
      # Archivage de l'ancien dossier s'il existe et n'est pas déjà un lien
      if [ -e "$HOME/.config/$dir" ] && [ ! -L "$HOME/.config/$dir" ]; then
@@ -138,6 +144,16 @@ Pour garantir le bon fonctionnement de tous les modules :
      fi
      # Création du lien symbolique
      ln -sf "$REPO_PATH/.config/$dir" "$HOME/.config/$dir"
+   done
+
+   # Liens pour les fichiers individuels de configuration
+   for file in starship.toml; do
+     # Archivage de l'ancien fichier s'il existe et n'est pas déjà un lien
+     if [ -f "$HOME/.config/$file" ] && [ ! -L "$HOME/.config/$file" ]; then
+       mv "$HOME/.config/$file" "$HOME/.config/${file}.bak"
+     fi
+     # Création du lien symbolique
+     ln -sf "$REPO_PATH/.config/$file" "$HOME/.config/$file"
    done
    ```
 3. Recharger la configuration :
