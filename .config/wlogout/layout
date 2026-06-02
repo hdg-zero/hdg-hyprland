@@ -1,36 +1,36 @@
 {
-    "label": "shutdown",
-    "action": "systemctl poweroff",
-    "text": "Shutdown",
-    "keybind": "s"
+    "label" : "shutdown",
+    "action" : "systemctl poweroff",
+    "text" : "Éteindre",
+    "keybind" : "s"
 }
 {
-    "label": "reboot",
-    "action": "systemctl reboot",
-    "text": "Restart", 
-    "keybind": "r"
+    "label" : "reboot",
+    "action" : "systemctl reboot",
+    "text" : "Redémarrer",
+    "keybind" : "r"
 }
 {
-    "label": "suspend",
-    "action": "hyprlock & disown && systemctl suspend",
-    "text": "Suspend",
-    "keybind": "u"
+    "label" : "suspend",
+    "action" : "hyprlock & disown && systemctl suspend",
+    "text" : "Veiller",
+    "keybind" : "u"
 }
 {
-    "label": "hibernate",
-    "action": "systemctl hibernate",
-    "text": "Hibernate",
-    "keybind": "h"
+    "label" : "hibernate",
+    "action" : "systemctl hibernate",
+    "text" : "Hiberner",
+    "keybind" : "h"
 }
 {
-    "label": "lock",
-    "action": "hyprlock",
-    "text": "Lock",
-    "keybind": "l"
+    "label" : "lock",
+    "action" : "hyprlock",
+    "text" : "Verrouiller",
+    "keybind" : "l"
 }
 {
-    "label": "logout",
-    "action": "loginctl terminate-user $USER",
-    "text": "Log out", 
-    "keybind": "e"
+    "label" : "logout",
+    "action" : "uwsm stop",
+    "text" : "Se déconnecter",
+    "keybind" : "e"
 }

@@ -1,7 +1,7 @@
 window {
-  font-family: JetBrainsMonoNerdFontMono;
-  font-size: 28pt;
-  font-weight: bold;
+  font-family: JetBrainsMono Nerd Font;
+  font-size: 32pt;
+  font-weight: bolder;
   background-color: rgba(24, 27, 32, 0.2);
   color: transparent;
   text-shadow: none;  
@@ -26,8 +26,8 @@ button:focus {
 
 button:hover {
   background-size: 25%;
-  color: white;
-  text-shadow: 0px 0px 15px #273A5F;
+  color: #a3b9b3;
+  text-shadow: 0px 0px 15px #2b4856;
   transition: all 0.3s cubic-bezier(.55, 0.0, .28, 1.682), box-shadow 0.5s ease-in;
 }
 
@@ -40,11 +40,16 @@ button:hover {
 }
 
 #suspend {
-  background-image: url("./icons/sleep.svg");
+  background-image: url("./icons/veille.svg");
 }
 
 #hibernate {
   background-image: url("./icons/hibernate.svg");
+  background-size: 25%;
+}
+
+#hibernate:hover {
+  background-size: 30%;
 }
 
 #shutdown {
