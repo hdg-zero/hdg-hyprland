@@ -1,6 +1,6 @@
 {
     "wlr/taskbar": {
-        "format": " {icon} ",
+        "format": "{icon}",
         "icon-size": 20,
         "all-outputs": false,
         "tooltip-format": "{title}",

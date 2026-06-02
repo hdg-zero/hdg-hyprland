@@ -14,8 +14,9 @@
 			"4": []
 		},
 		"format-icons": {
-			"active": "🌕",
-			"default": "🌑"
+			"active": "",
+			"default": "",
+			"urgent": ""
 		}
 	}	
 }
