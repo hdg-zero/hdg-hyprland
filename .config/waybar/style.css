@@ -1,7 +1,7 @@
 * {
   font-weight: bold;
   font-size: 101%;
-  color: #273A5F;
+  color: #CCE7E0; /* Changed to match palette */
   padding-left: 1px;
   padding-right: 1px;
 }
@@ -17,19 +17,18 @@ window#waybar.hidden {
 }
 
 window#waybar.empty #window {
-  background-color: rgba(0, 0, 0, 0);;
+  background-color: rgba(0, 0, 0, 0);
 }
 
 tooltip {
   opacity: 0.8;
   border-radius: 10px;
-  background-color: #ffffff;
-
+  background-color: #0E2537; /* Changed to match palette */
 }
 
 tooltip label {
   padding: 10px;
-  color: #273A5F;
+  color: #CCE7E0;
 }
 
 #battery,
@@ -42,7 +41,7 @@ tooltip label {
 #memory,
 #network,
 #mpris {
-  background-color: #7eb1dd;
+  background-color: #0E2537; /* Changed to match palette */
   box-shadow: none;
   text-shadow: none;
   border-radius: 20px;
@@ -51,7 +50,7 @@ tooltip label {
 }
 
 #custom-launcher {
-  color: #ffffff;
+  color: #CCE7E0; /* Kept as is */
 }
 
 .modules-left,
@@ -62,7 +61,7 @@ tooltip label {
   border-radius: 20px;
   padding-left: 6px;
   padding-right: 6px;
-  background-color: #7eb1dd;
+  background-color: #0E2537; /* Changed to match palette */
 }
 
 .modules-center {
@@ -72,6 +71,14 @@ tooltip label {
   border-radius: 20px;
   padding-left: 6px;
   padding-right: 6px;
-  background-color: #ffffff;
+  background-color: #0E2537; /* Kept as is */
   opacity: .8;
+}
+
+#custom-launcher,
+#custom-power,
+#network,
+#pulseaudio,
+#backlight {
+  font-family: "JetBrainsMono Nerd Font"; /* icon size with Maple */
 }

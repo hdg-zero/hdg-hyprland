@@ -10,10 +10,10 @@
 			"weeks-pos": "right",
 			"on-scroll": 1,
 			"format": {
-				"days": "<span color='#ebdbb2'><b>{}</b></span>",
-				"weeks": "<span color='#99ffdd'><b>W{}</b></span>",
-				"weekdays": "<span color='#ebdbb2'><b>{}</b></span>",
-				"today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+				"days": "<span color='#cce7e0'><b>{}</b></span>",          // Lighter foreground color
+				"weeks": "<span color='#65827e'><b>W{}</b></span>",        // Muted teal color
+				"weekdays": "<span color='#cce7e0'><b>{}</b></span>",     // Lighter foreground color
+				"today": "<span color='#ff6699'><b><u>{}</u></b></span>"  // Keeping the original color for today
 			}
 		}
 	}

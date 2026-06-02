@@ -4,6 +4,10 @@
 		"max-length": 60,
 		"separate-outputs": true,
 		"offscreen-css": true,
-		"offscreen-css-text": "(inactive)"
+		"offscreen-css-text": "(inactive)",
+		"rewrite": {
+			"(.*) — Mullvad Browser": " $1",
+			"(.*) - kitty": "> [$1]" // TODO marche pas des masses
+		}
 	}
 }
