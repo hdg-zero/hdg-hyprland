@@ -1,13 +1,13 @@
 * {
-    bg-col: #5277c3;
-    bg-col-light: #5277c3;
-    selected-col: #5277c3;
-    blue: #7eb1dd;
-    fg-col: #273A5F;
-    teal: #7eb1dd;
-    white: #FFFFFF;
+    bg-col: #0e2537;        /* Darker background color */
+    bg-col-light: #cce7e0;  /* Lighter background color */
+    selected-col: #65827e;  /* Muted teal color */
+    blue: #7eb1dd;          /* Kept as is, consider changing if needed */
+    fg-col: #cce7e0;        /* Lighter foreground color */
+    teal: #65827e;          /* Muted teal color */
+    white: #FFFFFF;         /* Kept as is */
 
-    width: 600;
+    width: 450;
     border-radius: 15px;
 }
 
@@ -34,11 +34,11 @@ inputbar {
 }
 
 prompt {
-    background-color: @blue;
+    background-color: @bg-col;
     padding: 6px;
     text-color: @fg-col;
-    border-radius: 3px;
-    margin: 20px 0px 0px 20px;
+    border-radius: 100px;
+    margin: 20px 0px 0px 0px;
 }
 
 textbox-prompt-colon {
@@ -60,9 +60,9 @@ entry {
 listview {
     border: 0px;
     padding: 6px 0px 0px;
-    margin: 10px 0px 0px 20px;
-    columns: 2;
-    lines: 5;
+    margin: 10px 50px 0px 50px;
+    columns: 1;
+    lines: 6;
 }
 
 element-icon {

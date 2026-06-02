@@ -1,14 +1,14 @@
 configuration{
     modi: "drun";
     icon-theme: "Numix-Circle";
-    font: "JetBrains Mono Regular 13";
+    font: "JetBrainsMono Nerd Font 13";
     show-icons: true;
     terminal: "kitty";
     drun-display-format: "{icon} {name}";
     location: 0;
     disable-history: false;
     hide-scrollbar: true;
-    display-drun: "   Apps ";
+    display-drun: "";
     sidebar-mode: true;
     border-radius: 10;
 }
