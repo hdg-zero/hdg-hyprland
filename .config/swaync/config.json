@@ -7,7 +7,7 @@
   "layer-shell": true,
   "cssPriority": "user",
   "control-center-width": 420,
-  "control-center-height": 900,
+  "control-center-height": 600,
   "control-center-margin-top": 8,
   "control-center-margin-bottom": 8,
   "control-center-margin-right": 8,
@@ -32,7 +32,6 @@
     "volume",
     "backlight",
     "inhibitors",
-    "dnd",
     "title",
     "notifications"
   ],
@@ -67,7 +66,8 @@
     "mpris": {
       "image-size": 80,
       "image-radius": 12,
-      "blur": true
+      "blur": true,
+      "ignored-players": ["playerctld"]
     },
     "volume": {
       "label": "󰕾",
@@ -79,7 +79,8 @@
       "collapse-button-label": " "
     },
     "backlight": {
-      "label": "󰃠"
+      "label": "󰃠",
+      "device": "amdgpu_bl1"
     },
     "buttons-grid#toggles": {
       "buttons-per-row": 3,

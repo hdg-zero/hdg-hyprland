@@ -1,28 +1,27 @@
 /* ┌──────────────────────────────────────────────────────────────────────────────┐
-   │ VARIABLES CSS - Thème Bleu Nuit / Teal                                       │
+   │ VARIABLES CSS - Thème Glassmorphic iOS / GNOME                               │
    └──────────────────────────────────────────────────────────────────────────────┘ */
 :root {
-    --cc-bg: rgba(14, 37, 55, 0.95);
-    --noti-bg: rgba(24, 49, 66, 0.95);
-    --noti-bg-darker: #183142;
-    --noti-bg-hover: #2b4856;
+    --cc-bg: rgba(11, 15, 20, 0.85);            /* Deep Obsidian Glass */
+    --noti-bg: rgba(25, 34, 44, 0.95);          /* Even more solid Obsidian card background */
+    --noti-bg-darker: rgba(18, 25, 32, 0.92);   /* Stronger container background */
+    --noti-bg-hover: rgba(35, 47, 60, 0.98);     /* Highlight hover */
     
-    --text-color: #cce7e0;
-    --text-color-disabled: rgb(150, 150, 150);
+    --text-color: #f8fafc;                     /* Off-white text */
+    --text-color-disabled: #94a3b8;            /* Muted Slate text */
     
-    --accent-color: #5dade2;
-    --accent-teal: rgba(103, 130, 126, 0.99);
+    --accent-color: #5dade2;                   /* Glacier Blue */
     --destructive-color: #ff6b6b;
     --warning-color: #ffb86c;
     
-    --noti-border-color: rgba(204, 231, 224, 0.2);
+    --noti-border-color: rgba(255, 255, 255, 0.08); /* Clean white glass border */
     --border: 1px solid var(--noti-border-color);
-    --border-radius: 12px;
-    --border-radius-large: 18px;
+    --border-radius: 16px;                     /* Rounded corners like iOS */
+    --border-radius-large: 24px;               /* Panel roundness */
     
-    --noti-close-bg: rgba(204, 231, 224, 0.1);
+    --noti-close-bg: rgba(255, 255, 255, 0.08);
     
-    --notification-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    --notification-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -36,7 +35,7 @@
 }
 
 /* ┌──────────────────────────────────────────────────────────────────────────────┐
-   │ CENTRE DE CONTRÔLE                                                           │
+   │ CENTRE DE CONTRÔLE (Panneau Principal)                                       │
    └──────────────────────────────────────────────────────────────────────────────┘ */
 .control-center {
     background: var(--cc-bg);
@@ -44,14 +43,12 @@
     border: var(--border);
     box-shadow: var(--notification-shadow);
     margin: 0.5em;
-    padding: 1em;
+    padding: 1.2em;
     color: var(--text-color);
     overflow-y: auto;
 }
 
-/* ┌──────────────────────────────────────────────────────────────────────────────┐
-   │ LABELS (En-têtes)                                                            │
-   └──────────────────────────────────────────────────────────────────────────────┘ */
+/* En-têtes */
 .widget-label {
     margin: 10px;
 }
@@ -62,16 +59,14 @@
 }
 
 /* ┌──────────────────────────────────────────────────────────────────────────────┐
-   │ GRILLE DE BOUTONS - Style unifié avec box unique                             │
+   │ BOUTONS CAPSULES (Style iOS/GNOME Quick Settings)                            │
    └──────────────────────────────────────────────────────────────────────────────┘ */
 .widget-buttons-grid {
-    margin: 6px;
-    border-radius: 1.5rem;
+    margin: 6px 0.5rem;
+    border-radius: 20px;
     background: var(--noti-bg-darker);
-    color: var(--text-color);
-    font-weight: bold;
-    border: 1px solid var(--accent-color);
-    padding: 0.5rem;
+    border: var(--border);
+    padding: 0.8rem;
 }
 
 .widget-buttons-grid>flowbox {
@@ -80,25 +75,29 @@
 }
 
 .widget-buttons-grid>flowbox>flowboxchild>button {
-    margin: 0.4rem;
-    padding: 1.5rem 2.2rem;
+    margin: 0.5rem;
+    padding: 1.2rem;
     background: transparent;
-    border-radius: 0.5rem;
-    font-size: 2rem;
+    border-radius: 9999px; /* Pilules arrondies iOS */
+    font-size: 1.8rem;
     color: var(--text-color);
     border: none;
 }
 
 .widget-buttons-grid>flowbox>flowboxchild>button:hover {
-    background: rgba(103, 130, 126, 0.3);
-    border-radius: 10rem;
-    color: var(--text-color);
+    background: var(--noti-bg-hover);
+    border-radius: 9999px;
 }
 
 .widget-buttons-grid>flowbox>flowboxchild>button.toggle:checked {
-    background: var(--accent-color);
-    color: #141b24;
-    border-radius: 10rem;
+    background: transparent;
+    color: var(--accent-color);
+    border: none;
+    box-shadow: none;
+}
+
+.widget-buttons-grid>flowbox>flowboxchild>button.toggle:checked:hover {
+    background: var(--noti-bg-hover);
 }
 
 /* Boutons spéciaux (warning & destructive) */
@@ -107,58 +106,61 @@
 }
 .widget-buttons-grid flowboxchild:nth-child(5) button:hover {
     color: var(--warning-color);
-    background: rgba(255, 184, 108, 0.3);
+    background: rgba(255, 184, 108, 0.15);
 }
 .widget-buttons-grid flowboxchild:nth-child(6) button {
     color: var(--destructive-color);
 }
 .widget-buttons-grid flowboxchild:nth-child(6) button:hover {
     color: var(--destructive-color);
-    background: rgba(255, 107, 107, 0.3);
+    background: rgba(255, 107, 107, 0.15);
 }
 
 /* ┌──────────────────────────────────────────────────────────────────────────────┐
-   │ MPRIS (Lecteur Média) - Avec contour accent                                  │
+   │ MPRIS (Lecteur Média iOS Style)                                              │
    └──────────────────────────────────────────────────────────────────────────────┘ */
 .widget-mpris {
+    background: transparent;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.widget-mpris:empty {
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+}
+
+.widget-mpris-player {
     background: var(--noti-bg-darker);
-    border: 1px solid var(--accent-color);
-    border-radius: 1.5rem;
+    border: var(--border);
+    border-radius: 20px;
     color: #ffffff;
     text-shadow: 0 0 10px rgba(0,0,0,0.95);
     margin: 1rem 0.5rem;
     padding: 0;
 }
 
-.widget-mpris-player {
-    background-color: var(--noti-bg-darker);
-    border-radius: 1rem;
-    margin: 0.5rem;
-    opacity: 0.98;
-}
-
 .widget-mpris-player > box > image {
-    border-radius: var(--border-radius);
+    border-radius: 12px;
 }
 
 .widget-mpris-player .mpris-overlay {
-    background-color: rgba(0, 0, 0, 0.75);
-    border-radius: var(--border-radius);
+    background-color: rgba(11, 15, 20, 0.7);
+    border-radius: 12px;
     padding: 15px;
 }
 
 .widget-mpris-title {
-    font-weight: 1000;
-    font-size: 1.5rem;
+    font-weight: bold;
+    font-size: 1.4rem;
     color: white;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
 .widget-mpris-subtitle {
-    font-weight: 800;
-    font-size: 1rem;
-    color: #e0e0e0;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    font-size: 0.95rem;
+    color: #d1d5db;
 }
 
 .widget-mpris>box>button,
@@ -167,51 +169,52 @@
 }
 
 .widget-mpris button:hover {
-    color: #ffffff;
+    color: var(--accent-color);
 }
 
 /* ┌──────────────────────────────────────────────────────────────────────────────┐
-   │ BLOC UNIFIÉ (Volume + Backlight + DND) - Sliders larges                      │
+   │ SLIDERS DOSES (Volume & Luminosité Pill - Style iOS)                         │
    └──────────────────────────────────────────────────────────────────────────────┘ */
-
 .widget-volume {
     background-color: var(--noti-bg-darker);
-    border: 1px solid var(--accent-color);
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
+    border: var(--border);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     border-bottom: none;
     margin-bottom: 0;
     margin-top: 5px;
-    padding: 12px;
+    padding: 14px 16px;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
 }
 
 .widget-backlight {
     background-color: var(--noti-bg-darker);
-    border: 1px solid var(--accent-color);
-    border-radius: 0;
+    border: var(--border);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
     border-top: none;
-    border-bottom: none;
     margin: 0;
-    padding: 12px;
+    padding: 14px 16px;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
 }
 
 .widget-dnd {
     background-color: var(--noti-bg-darker);
-    border: 1px solid var(--accent-color);
-    border-bottom-left-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
+    border: var(--border);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     border-top: none;
     margin-top: 0;
     margin-bottom: 5px;
-    padding: 12px;
+    padding: 14px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -221,8 +224,8 @@
 
 .widget-volume label,
 .widget-backlight label {
-    font-size: 1.5rem;
-    margin-right: 10px;
+    font-size: 1.4rem;
+    margin-right: 12px;
     color: var(--accent-color);
 }
 
@@ -236,51 +239,48 @@
     color: var(--accent-color);
 }
 
-/* Sliders larges */
+/* Sliders larges de type iOS */
 trough {
-    border-radius: 20px;
-    background: var(--noti-bg-darker);
-    min-height: 20px;
+    border-radius: 9999px; /* Bords entièrement arrondis */
+    background: rgba(255, 255, 255, 0.08); /* Fond translucide */
+    min-height: 24px;
 }
 
 trough highlight {
-    background: var(--accent-teal);
-    border: 0px solid var(--noti-bg-darker);
-    border-radius: 20px;
-    padding: 0.5rem;
-    min-height: 20px;
+    background: #f8fafc; /* Remplissage solide blanc glacier iOS */
+    border-radius: 9999px;
+    min-height: 24px;
 }
 
 .per-app-volume {
-    background-color: var(--cc-bg);
+    background-color: rgba(11, 15, 20, 0.5);
     padding: 8px;
     margin: 8px 0 0 0;
     border-radius: var(--border-radius);
-    border: 1px solid var(--accent-color);
+    border: var(--border);
 }
 
 .widget-dnd > switch {
-    background: rgba(0,0,0,0.3);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 12px;
 }
 .widget-dnd > switch:checked {
     background: var(--accent-color);
 }
 .widget-dnd > switch slider {
-    background: #cce7e0;
+    background: #f8fafc;
     border-radius: 12px;
 }
 
 /* ┌──────────────────────────────────────────────────────────────────────────────┐
-   │ TITRE, INHIBITORS, NOTIFICATIONS                                             │
+   │ NOTIFICATIONS (Plaques de verre iOS)                                         │
    └──────────────────────────────────────────────────────────────────────────────┘ */
-.widget-title,
 .widget-inhibitors {
     background-color: var(--noti-bg-darker);
     border-radius: var(--border-radius);
-    padding: 8px 12px;
+    padding: 10px 14px;
     margin: 5px 0;
-    border: 1px solid var(--accent-color);
+    border: var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -288,40 +288,94 @@ trough highlight {
     margin-right: 0.5rem;
 }
 
-.widget-title button,
 .widget-inhibitors button {
     background: var(--noti-close-bg);
-    border-radius: 6px;
-    padding: 4px 10px;
+    border-radius: 8px;
+    padding: 5px 12px;
     font-size: 0.9rem;
     color: var(--text-color);
 }
-.widget-title button:hover,
 .widget-inhibitors button:hover {
+    background: var(--destructive-color);
+    color: white;
+}
+
+.widget-title {
+    background: transparent;
+    border: none;
+    padding: 10px 0;
+    margin-top: 22px; /* Espacer de la luminosité */
+    margin-bottom: 2px; /* Mieux appartenir au bloc de notifs */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 0.8rem;
+    margin-right: 0.8rem;
+}
+
+.widget-title > label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.widget-title button {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    color: var(--text-color-disabled);
+}
+
+.widget-title button:hover {
     background: var(--destructive-color);
     color: white;
 }
 
 .notification-row .notification-background .notification {
     background: var(--noti-bg);
-    border-radius: var(--border-radius);
-    border: 1px solid var(--accent-color);
-    padding: 10px;
+    border-radius: 16px;                      /* Angle arrondi typique iOS */
+    border: var(--border);
+    border-left: 4px solid var(--accent-color); /* Barre latérale distinctive */
+    padding: 12px 12px 12px 16px;
     margin-top: 5px;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
+
+.floating-notifications .notification-row .notification-background .notification {
+    background: rgba(11, 15, 20, 0.98);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.notification-row .notification-background .notification.critical {
+    border-left: 4px solid var(--destructive-color); /* Barre rouge pour critique */
+}
+
 .notification-row .notification-background .notification:hover {
     background: var(--noti-bg-hover);
 }
+
 .notification-content .summary {
     color: var(--text-color);
     font-weight: bold;
+    font-size: 1.05rem;
 }
 .notification-content .body {
-    color: #aeb9cc;
-    font-size: 0.95rem;
+    color: #cbd5e1;
+    font-size: 0.92rem;
 }
+
+.notification-content .time {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    margin-right: 4px;
+}
+
 .close-button {
     background: transparent;
     color: var(--text-color-disabled);
