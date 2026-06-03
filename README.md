@@ -11,16 +11,6 @@ Ce dépôt contient mes fichiers de configuration personnels pour **Hyprland** e
 
 ---
 
-## 📸 Aperçu (Showcase)
-
-![Configuration Vide](/media/empty.png)
-
-![Configuration Active](/media/full.png)
-
-![Écran de déconnexion](/media/wlogout.png)
-
----
-
 ## 📁 Structure des Dossiers
 
 La configuration est organisée comme suit :
