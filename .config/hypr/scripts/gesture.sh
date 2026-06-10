@@ -4,19 +4,21 @@ set -eu
 
 case "${1:-}" in
     workspace-prev)
-        hyprctl dispatch 'hl.dsp.focus({ workspace = "e-1" })'
+        hyprctl eval 'hl.dispatch(hl.dsp.focus({ workspace = "e-1" }))'
         ;;
     workspace-next)
-        hyprctl dispatch 'hl.dsp.focus({ workspace = "e+1" })'
+        hyprctl eval 'hl.dispatch(hl.dsp.focus({ workspace = "e+1" }))'
         ;;
     fullscreen-window)
-        hyprctl dispatch 'hl.dsp.window.fullscreen({ action = "toggle", mode = 1 })'
+        hl_cmd="hl.dsp.window.fullscreen({ action = 'toggle', mode = 1 })"
+        hyprctl eval "hl.dispatch(${hl_cmd})"
         ;;
     fullscreen-output)
-        hyprctl dispatch 'hl.dsp.window.fullscreen({ action = "toggle", mode = 0 })'
+        hl_cmd="hl.dsp.window.fullscreen({ action = 'toggle', mode = 0 })"
+        hyprctl eval "hl.dispatch(${hl_cmd})"
         ;;
     close-window)
-        hyprctl dispatch 'hl.dsp.window.close()'
+        hyprctl eval 'hl.dispatch(hl.dsp.window.close())'
         ;;
     terminal)
         kitty
