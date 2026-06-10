@@ -1,21 +1,8 @@
 local programs = require("programs")
 require("binds")(programs)
 
-hl.monitor({
-    output = "eDP-1",
-    mode = "2880x1800@60",
-    position = "auto",
-    scale = 1.5,
-    bitdepth = 10,
-})
+require("monitors")
 
-hl.monitor({
-    output = "",
-    mode = "preferred",
-    position = "auto",
-    scale = "auto",
-    bitdepth = 10,
-})
 
 hl.config({
     general = {
