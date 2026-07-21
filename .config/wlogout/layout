@@ -12,7 +12,7 @@
 }
 {
     "label" : "suspend",
-    "action" : "hyprlock & disown && systemctl suspend",
+    "action" : "loginctl lock-session && systemctl suspend",
     "text" : "Veiller",
     "keybind" : "u"
 }

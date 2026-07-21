@@ -2,55 +2,76 @@
 
 set -euo pipefail
 
-dependencies=(
-  acpi
-  bitwarden-desktop
+REQUIRED_DEPS=(
   brightnessctl
   cliphist
   hypridle
-  hyprland-monitor-attached
+  hyprland
   hyprlock
   hyprpaper
   hyprshot
-  jq
   kitty
-  libinput-gestures
-  nautilus
   notify-send
   playerctl
-  rfkill
   rofi
+  swaync
   swaync-client
-  udiskie
   uwsm
+  waybar
   wlogout
   wl-copy
   wl-paste
   wpctl
 )
 
-optional_dependencies=(
-  hyprsunset
+OPTIONAL_DEPS=(
+  acpi
+  bluetoothctl
+  btop
+  gnome-system-monitor
   mullvad-gui
+  nmcli
+  pavucontrol
+  starship
 )
 
-check_dependency() {
-  local dependency=$1
-  local required=$2
+missing_required=0
+missing_optional=0
 
-  if command -v "$dependency" >/dev/null 2>&1; then
-    printf 'ok       %s\n' "$dependency"
-  elif [[ $required == true ]]; then
-    printf 'missing  %s\n' "$dependency"
+echo "=== Vérification des dépendances hdg-hyprland ==="
+echo ""
+echo "-- Dépendances obligatoires --"
+
+for dep in "${REQUIRED_DEPS[@]}"; do
+  if command -v "$dep" >/dev/null 2>&1; then
+    printf '  [OK]       %s\n' "$dep"
   else
-    printf 'optional %s\n' "$dependency"
+    printf '  [MANQUANT] %s\n' "$dep"
+    missing_required=$((missing_required + 1))
   fi
-}
-
-for dependency in "${dependencies[@]}"; do
-  check_dependency "$dependency" true
 done
 
-for dependency in "${optional_dependencies[@]}"; do
-  check_dependency "$dependency" false
+echo ""
+echo "-- Dépendances optionnelles --"
+
+for dep in "${OPTIONAL_DEPS[@]}"; do
+  if command -v "$dep" >/dev/null 2>&1; then
+    printf '  [OK]       %s\n' "$dep"
+  else
+    printf '  [OPTIONNEL] %s\n' "$dep"
+    missing_optional=$((missing_optional + 1))
+  fi
 done
+
+echo ""
+echo "=== Synthèse ==="
+echo "Obligatoires manquantes : $missing_required"
+echo "Optionnelles manquantes : $missing_optional"
+
+if [ "$missing_required" -gt 0 ]; then
+  echo "Erreur : des dépendances obligatoires sont manquantes !"
+  exit 1
+else
+  echo "Toutes les dépendances obligatoires sont présentes."
+  exit 0
+fi

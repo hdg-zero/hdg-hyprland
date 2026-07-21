@@ -3,7 +3,7 @@
 		"interval": 1,
 		"format": "{ifname}",
 		"format-wifi": "{icon} {bandwidthTotalBytes}",
-		"format-ethernet": "{icon} {bandwidthTotalBytes:}",
+		"format-ethernet": "{icon} {bandwidthTotalBytes}",
 		"format-disconnected": "󰌙",
 		"tooltip-format": "{ipaddr}",
 		"format-linked": "󰈁 {ifname} (No IP)",

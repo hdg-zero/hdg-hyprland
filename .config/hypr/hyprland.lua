@@ -1,7 +1,24 @@
 local programs = require("programs")
 require("binds")(programs)
 
-require("monitors")
+-- Configuration statique des moniteurs (tous les moniteurs connectés sont actifs par défaut en affichage étendu)
+-- Écran interne du portable : Résolution 2880x1800 @ 90Hz, position automatique, échelle 1.25, 10-bit
+hl.monitor({
+    output = "eDP-1",
+    mode = "2880x1800@90",
+    position = "auto",
+    scale = 1.25,
+    bitdepth = 10,
+})
+
+-- Règle par défaut pour tout écran externe connecté : activation automatique, résolution préférée et position automatique
+hl.monitor({
+    output = "",
+    mode = "preferred",
+    position = "auto",
+    scale = "auto",
+    bitdepth = 10,
+})
 
 
 hl.config({

@@ -10,18 +10,16 @@ case "${1:-}" in
         hyprctl eval 'hl.dispatch(hl.dsp.focus({ workspace = "e+1" }))'
         ;;
     fullscreen-window)
-        hl_cmd="hl.dsp.window.fullscreen({ action = 'toggle', mode = 1 })"
-        hyprctl eval "hl.dispatch(${hl_cmd})"
+        hyprctl eval "hl.dispatch(hl.dsp.window.fullscreen({ action = 'toggle' }))"
         ;;
     fullscreen-output)
-        hl_cmd="hl.dsp.window.fullscreen({ action = 'toggle', mode = 0 })"
-        hyprctl eval "hl.dispatch(${hl_cmd})"
+        hyprctl eval "hl.dispatch(hl.dsp.window.fullscreen({ action = 'toggle' }))"
         ;;
     close-window)
         hyprctl eval 'hl.dispatch(hl.dsp.window.close())'
         ;;
     terminal)
-        kitty
+        kitty &
         ;;
     *)
         printf 'Usage: %s {workspace-prev|workspace-next|fullscreen-window|fullscreen-output|close-window|terminal}\n' "$0" >&2

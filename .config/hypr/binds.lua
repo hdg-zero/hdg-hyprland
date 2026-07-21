@@ -54,10 +54,15 @@ return function(programs)
     hl.bind(main_mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Redimensionner une fenêtre à la souris" })
     hl.bind(main_mod .. " + ALT_L", hl.dsp.window.resize(), { mouse = true, description = "Redimensionner une fenêtre au touchpad" })
 
-    hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"), {
+    hl.bind(main_mod .. " + ALT + left", hl.dsp.window.resize({ x = -20, y = 0 }), { repeating = true, description = "Redimensionner fenêtre vers la gauche" })
+    hl.bind(main_mod .. " + ALT + right", hl.dsp.window.resize({ x = 20, y = 0 }), { repeating = true, description = "Redimensionner fenêtre vers la droite" })
+    hl.bind(main_mod .. " + ALT + up", hl.dsp.window.resize({ x = 0, y = -20 }), { repeating = true, description = "Redimensionner fenêtre vers le haut" })
+    hl.bind(main_mod .. " + ALT + down", hl.dsp.window.resize({ x = 0, y = 20 }), { repeating = true, description = "Redimensionner fenêtre vers le bas" })
+
+    hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"), {
         locked = true,
         repeating = true,
-        description = "Augmenter le volume",
+        description = "Augmenter le volume (max 150%)",
     })
     hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), {
         locked = true,
@@ -92,21 +97,17 @@ return function(programs)
 
     hl.bind(main_mod .. " + SHIFT + l", hl.dsp.exec_cmd("hyprlock"), { locked = true, description = "Verrouiller la session" })
 
-    hl.bind(main_mod .. " + i", hl.dsp.exec_cmd('hyprshot -m output -o "Screenshots"'), {
-        locked = true,
+    hl.bind(main_mod .. " + i", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m output -o "$HOME/Pictures/Screenshots"'), {
         description = "Capture écran de la sortie",
     })
-    hl.bind(main_mod .. " + y", hl.dsp.exec_cmd('hyprshot -m window -o "Screenshots"'), {
-        locked = true,
+    hl.bind(main_mod .. " + y", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m window -o "$HOME/Pictures/Screenshots"'), {
         description = "Capture écran de la fenêtre",
     })
-    hl.bind(main_mod .. " + u", hl.dsp.exec_cmd('hyprshot -m region -o "Screenshots"'), {
-        locked = true,
+    hl.bind(main_mod .. " + u", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m region -o "$HOME/Pictures/Screenshots"'), {
         description = "Capture écran d'une région",
     })
 
     hl.bind(main_mod .. " + f", hl.dsp.exec_cmd("swaync-client -op"), {
-        locked = true,
         description = "Ouvrir le centre de notifications",
     })
 

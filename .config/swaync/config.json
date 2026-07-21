@@ -79,8 +79,7 @@
       "collapse-button-label": " "
     },
     "backlight": {
-      "label": "󰃠",
-      "device": "amdgpu_bl1"
+      "label": "󰃠"
     },
     "buttons-grid#toggles": {
       "buttons-per-row": 3,
@@ -89,14 +88,14 @@
           "label": "󰖩",
           "type": "toggle",
           "active": true,
-          "command": "sh -c '[[ $SWAYNC_TOGGLE_STATE == true ]] && nmcli radio wifi on || nmcli radio wifi off'",
-          "update-command": "sh -c '[[ $(nmcli radio wifi) == \"enabled\" ]] && echo true || echo false'"
+          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = \"true\" ] && nmcli radio wifi on || nmcli radio wifi off'",
+          "update-command": "sh -c '[ \"$(nmcli radio wifi)\" = \"enabled\" ] && echo true || echo false'"
         },
         {
           "label": "󰂯",
           "type": "toggle",
           "active": true,
-          "command": "sh -c '[[ $SWAYNC_TOGGLE_STATE == true ]] && bluetoothctl power on || bluetoothctl power off'",
+          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = \"true\" ] && bluetoothctl power on || bluetoothctl power off'",
           "update-command": "sh -c 'bluetoothctl show | grep -q \"Powered: yes\" && echo true || echo false'"
         },
         {
