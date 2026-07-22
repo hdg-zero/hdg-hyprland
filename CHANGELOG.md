@@ -5,6 +5,12 @@ Toutes les modifications notables apportées à ce projet seront consignées dan
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au versionnage sémantique.
 
+## [v0.1.1] - 2026-07-22
+
+### Modifié
+- Ajustement du sens de défilement de la molette pour le changement de workspace dans `binds.lua` et dans le module Waybar `workspace.jsonc`.
+- Désactivation de l'autostart automatique de `monitor.sh` dans `programs.lua`.
+
 ## [v0.1.0] - 2026-07-22
 
 ### Ajouté

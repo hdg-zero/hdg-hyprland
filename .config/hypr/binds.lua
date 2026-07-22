@@ -46,8 +46,8 @@ return function(programs)
         description = "Déplacer la fenêtre au scratchpad",
     })
 
-    hl.bind(main_mod .. " + mouse_down", hl.dsp.focus({ workspace = "e-1" }), { description = "Workspace précédent via molette" })
-    hl.bind(main_mod .. " + mouse_up", hl.dsp.focus({ workspace = "e+1" }), { description = "Workspace suivant via molette" })
+    hl.bind(main_mod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { description = "Workspace précédent via molette" })
+    hl.bind(main_mod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }), { description = "Workspace suivant via molette" })
 
     hl.bind(main_mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true, description = "Déplacer une fenêtre à la souris" })
     hl.bind(main_mod .. " + Control_L", hl.dsp.window.drag(), { mouse = true, description = "Déplacer une fenêtre au touchpad" })

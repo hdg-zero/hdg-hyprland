@@ -10,12 +10,12 @@ local autostart_commands = {
     { check = "command -v hyprsunset >/dev/null 2>&1", name = "hyprsunset", command = "uwsm app -- hyprsunset", optional = true },
     { check = "command -v udiskie >/dev/null 2>&1", name = "udiskie", command = "uwsm app -- udiskie" },
     { check = "command -v rfkill >/dev/null 2>&1", name = "rfkill", command = "rfkill unblock bluetooth" },
-    {
-        check = "test -x $HOME/.config/hypr/scripts/monitor.sh",
-        name = "monitor.sh",
-        command = "$HOME/.config/hypr/scripts/monitor.sh",
-        optional = true,
-    },
+    -- {
+    --     check = "test -x $HOME/.config/hypr/scripts/monitor.sh",
+    --     name = "monitor.sh",
+    --     command = "$HOME/.config/hypr/scripts/monitor.sh",
+    --     optional = true,
+    -- },
     { check = "command -v wl-paste >/dev/null 2>&1", name = "wl-paste", command = "uwsm app -- wl-paste --type text --watch cliphist store" },
     { check = "command -v wl-paste >/dev/null 2>&1", name = "wl-paste", command = "uwsm app -- wl-paste --type image --watch cliphist store" },
 }
