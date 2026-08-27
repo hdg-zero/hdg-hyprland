@@ -7,6 +7,8 @@ local programs = {
 local autostart_commands = {
     { check = "command -v hyprpaper >/dev/null 2>&1", name = "hyprpaper", command = "uwsm app -- hyprpaper" },
     { check = "command -v hypridle >/dev/null 2>&1", name = "hypridle", command = "uwsm app -- hypridle" },
+    { check = "command -v quickshell >/dev/null 2>&1", name = "quickshell", command = "uwsm app -- quickshell" },
+    { check = "command -v swaync >/dev/null 2>&1", name = "swaync", command = "uwsm app -- swaync" },
     { check = "command -v hyprsunset >/dev/null 2>&1", name = "hyprsunset", command = "uwsm app -- hyprsunset", optional = true },
     { check = "command -v udiskie >/dev/null 2>&1", name = "udiskie", command = "uwsm app -- udiskie" },
     { check = "command -v rfkill >/dev/null 2>&1", name = "rfkill", command = "rfkill unblock bluetooth" },

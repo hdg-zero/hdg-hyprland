@@ -25,6 +25,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Intégration de `quickshell` et `swaync` dans la table `autostart_commands` de `.config/hypr/programs.lua` avec vérification préalable de présence (`command -v`) et lancement encapsulé sous UWSM (`uwsm app -- ...`).
 - Dimensionnement 100% relatif et proportionnel en pourcentage d'écran pour la popup MPRIS (`widthPercent: Theme.popupWidthPercentWide`), avec pochette d'album (`coverSize: 72% effectiveWidth`), typographie et commandes multimédia (`btnPlaySize: 28% coverSize`) adaptatives sans pixels fixes.
 - Agrandissement des icônes d'applications de la barre des tâches (`20x20px`) dans `TaskbarModule.qml` sans impacter la compacité de la barre.
 - Refonte de la disposition de la popup MPRIS (`MprisPopup.qml`) : pochette d'album grand format centrée en haut, métadonnées (titre, artiste, album) centrées en dessous et commandes multimédia élargies en bas.
