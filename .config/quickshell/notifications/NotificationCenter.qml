@@ -16,17 +16,16 @@ PanelWindow {
 
     anchors {
         top: true
-        bottom: true
         right: true
     }
 
     margins {
-        top: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + Theme.spacingSm)
-        bottom: Theme.spacingLg
-        right: Theme.spacingLg
+        top: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + 6)
+        right: 8
     }
 
-    implicitWidth: Math.max(380, Math.round(Theme.relWidth(0.20, root.screen)))
+    implicitWidth: Math.max(300, Math.min(340, Math.round(Theme.relWidth(0.16, root.screen))))
+    implicitHeight: Math.min(Math.round(Theme.relHeight(0.68, root.screen)), panelCard.implicitHeight)
 
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -115,43 +114,49 @@ PanelWindow {
         }
     }
 
-    // Carte principale en Verre Obsidian
+    // Carte principale en Glassmorphism Frost & Obsidian Glass
     Rectangle {
         id: panelCard
-        anchors.fill: parent
-        radius: Theme.radiusXLarge
-        color: Qt.rgba(0.043, 0.059, 0.078, 0.96)
-        border.color: Theme.glassBorder
+        width: parent.width
+        implicitHeight: panelCol.implicitHeight + Theme.spacingMd * 2
+        radius: Theme.radiusLarge
+        color: Qt.rgba(0.06, 0.08, 0.12, 0.72)
+        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.14)
         border.width: 1
         clip: true
 
         ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: Theme.spacingLg
-            spacing: Theme.spacingMd
+            id: panelCol
+            anchors {
+                left: parent.left
+                right: parent.right
+                top: parent.top
+                margins: Theme.spacingMd
+            }
+            spacing: Theme.spacingSm
 
             // ==========================================
             // 1. BOUTONS D'ACTION HAUT (DND, Effacer, Fermer)
             // ==========================================
             RowLayout {
                 Layout.fillWidth: true
-                spacing: Theme.spacingSm
+                spacing: Theme.spacingXs
 
                 Item { Layout.fillWidth: true }
 
                 // Bouton Ne Pas Déranger (DND)
                 Rectangle {
-                    width: 32
-                    height: 32
+                    width: 28
+                    height: 28
                     radius: width / 2
-                    color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.25) : (dndMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05))
-                    border.color: NotificationService.dnd ? Theme.warning : Theme.glassBorderSubtle
+                    color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.3) : (dndMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.15) : Qt.rgba(1, 1, 1, 0.08))
+                    border.color: NotificationService.dnd ? Theme.warning : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeMedium
+                        font.pixelSize: Theme.fontSizeSmall
                         color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
                         text: NotificationService.dnd ? "󰂛" : "󰂚"
                     }
@@ -168,11 +173,11 @@ PanelWindow {
                 // Bouton Effacer tout
                 Rectangle {
                     visible: NotificationService.unreadCount > 0
-                    width: 32
-                    height: 32
+                    width: 28
+                    height: 28
                     radius: width / 2
-                    color: clearMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : Qt.rgba(1, 1, 1, 0.05)
-                    border.color: clearMouse.containsMouse ? Theme.destructive : Theme.glassBorderSubtle
+                    color: clearMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.3) : Qt.rgba(1, 1, 1, 0.08)
+                    border.color: clearMouse.containsMouse ? Theme.destructive : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
 
                     Text {
@@ -194,11 +199,11 @@ PanelWindow {
 
                 // Bouton Fermer le panneau
                 Rectangle {
-                    width: 32
-                    height: 32
+                    width: 28
+                    height: 28
                     radius: width / 2
-                    color: closePanelMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
-                    border.color: Theme.glassBorderSubtle
+                    color: closePanelMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.18) : Qt.rgba(1, 1, 1, 0.08)
+                    border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
 
                     Text {
@@ -220,19 +225,19 @@ PanelWindow {
             }
 
             // ==========================================
-            // 2. TOGGLES RAPIDES (Style Apple Control Center - Icônes Grandes & Centrées)
+            // 2. TOGGLES RAPIDES (Style Apple Control Center - Glassmorphic)
             // ==========================================
             RowLayout {
                 Layout.fillWidth: true
-                spacing: Theme.spacingSm
+                spacing: Theme.spacingXs
 
                 // Toggle 1 : Wi-Fi
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 54
-                    radius: Theme.radiusLarge
-                    color: root.wifiEnabled ? Theme.accent : Qt.rgba(1, 1, 1, 0.06)
-                    border.color: root.wifiEnabled ? Theme.accent : Theme.glassBorderSubtle
+                    height: 46
+                    radius: Theme.radiusMedium
+                    color: root.wifiEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (wifiMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(1, 1, 1, 0.08))
+                    border.color: root.wifiEnabled ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
 
                     Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
@@ -240,12 +245,13 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle
+                        font.pixelSize: Theme.fontSizeLarge
                         color: root.wifiEnabled ? Theme.backgroundSolid : Theme.textDisabled
                         text: root.wifiEnabled ? "󰖩" : "󰖪"
                     }
 
                     MouseArea {
+                        id: wifiMouse
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
@@ -260,10 +266,10 @@ PanelWindow {
                 // Toggle 2 : Bluetooth
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 54
-                    radius: Theme.radiusLarge
-                    color: root.btEnabled ? Theme.accent : Qt.rgba(1, 1, 1, 0.06)
-                    border.color: root.btEnabled ? Theme.accent : Theme.glassBorderSubtle
+                    height: 46
+                    radius: Theme.radiusMedium
+                    color: root.btEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (btMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(1, 1, 1, 0.08))
+                    border.color: root.btEnabled ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
 
                     Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
@@ -271,12 +277,13 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle
+                        font.pixelSize: Theme.fontSizeLarge
                         color: root.btEnabled ? Theme.backgroundSolid : Theme.textDisabled
                         text: root.btEnabled ? "󰂯" : "󰂲"
                     }
 
                     MouseArea {
+                        id: btMouse
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
@@ -291,9 +298,9 @@ PanelWindow {
                 // Toggle 3 : Micro
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 54
-                    radius: Theme.radiusLarge
-                    color: !root.micMuted ? Theme.accent : Qt.rgba(1.0, 0.42, 0.42, 0.25)
+                    height: 46
+                    radius: Theme.radiusMedium
+                    color: !root.micMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (micMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.35) : Qt.rgba(1.0, 0.42, 0.42, 0.22))
                     border.color: !root.micMuted ? Theme.accent : Theme.destructive
                     border.width: 1
 
@@ -302,12 +309,13 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle
+                        font.pixelSize: Theme.fontSizeLarge
                         color: !root.micMuted ? Theme.backgroundSolid : Theme.destructive
                         text: !root.micMuted ? "󰍬" : "󰍭"
                     }
 
                     MouseArea {
+                        id: micMouse
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
@@ -322,9 +330,9 @@ PanelWindow {
                 // Toggle 4 : Mute Audio
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 54
-                    radius: Theme.radiusLarge
-                    color: !root.audioMuted ? Theme.accent : Qt.rgba(1.0, 0.42, 0.42, 0.25)
+                    height: 46
+                    radius: Theme.radiusMedium
+                    color: !root.audioMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (audioMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.35) : Qt.rgba(1.0, 0.42, 0.42, 0.22))
                     border.color: !root.audioMuted ? Theme.accent : Theme.destructive
                     border.width: 1
 
@@ -333,12 +341,13 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle
+                        font.pixelSize: Theme.fontSizeLarge
                         color: !root.audioMuted ? Theme.backgroundSolid : Theme.destructive
                         text: !root.audioMuted ? "󰕾" : "󰝟"
                     }
 
                     MouseArea {
+                        id: audioMouse
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
@@ -356,16 +365,16 @@ PanelWindow {
             // ==========================================
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: Theme.spacingSm
+                spacing: Theme.spacingXs
 
                 // Capsule Slider 1 : Volume
                 Rectangle {
                     id: volCapsule
                     Layout.fillWidth: true
-                    height: 44
-                    radius: 22
-                    color: Qt.rgba(1, 1, 1, 0.06)
-                    border.color: Theme.glassBorderSubtle
+                    height: 38
+                    radius: 19
+                    color: Qt.rgba(1, 1, 1, 0.08)
+                    border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
                     clip: true
 
@@ -377,25 +386,25 @@ PanelWindow {
                             bottom: parent.bottom
                         }
                         width: parent.width * Math.min(1.0, root.currentVolume / 100.0)
-                        radius: 22
-                        color: root.audioMuted ? Qt.rgba(1.0, 0.42, 0.42, 0.7) : Theme.accent
+                        radius: 19
+                        color: root.audioMuted ? Qt.rgba(1.0, 0.42, 0.42, 0.8) : Qt.rgba(0.365, 0.678, 0.886, 0.85)
 
-                        Behavior on width { NumberAnimation { duration: 60 } }
+                        Behavior on width { NumberAnimation { duration: 50 } }
                     }
 
                     // Éléments superposés (icône + pourcentage)
                     RowLayout {
                         anchors {
                             fill: parent
-                            leftMargin: Theme.spacingMd
-                            rightMargin: Theme.spacingMd
+                            leftMargin: Theme.spacingSm + 2
+                            rightMargin: Theme.spacingSm + 2
                         }
 
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
+                            font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
-                            color: root.currentVolume > 20 ? Theme.backgroundSolid : Theme.textPrimary
+                            color: root.currentVolume > 15 ? Theme.backgroundSolid : Theme.textPrimary
                             text: root.audioMuted ? "󰝟" : (root.currentVolume > 50 ? "󰕾" : "󰖀")
                         }
 
@@ -403,7 +412,7 @@ PanelWindow {
 
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeTiny
                             font.bold: true
                             color: root.currentVolume > 85 ? Theme.backgroundSolid : Theme.textPrimary
                             text: root.currentVolume + "%"
@@ -428,10 +437,10 @@ PanelWindow {
                 Rectangle {
                     id: brightCapsule
                     Layout.fillWidth: true
-                    height: 44
-                    radius: 22
-                    color: Qt.rgba(1, 1, 1, 0.06)
-                    border.color: Theme.glassBorderSubtle
+                    height: 38
+                    radius: 19
+                    color: Qt.rgba(1, 1, 1, 0.08)
+                    border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
                     clip: true
 
@@ -443,25 +452,25 @@ PanelWindow {
                             bottom: parent.bottom
                         }
                         width: parent.width * Math.min(1.0, root.currentBrightness / 100.0)
-                        radius: 22
-                        color: Theme.accent
+                        radius: 19
+                        color: Qt.rgba(0.365, 0.678, 0.886, 0.85)
 
-                        Behavior on width { NumberAnimation { duration: 60 } }
+                        Behavior on width { NumberAnimation { duration: 50 } }
                     }
 
                     // Éléments superposés (icône + pourcentage)
                     RowLayout {
                         anchors {
                             fill: parent
-                            leftMargin: Theme.spacingMd
-                            rightMargin: Theme.spacingMd
+                            leftMargin: Theme.spacingSm + 2
+                            rightMargin: Theme.spacingSm + 2
                         }
 
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
+                            font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
-                            color: root.currentBrightness > 20 ? Theme.backgroundSolid : Theme.textPrimary
+                            color: root.currentBrightness > 15 ? Theme.backgroundSolid : Theme.textPrimary
                             text: "󰃠"
                         }
 
@@ -469,7 +478,7 @@ PanelWindow {
 
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeTiny
                             font.bold: true
                             color: root.currentBrightness > 85 ? Theme.backgroundSolid : Theme.textPrimary
                             text: root.currentBrightness + "%"
@@ -496,29 +505,29 @@ PanelWindow {
             // ==========================================
             RowLayout {
                 Layout.fillWidth: true
-                spacing: Theme.spacingSm
+                spacing: Theme.spacingXs
 
                 // Verrouiller
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 38
-                    radius: Theme.radiusMedium
-                    color: lockMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.04)
-                    border.color: Theme.glassBorderSubtle
+                    height: 32
+                    radius: Theme.radiusSmall
+                    color: lockMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.15) : Qt.rgba(1, 1, 1, 0.08)
+                    border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
 
                     RowLayout {
                         anchors.centerIn: parent
-                        spacing: Theme.spacingSm
+                        spacing: Theme.spacingXs
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
+                            font.pixelSize: Theme.fontSizeSmall
                             color: Theme.accent
                             text: "󰌾"
                         }
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeTiny
                             font.bold: true
                             color: Theme.textPrimary
                             text: "Verrouiller"
@@ -537,24 +546,24 @@ PanelWindow {
                 // Éteindre / Menu Wlogout
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 38
-                    radius: Theme.radiusMedium
-                    color: pwrMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : Qt.rgba(1, 1, 1, 0.04)
-                    border.color: pwrMouse.containsMouse ? Theme.destructive : Theme.glassBorderSubtle
+                    height: 32
+                    radius: Theme.radiusSmall
+                    color: pwrMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.25) : Qt.rgba(1, 1, 1, 0.08)
+                    border.color: pwrMouse.containsMouse ? Theme.destructive : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
 
                     RowLayout {
                         anchors.centerIn: parent
-                        spacing: Theme.spacingSm
+                        spacing: Theme.spacingXs
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
+                            font.pixelSize: Theme.fontSizeSmall
                             color: Theme.destructive
                             text: "⏻"
                         }
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeTiny
                             font.bold: true
                             color: Theme.textPrimary
                             text: "Session"
@@ -575,7 +584,7 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: Theme.glassBorder
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.10)
             }
 
             // ==========================================
@@ -586,7 +595,7 @@ PanelWindow {
 
                 Text {
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
+                    font.pixelSize: Theme.fontSizeTiny
                     font.bold: true
                     color: Theme.textSecondary
                     text: "Notifications"
@@ -596,8 +605,8 @@ PanelWindow {
 
                 Rectangle {
                     visible: NotificationService.unreadCount > 0
-                    width: 20
-                    height: 20
+                    width: 18
+                    height: 18
                     radius: width / 2
                     color: Theme.accent
 
@@ -615,18 +624,19 @@ PanelWindow {
             // Liste défilante des notifications
             Item {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                implicitHeight: NotificationService.unreadCount === 0 ? 30 : Math.min(220, notifList.contentHeight)
+                clip: true
 
                 // État vide minimaliste
                 ColumnLayout {
                     anchors.centerIn: parent
                     visible: NotificationService.unreadCount === 0
-                    spacing: Theme.spacingXs
+                    spacing: 0
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
+                        font.pixelSize: Theme.fontSizeTiny
                         color: Theme.textDisabled
                         text: "Aucune notification"
                     }
@@ -639,16 +649,16 @@ PanelWindow {
                     visible: NotificationService.unreadCount > 0
                     model: (NotificationService.trackedNotifications && NotificationService.trackedNotifications.values) ? NotificationService.trackedNotifications.values : []
                     clip: true
-                    spacing: Theme.spacingSm
+                    spacing: Theme.spacingXs
 
                     delegate: Rectangle {
                         id: notifCard
                         required property var modelData
                         width: notifList.width
-                        implicitHeight: cardInnerCol.implicitHeight + Theme.spacingMd * 2
-                        radius: Theme.radiusLarge
-                        color: Qt.rgba(1, 1, 1, 0.04)
-                        border.color: cardHover.containsMouse ? Theme.glassBorder : Theme.glassBorderSubtle
+                        implicitHeight: cardInnerCol.implicitHeight + Theme.spacingSm * 2
+                        radius: Theme.radiusMedium
+                        color: Qt.rgba(1, 1, 1, 0.06)
+                        border.color: cardHover.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.2) : Qt.rgba(1.0, 1.0, 1.0, 0.10)
                         border.width: 1
 
                         Behavior on border.color { ColorAnimation { duration: Theme.animDurationFast } }
@@ -666,33 +676,18 @@ PanelWindow {
                                 left: parent.left
                                 right: parent.right
                                 top: parent.top
-                                margins: Theme.spacingMd
+                                margins: Theme.spacingSm
                             }
-                            spacing: Theme.spacingXs
+                            spacing: 2
 
                             // En-tête de la notification
                             RowLayout {
                                 Layout.fillWidth: true
-                                spacing: Theme.spacingSm
-
-                                Rectangle {
-                                    width: 22
-                                    height: 22
-                                    radius: Theme.radiusSmall
-                                    color: Qt.rgba(0.365, 0.678, 0.886, 0.2)
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: Theme.fontSizeTiny
-                                        color: Theme.accent
-                                        text: "󰂚"
-                                    }
-                                }
+                                spacing: Theme.spacingXs
 
                                 Text {
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeSmall
+                                    font.pixelSize: Theme.fontSizeTiny
                                     font.bold: true
                                     color: Theme.accent
                                     text: modelData.appName || "Application"
@@ -701,15 +696,15 @@ PanelWindow {
                                 }
 
                                 Rectangle {
-                                    width: 22
-                                    height: 22
+                                    width: 18
+                                    height: 18
                                     radius: width / 2
-                                    color: itemDelMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : "transparent"
+                                    color: itemDelMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.3) : "transparent"
 
                                     Text {
                                         anchors.centerIn: parent
                                         font.family: Theme.fontFamily
-                                        font.pixelSize: Theme.fontSizeTiny
+                                        font.pixelSize: Theme.fontSizeMicro
                                         color: itemDelMouse.containsMouse ? Theme.destructive : Theme.textDisabled
                                         text: "󰅖"
                                     }
@@ -742,11 +737,11 @@ PanelWindow {
                             Text {
                                 Layout.fillWidth: true
                                 font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
+                                font.pixelSize: Theme.fontSizeTiny
                                 color: Theme.textSecondary
                                 text: modelData.body || ""
                                 wrapMode: Text.Wrap
-                                maximumLineCount: 3
+                                maximumLineCount: 2
                                 elide: Text.ElideRight
                                 visible: text !== ""
                             }
@@ -756,7 +751,7 @@ PanelWindow {
                                 Layout.fillWidth: true
                                 visible: modelData.actions && modelData.actions.values && modelData.actions.values.length > 0
                                 spacing: Theme.spacingXs
-                                Layout.topMargin: Theme.spacingXs
+                                Layout.topMargin: 2
 
                                 Repeater {
                                     model: modelData.actions ? modelData.actions.values : []
@@ -764,17 +759,17 @@ PanelWindow {
                                     delegate: Rectangle {
                                         required property var modelData
                                         implicitWidth: actLabel.implicitWidth + Theme.spacingSm * 2
-                                        implicitHeight: 24
+                                        implicitHeight: 20
                                         radius: Theme.radiusSmall
-                                        color: actBtnMouse.containsMouse ? Theme.accent : Qt.rgba(1, 1, 1, 0.08)
-                                        border.color: Theme.glassBorderSubtle
+                                        color: actBtnMouse.containsMouse ? Theme.accent : Qt.rgba(1, 1, 1, 0.12)
+                                        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.14)
                                         border.width: 1
 
                                         Text {
                                             id: actLabel
                                             anchors.centerIn: parent
                                             font.family: Theme.fontFamily
-                                            font.pixelSize: Theme.fontSizeTiny
+                                            font.pixelSize: Theme.fontSizeMicro
                                             font.bold: true
                                             color: actBtnMouse.containsMouse ? Theme.backgroundSolid : Theme.textPrimary
                                             text: modelData.text || "Action"
