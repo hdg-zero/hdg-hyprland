@@ -10,7 +10,7 @@ RowLayout {
 
     property var parentWindow: null
 
-    spacing: Theme.spacingXs
+    spacing: Theme.spacingSm + 2
     visible: Hyprland.toplevels && Hyprland.toplevels.values && Hyprland.toplevels.values.length > 0
 
     Repeater {
@@ -60,7 +60,7 @@ RowLayout {
             // Ignorer les applications invisibles ou spécifiques (ex: rofi)
             visible: appClass.toLowerCase() !== "rofi" && appClass !== ""
 
-            implicitWidth: 22
+            implicitWidth: 26
             implicitHeight: 22
             radius: Theme.radiusSmall
 

@@ -26,6 +26,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Augmentation de l'espacement et de la zone cliquable entre les icônes d'applications (`spacing: 10px`, `width: 26px`) dans la barre des tâches (`TaskbarModule.qml`).
 - Liaison réactive instantanée et zéro polling pour le bouton de notification de la barre (`NotificationButton.qml`) connecté directement au `NotificationService` natif.
 - Bascule du raccourci clavier `SUPER + f` dans `binds.lua` vers l'IPC natif Quickshell (`quickshell ipc call notifications toggle`).
 - Intégration de `quickshell` dans la table `autostart_commands` de `.config/hypr/programs.lua` avec vérification préalable de présence (`command -v`) et lancement encapsulé sous UWSM (`uwsm app -- quickshell`).
