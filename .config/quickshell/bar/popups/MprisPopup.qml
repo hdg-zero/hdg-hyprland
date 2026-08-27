@@ -11,7 +11,7 @@ ModulePopup {
     cardWidth: 320
     cardHeight: mprisCol.implicitHeight + Theme.spacingMd * 2
 
-    readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
+    readonly property var player: (Mpris.players && Mpris.players.values && Mpris.players.values.length > 0) ? Mpris.players.values[0] : null
     readonly property bool isPlaying: player ? (player.playbackState === MprisPlaybackState.Playing) : false
 
     ColumnLayout {
@@ -41,11 +41,13 @@ ModulePopup {
                 Image {
                     id: albumArt
                     anchors.fill: parent
-                    source: root.player ? (root.player.trackArtUrl || root.player.artUrl || "") : ""
+                    source: (root.visible && root.player) ? (root.player.trackArtUrl || root.player.artUrl || "") : ""
+                    sourceSize: Qt.size(144, 144)
                     fillMode: Image.PreserveAspectCrop
                     visible: source !== "" && status === Image.Ready
                     smooth: true
                     asynchronous: true
+                    cache: true
                 }
 
                 Text {

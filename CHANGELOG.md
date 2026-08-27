@@ -39,6 +39,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
+- Conditionnement du chargement réseau de la pochette d'album (`trackArtUrl`) à la visibilité active de la popup dans `MprisPopup.qml`, éliminant le warning Qt `QIODevice::read (QSslSocket): device not open`.
 - Sécurisation des liaisons booléennes `isFloating` et `isFullscreen` dans `AppPopup.qml` pour éliminer l'avertissement QML `Unable to assign [undefined] to bool`.
 - Utilisation d'un gestionnaire de pointeur `HoverHandler` non-bloquant sur les fenêtres flottantes `ModulePopup`, empêchant la fermeture prématurée de la fenêtre lors du survol de boutons ou sliders internes.
 - Suppression des déclarations redondantes de `parentWindow` dans les modules dérivés de `PillButton`, résolvant l'erreur de chargement QML `Property value set multiple times`.
