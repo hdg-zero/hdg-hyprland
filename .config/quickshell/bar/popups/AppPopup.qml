@@ -39,8 +39,8 @@ ModulePopup {
         return "";
     }
 
-    readonly property bool isFloating: toplevel && toplevel.lastIpcObject ? toplevel.lastIpcObject.floating : false
-    readonly property bool isFullscreen: toplevel && toplevel.lastIpcObject ? toplevel.lastIpcObject.fullscreen : false
+    readonly property bool isFloating: (toplevel && toplevel.lastIpcObject && toplevel.lastIpcObject.floating) ? true : false
+    readonly property bool isFullscreen: (toplevel && toplevel.lastIpcObject && toplevel.lastIpcObject.fullscreen) ? true : false
 
     cardWidth: 280
     cardHeight: contentLayout.implicitHeight + (Theme.spacingMd * 2)
