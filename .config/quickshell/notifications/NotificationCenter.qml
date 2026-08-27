@@ -24,7 +24,7 @@ PanelWindow {
         right: Math.round(Theme.spacingSm + Theme.spacingXs)
     }
 
-    implicitWidth: Math.round(Theme.relWidth(0.185, root.screen))
+    implicitWidth: Math.round(Theme.relWidth(0.125, root.screen))
     implicitHeight: Math.min(Math.round(Theme.relHeight(0.70, root.screen)), panelCard.implicitHeight)
 
     color: "transparent"
