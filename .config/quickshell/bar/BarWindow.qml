@@ -15,13 +15,12 @@ PanelWindow {
         right: true
     }
 
-    height: Math.max(28, Theme.relHeight(Theme.barHeightRatio, root.screen))
-    implicitHeight: height
+    implicitHeight: Math.max(28, Theme.relHeight(Theme.barHeightRatio, root.screen))
 
     color: "transparent"
     exclusionMode: ExclusionMode.Normal
     WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.exclusiveZone: height
+    WlrLayershell.exclusiveZone: implicitHeight
 
     BarContent {
         parentWindow: root

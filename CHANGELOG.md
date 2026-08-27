@@ -44,6 +44,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
+- Suppression de l'utilisation dépréciée de `height` au profit exclusif de `implicitHeight` sur `PanelWindow` (`BarWindow.qml`) et typage entier strict des marges d'ancrage dans `ModulePopup.qml` éliminant les avertissements QML du runtime.
 - Correction de l'analyse `/proc/meminfo` dans `MemoryPopup.qml` via lecture directe `FileView` et expressions régulières, résolvant le problème d'affichage `0/0 Go`.
 - Définition explicite de la hauteur de fenêtre `height` et de la zone exclusive Wayland `WlrLayershell.exclusiveZone: height + margins.top + margins.bottom` dans `BarWindow.qml`, garantissant que Hyprland réserve immédiatement l'espace d'affichage nécessaire pour les fenêtres carrelées.
 - Élimination du crash `QEventLoop: Cannot be used without QCoreApplication` par suppression du `WheelHandler` Qt redondant au profit de la gestion native `MouseArea.onWheel` et sécurisation des lectures `FileView`.
