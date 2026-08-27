@@ -16,6 +16,7 @@ QtObject {
     readonly property color glassBorderSubtle: Qt.rgba(1.0, 1.0, 1.0, 0.08)
     
     readonly property color accent: "#5dade2"                                       // Glacier Blue
+    readonly property color accentSecondary: "#85c1e9"                              // Glacier Light Blue
     readonly property color accentHover: "#7fc1eb"
     readonly property color accentLight: "#e0f2f1"
     

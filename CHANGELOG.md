@@ -27,6 +27,9 @@ et ce projet adhère au versionnage sémantique.
 - Ajout et configuration du module `python` dans `.config/starship.toml` pour afficher la version Python et l'environnement virtuel (venv) actif (`$virtualenv`).
 - Configuration explicite du contrôleur de rétroéclairage (`amdgpu_bl1`) dans SwayNC (`.config/swaync/config.json`).
 
+### Corrigé
+- Définition de la propriété de couleur `accentSecondary` dans `Theme.qml`, éliminant les avertissements QML `Unable to assign [undefined] to QColor` dans `ClockPopup`, `PowerPopup` et `MemoryPopup`.
+
 ## [v0.1.1] - 2026-07-22
 
 ### Modifié
