@@ -135,76 +135,29 @@ PanelWindow {
             spacing: Theme.spacingMd
 
             // ==========================================
-            // 1. EN-TÊTE : Titre, DND, Effacer tout, Fermer
+            // 1. BOUTONS D'ACTION HAUT (DND, Effacer tout, Fermer)
             // ==========================================
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Theme.spacingSm
 
-                Rectangle {
-                    width: 32
-                    height: 32
-                    radius: Theme.radiusMedium
-                    color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
-                    border.color: Theme.glassBorder
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeMedium
-                        color: Theme.accent
-                        text: "󰂚"
-                    }
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeMedium
-                        font.bold: true
-                        color: Theme.textPrimary
-                        text: "Centre de Contrôle"
-                    }
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTiny
-                        color: Theme.textSecondary
-                        text: NotificationService.unreadCount > 0 ? (NotificationService.unreadCount + " notification" + (NotificationService.unreadCount > 1 ? "s" : "")) : "À jour"
-                    }
-                }
+                Item { Layout.fillWidth: true }
 
                 // Bouton Ne Pas Déranger (DND)
                 Rectangle {
-                    implicitWidth: dndRow.implicitWidth + Theme.spacingSm * 2
-                    height: 30
-                    radius: Theme.radiusPill
+                    width: 32
+                    height: 32
+                    radius: width / 2
                     color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.25) : (dndMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05))
                     border.color: NotificationService.dnd ? Theme.warning : Theme.glassBorderSubtle
                     border.width: 1
 
-                    RowLayout {
-                        id: dndRow
+                    Text {
                         anchors.centerIn: parent
-                        spacing: Theme.spacingXs
-
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
-                            text: NotificationService.dnd ? "󰂛" : "󰂚"
-                        }
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTiny
-                            font.bold: true
-                            color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
-                            text: "DND"
-                        }
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
+                        text: NotificationService.dnd ? "󰂛" : "󰂚"
                     }
 
                     MouseArea {
@@ -216,34 +169,22 @@ PanelWindow {
                     }
                 }
 
-                // Bouton Effacer tout
+                // Bouton Effacer tout (icône seule)
                 Rectangle {
                     visible: NotificationService.unreadCount > 0
-                    implicitWidth: clearRow.implicitWidth + Theme.spacingSm * 2
-                    height: 30
-                    radius: Theme.radiusPill
+                    width: 32
+                    height: 32
+                    radius: width / 2
                     color: clearMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : Qt.rgba(1, 1, 1, 0.05)
                     border.color: clearMouse.containsMouse ? Theme.destructive : Theme.glassBorderSubtle
                     border.width: 1
 
-                    RowLayout {
-                        id: clearRow
+                    Text {
                         anchors.centerIn: parent
-                        spacing: Theme.spacingXs
-
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: clearMouse.containsMouse ? Theme.destructive : Theme.textSecondary
-                            text: "󰃢"
-                        }
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTiny
-                            font.bold: true
-                            color: clearMouse.containsMouse ? Theme.destructive : Theme.textSecondary
-                            text: "Effacer"
-                        }
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: clearMouse.containsMouse ? Theme.destructive : Theme.textSecondary
+                        text: "󰃢"
                     }
 
                     MouseArea {
@@ -257,8 +198,8 @@ PanelWindow {
 
                 // Bouton Fermer le panneau
                 Rectangle {
-                    width: 30
-                    height: 30
+                    width: 32
+                    height: 32
                     radius: width / 2
                     color: closePanelMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
                     border.color: Theme.glassBorderSubtle
@@ -793,9 +734,9 @@ PanelWindow {
 
                 Text {
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
+                    font.pixelSize: Theme.fontSizeSmall
                     font.bold: true
-                    color: Theme.textPrimary
+                    color: Theme.textSecondary
                     text: "Notifications"
                 }
 
@@ -803,15 +744,15 @@ PanelWindow {
 
                 Rectangle {
                     visible: NotificationService.unreadCount > 0
-                    width: 22
-                    height: 22
+                    width: 20
+                    height: 20
                     radius: width / 2
                     color: Theme.accent
 
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTiny
+                        font.pixelSize: Theme.fontSizeMicro
                         font.bold: true
                         color: Theme.backgroundSolid
                         text: NotificationService.unreadCount.toString()
@@ -824,45 +765,18 @@ PanelWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                // État vide élégant
+                // État vide minimaliste
                 ColumnLayout {
                     anchors.centerIn: parent
                     visible: NotificationService.unreadCount === 0
-                    spacing: Theme.spacingSm
-
-                    Rectangle {
-                        Layout.alignment: Qt.AlignHCenter
-                        width: 54
-                        height: 54
-                        radius: width / 2
-                        color: Qt.rgba(1, 1, 1, 0.03)
-                        border.color: Theme.glassBorderSubtle
-                        border.width: 1
-
-                        Text {
-                            anchors.centerIn: parent
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTitle
-                            color: Theme.textDisabled
-                            text: "󰂚"
-                        }
-                    }
+                    spacing: Theme.spacingXs
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                        color: Theme.textSecondary
-                        text: "Aucune notification"
-                    }
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTiny
                         color: Theme.textDisabled
-                        text: "Vous êtes à jour"
+                        text: "Aucune notification"
                     }
                 }
 
