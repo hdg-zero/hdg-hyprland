@@ -19,7 +19,7 @@ PillButton {
     textColor: memPercent > 85 ? Theme.destructive : Theme.textPrimary
     customPaddingH: Theme.spacingMd
     customPaddingV: Theme.spacingSm
-    customWidth: 92
+    widthPercent: 0.05
 
     MemoryPopup {
         id: memPopup

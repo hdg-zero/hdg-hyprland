@@ -19,7 +19,7 @@ PillButton {
     textColor: cpuUsage > 80 ? Theme.destructive : Theme.textPrimary
     customPaddingH: Theme.spacingMd
     customPaddingV: Theme.spacingSm
-    customWidth: 92
+    widthPercent: 0.05
 
     CpuPopup {
         id: cpuPopup

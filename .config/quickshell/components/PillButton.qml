@@ -16,14 +16,30 @@ Rectangle {
     property real customRadius: Theme.radiusPill
     property int customPaddingH: Theme.spacingMd
     property int customPaddingV: Theme.spacingSm
+    
+    property var parentWindow: null
+    property real widthPercent: 0
     property real customWidth: 0
+
+    readonly property real effectiveWidth: {
+        if (widthPercent > 0) {
+            var screenW = (parentWindow && parentWindow.width > 0) 
+                ? parentWindow.width 
+                : ((parentWindow && parentWindow.screen && parentWindow.screen.width > 0) 
+                    ? parentWindow.screen.width 
+                    : (Screen.width > 0 ? Screen.width : 1920));
+            return Math.round(screenW * widthPercent);
+        }
+        if (customWidth > 0) return customWidth;
+        return layout.implicitWidth + (customPaddingH * 2);
+    }
 
     signal clicked()
     signal rightClicked()
     signal middleClicked()
     signal scrolled(var wheel)
 
-    implicitWidth: customWidth > 0 ? customWidth : (layout.implicitWidth + (customPaddingH * 2))
+    implicitWidth: effectiveWidth
     implicitHeight: layout.implicitHeight + (customPaddingV * 2)
 
     radius: customRadius
@@ -41,7 +57,7 @@ Rectangle {
     RowLayout {
         id: layout
         anchors.centerIn: parent
-        width: root.customWidth > 0 ? (root.customWidth - (root.customPaddingH * 2)) : implicitWidth
+        width: (root.widthPercent > 0 || root.customWidth > 0) ? Math.max(0, root.effectiveWidth - (root.customPaddingH * 2)) : implicitWidth
         spacing: Theme.spacingSm
 
         Text {
@@ -66,7 +82,7 @@ Rectangle {
             font.bold: root.active
             color: mouseArea.containsMouse ? Theme.textPrimary : root.textColor
             verticalAlignment: Text.AlignVCenter
-            Layout.fillWidth: root.customWidth > 0
+            Layout.fillWidth: root.widthPercent > 0 || root.customWidth > 0
             elide: Text.ElideRight
 
             Behavior on color {
