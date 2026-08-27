@@ -9,6 +9,7 @@ PopupWindow {
     property var parentWindow: null
     property var anchorItem: null
     property bool autoHover: true
+    property bool isOpen: false
     
     property alias cardWidth: card.implicitWidth
     property alias cardHeight: card.implicitHeight
@@ -29,20 +30,25 @@ PopupWindow {
     implicitHeight: card.implicitHeight
 
     function toggle() {
-        visible = !visible;
+        if (isOpen) {
+            close();
+        } else {
+            open();
+        }
     }
 
     function open() {
+        isOpen = true;
         visible = true;
     }
 
     function close() {
-        visible = false;
+        isOpen = false;
     }
 
     Timer {
         id: hoverOpenTimer
-        interval: 150
+        interval: 140
         repeat: false
         onTriggered: {
             if (root.autoHover && root.anchorItem && root.anchorItem.isHovered) {
@@ -53,7 +59,7 @@ PopupWindow {
 
     Timer {
         id: hoverCloseTimer
-        interval: 350
+        interval: 320
         repeat: false
         onTriggered: {
             if (root.autoHover && !root.isHovered) {
@@ -87,6 +93,29 @@ PopupWindow {
         customColor: Qt.rgba(0.094, 0.094, 0.145, 0.95)
         customBorderColor: Theme.glassBorder
         customRadius: Theme.radiusLarge
+
+        opacity: root.isOpen ? 1.0 : 0.0
+        scale: root.isOpen ? 1.0 : 0.95
+        transformOrigin: Item.Top
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: Theme.animDurationFast
+                easing.type: Theme.easingType
+                onRunningChanged: {
+                    if (!running && !root.isOpen) {
+                        root.visible = false;
+                    }
+                }
+            }
+        }
+
+        Behavior on scale {
+            NumberAnimation {
+                duration: Theme.animDurationFast
+                easing.type: Theme.easingType
+            }
+        }
 
         HoverHandler {
             id: cardHoverHandler
