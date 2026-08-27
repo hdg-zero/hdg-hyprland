@@ -30,6 +30,11 @@ PanelWindow {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+
+    Keys.onEscapePressed: {
+        NotificationService.panelVisible = false;
+    }
 
     visible: NotificationService.panelVisible
 
@@ -912,17 +917,25 @@ PanelWindow {
 
                 Behavior on border.color { ColorAnimation { duration: Theme.animDurationFast } }
 
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.IBeamCursor
+                    onClicked: {
+                        notesEdit.forceActiveFocus();
+                    }
+                }
+
                 Flickable {
                     id: notesFlickable
                     anchors.fill: parent
                     anchors.margins: Theme.spacingSm
                     contentWidth: width
-                    contentHeight: notesEdit.implicitHeight
+                    contentHeight: Math.max(height, notesEdit.implicitHeight)
                     clip: true
 
                     TextEdit {
                         id: notesEdit
-                        width: parent.width
+                        width: notesFlickable.width
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeTiny
                         color: Theme.textPrimary
@@ -930,6 +943,7 @@ PanelWindow {
                         selectedTextColor: Theme.backgroundSolid
                         wrapMode: TextEdit.Wrap
                         selectByMouse: true
+                        activeFocusOnPress: true
 
                         Text {
                             anchors.fill: parent
