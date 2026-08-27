@@ -26,6 +26,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Refonte graphique intégrale du Centre de Contrôle (`NotificationCenter.qml`) : cartes de connectivité modernes style Control Center (Wi-Fi, Bluetooth, Micro, Sortie son) avec retours d'état précis, curseurs audio/luminosité en capsules de verre, boutons d'actions système et cartes de notifications multicouches.
 - Augmentation de l'espacement et de la zone cliquable entre les icônes d'applications (`spacing: 10px`, `width: 26px`) dans la barre des tâches (`TaskbarModule.qml`).
 - Liaison réactive instantanée et zéro polling pour le bouton de notification de la barre (`NotificationButton.qml`) connecté directement au `NotificationService` natif.
 - Bascule du raccourci clavier `SUPER + f` dans `binds.lua` vers l'IPC natif Quickshell (`quickshell ipc call notifications toggle`).

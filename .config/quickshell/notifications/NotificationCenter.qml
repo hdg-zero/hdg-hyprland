@@ -21,12 +21,12 @@ PanelWindow {
     }
 
     margins {
-        top: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + 6)
-        bottom: Theme.spacingMd
-        right: Theme.spacingMd
+        top: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + Theme.spacingSm)
+        bottom: Theme.spacingLg
+        right: Theme.spacingLg
     }
 
-    implicitWidth: Theme.relWidth(0.20, root.screen)
+    implicitWidth: Math.max(400, Math.round(Theme.relWidth(0.22, root.screen)))
 
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -34,8 +34,9 @@ PanelWindow {
 
     visible: NotificationService.panelVisible
 
-    // État des Toggles Rapides
+    // États matériels
     property bool wifiEnabled: true
+    property string wifiSsid: ""
     property bool btEnabled: true
     property bool micMuted: false
     property bool audioMuted: false
@@ -44,9 +45,13 @@ PanelWindow {
 
     Process {
         id: getWifiStatus
-        command: ["sh", "-c", "nmcli radio wifi 2>/dev/null | grep -q 'enabled' && echo true || echo false"]
+        command: ["sh", "-c", "if nmcli radio wifi 2>/dev/null | grep -q 'enabled'; then echo 'true|'$(nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^oui\|^yes' | cut -d: -f2 || echo 'Connecté'); else echo 'false|Désactivé'; fi"]
         stdout: StdioCollector { id: wifiOut }
-        onExited: { root.wifiEnabled = (wifiOut.text.trim() === "true"); }
+        onExited: {
+            var parts = wifiOut.text.trim().split("|");
+            root.wifiEnabled = (parts[0] === "true");
+            root.wifiSsid = parts.length > 1 && parts[1] !== "" ? parts[1] : (root.wifiEnabled ? "Activé" : "Désactivé");
+        }
     }
 
     Process {
@@ -114,57 +119,92 @@ PanelWindow {
         }
     }
 
-    // Carte principale du panneau
+    // Carte principale en Verre Obsidian
     Rectangle {
         id: panelCard
         anchors.fill: parent
-        radius: Theme.radiusLarge
-        color: Theme.cardBackgroundSolid
+        radius: Theme.radiusXLarge
+        color: Qt.rgba(0.043, 0.059, 0.078, 0.95)
         border.color: Theme.glassBorder
         border.width: 1
         clip: true
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: Theme.spacingMd
+            anchors.margins: Theme.spacingLg
             spacing: Theme.spacingMd
 
-            // 1. En-tête : Titre, DND, Effacer tout, Fermer
+            // ==========================================
+            // 1. EN-TÊTE : Titre, DND, Effacer tout, Fermer
+            // ==========================================
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Theme.spacingSm
 
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeHeader
-                    color: Theme.accent
-                    text: "󰂚"
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
-                    font.bold: true
-                    color: Theme.textPrimary
-                    text: "Centre de Contrôle"
-                }
-
-                // Bouton Ne Pas Déranger (DND)
                 Rectangle {
-                    width: 28
-                    height: 28
-                    radius: Theme.radiusSmall
-                    color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.25) : (dndMouse.containsMouse ? Theme.cardBackgroundHover : "transparent")
-                    border.color: NotificationService.dnd ? Theme.warning : (dndMouse.containsMouse ? Theme.glassBorder : "transparent")
+                    width: 32
+                    height: 32
+                    radius: Theme.radiusMedium
+                    color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
+                    border.color: Theme.glassBorder
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
-                        text: NotificationService.dnd ? "󰂛" : "󰂚"
+                        font.pixelSize: Theme.fontSizeMedium
+                        color: Theme.accent
+                        text: "󰂚"
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeMedium
+                        font.bold: true
+                        color: Theme.textPrimary
+                        text: "Centre de Contrôle"
+                    }
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTiny
+                        color: Theme.textSecondary
+                        text: NotificationService.unreadCount > 0 ? (NotificationService.unreadCount + " notification" + (NotificationService.unreadCount > 1 ? "s" : "")) : "À jour"
+                    }
+                }
+
+                // Bouton Ne Pas Déranger (DND)
+                Rectangle {
+                    implicitWidth: dndRow.implicitWidth + Theme.spacingSm * 2
+                    height: 30
+                    radius: Theme.radiusPill
+                    color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.25) : (dndMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05))
+                    border.color: NotificationService.dnd ? Theme.warning : Theme.glassBorderSubtle
+                    border.width: 1
+
+                    RowLayout {
+                        id: dndRow
+                        anchors.centerIn: parent
+                        spacing: Theme.spacingXs
+
+                        Text {
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
+                            text: NotificationService.dnd ? "󰂛" : "󰂚"
+                        }
+                        Text {
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeTiny
+                            font.bold: true
+                            color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
+                            text: "DND"
+                        }
                     }
 
                     MouseArea {
@@ -172,37 +212,36 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            NotificationService.toggleDnd();
-                        }
+                        onClicked: { NotificationService.toggleDnd(); }
                     }
                 }
 
                 // Bouton Effacer tout
                 Rectangle {
                     visible: NotificationService.unreadCount > 0
-                    implicitWidth: clearText.implicitWidth + Theme.spacingSm * 2
-                    height: 28
-                    radius: Theme.radiusSmall
-                    color: clearMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
-                    border.color: clearMouse.containsMouse ? Theme.glassBorder : "transparent"
+                    implicitWidth: clearRow.implicitWidth + Theme.spacingSm * 2
+                    height: 30
+                    radius: Theme.radiusPill
+                    color: clearMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : Qt.rgba(1, 1, 1, 0.05)
+                    border.color: clearMouse.containsMouse ? Theme.destructive : Theme.glassBorderSubtle
                     border.width: 1
 
                     RowLayout {
-                        id: clearText
+                        id: clearRow
                         anchors.centerIn: parent
                         spacing: Theme.spacingXs
 
                         Text {
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            color: Theme.textSecondary
+                            color: clearMouse.containsMouse ? Theme.destructive : Theme.textSecondary
                             text: "󰃢"
                         }
                         Text {
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeTiny
-                            color: Theme.textSecondary
+                            font.bold: true
+                            color: clearMouse.containsMouse ? Theme.destructive : Theme.textSecondary
                             text: "Effacer"
                         }
                     }
@@ -212,23 +251,23 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            NotificationService.clearAll();
-                        }
+                        onClicked: { NotificationService.clearAll(); }
                     }
                 }
 
                 // Bouton Fermer le panneau
                 Rectangle {
-                    width: 28
-                    height: 28
-                    radius: Theme.radiusSmall
-                    color: closePanelMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
+                    width: 30
+                    height: 30
+                    radius: width / 2
+                    color: closePanelMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
+                    border.color: Theme.glassBorderSubtle
+                    border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeMedium
+                        font.pixelSize: Theme.fontSizeSmall
                         color: closePanelMouse.containsMouse ? Theme.textPrimary : Theme.textSecondary
                         text: "󰅖"
                     }
@@ -238,44 +277,69 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            NotificationService.panelVisible = false;
-                        }
+                        onClicked: { NotificationService.panelVisible = false; }
                     }
                 }
             }
 
-            // 2. Grille des Toggles Rapides (2 lignes x 3 colonnes)
+            // ==========================================
+            // 2. TOGGLES RAPIDES (Cartes Style Control Center)
+            // ==========================================
             GridLayout {
                 Layout.fillWidth: true
-                columns: 3
+                columns: 2
                 rowSpacing: Theme.spacingSm
                 columnSpacing: Theme.spacingSm
 
-                // Toggle WiFi
+                // Toggle 1 : Wi-Fi
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 42
+                    height: 52
                     radius: Theme.radiusMedium
-                    color: root.wifiEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : Theme.cardBackgroundHover
+                    color: root.wifiEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1, 1, 1, 0.04)
                     border.color: root.wifiEnabled ? Theme.accent : Theme.glassBorderSubtle
                     border.width: 1
 
+                    Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
+
                     RowLayout {
-                        anchors.centerIn: parent
-                        spacing: Theme.spacingXs
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
-                            color: root.wifiEnabled ? Theme.accent : Theme.textDisabled
-                            text: root.wifiEnabled ? "󰖩" : "󰖪"
+                        anchors.fill: parent
+                        anchors.margins: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Rectangle {
+                            width: 34
+                            height: 34
+                            radius: width / 2
+                            color: root.wifiEnabled ? Theme.accent : Qt.rgba(1, 1, 1, 0.08)
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: root.wifiEnabled ? Theme.backgroundSolid : Theme.textDisabled
+                                text: root.wifiEnabled ? "󰖩" : "󰖪"
+                            }
                         }
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTiny
-                            font.bold: true
-                            color: root.wifiEnabled ? Theme.textPrimary : Theme.textSecondary
-                            text: "Wi-Fi"
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                font.bold: true
+                                color: Theme.textPrimary
+                                text: "Wi-Fi"
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMicro
+                                color: root.wifiEnabled ? Theme.accent : Theme.textDisabled
+                                text: root.wifiSsid
+                                elide: Text.ElideRight
+                            }
                         }
                     }
 
@@ -286,34 +350,60 @@ PanelWindow {
                         onClicked: {
                             Quickshell.execDetached(["sh", "-c", "nmcli radio wifi " + (root.wifiEnabled ? "off" : "on")]);
                             root.wifiEnabled = !root.wifiEnabled;
+                            getWifiStatus.running = true;
                         }
                     }
                 }
 
-                // Toggle Bluetooth
+                // Toggle 2 : Bluetooth
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 42
+                    height: 52
                     radius: Theme.radiusMedium
-                    color: root.btEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : Theme.cardBackgroundHover
+                    color: root.btEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1, 1, 1, 0.04)
                     border.color: root.btEnabled ? Theme.accent : Theme.glassBorderSubtle
                     border.width: 1
 
+                    Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
+
                     RowLayout {
-                        anchors.centerIn: parent
-                        spacing: Theme.spacingXs
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
-                            color: root.btEnabled ? Theme.accent : Theme.textDisabled
-                            text: root.btEnabled ? "󰂯" : "󰂲"
+                        anchors.fill: parent
+                        anchors.margins: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Rectangle {
+                            width: 34
+                            height: 34
+                            radius: width / 2
+                            color: root.btEnabled ? Theme.accent : Qt.rgba(1, 1, 1, 0.08)
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: root.btEnabled ? Theme.backgroundSolid : Theme.textDisabled
+                                text: root.btEnabled ? "󰂯" : "󰂲"
+                            }
                         }
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTiny
-                            font.bold: true
-                            color: root.btEnabled ? Theme.textPrimary : Theme.textSecondary
-                            text: "BT"
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                font.bold: true
+                                color: Theme.textPrimary
+                                text: "Bluetooth"
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMicro
+                                color: root.btEnabled ? Theme.accent : Theme.textDisabled
+                                text: root.btEnabled ? "Activé" : "Désactivé"
+                                elide: Text.ElideRight
+                            }
                         }
                     }
 
@@ -324,34 +414,58 @@ PanelWindow {
                         onClicked: {
                             Quickshell.execDetached(["sh", "-c", "bluetoothctl power " + (root.btEnabled ? "off" : "on")]);
                             root.btEnabled = !root.btEnabled;
+                            getBtStatus.running = true;
                         }
                     }
                 }
 
-                // Toggle Micro
+                // Toggle 3 : Micro
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 42
+                    height: 52
                     radius: Theme.radiusMedium
-                    color: !root.micMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : Theme.cardBackgroundHover
-                    border.color: !root.micMuted ? Theme.accent : Theme.glassBorderSubtle
+                    color: !root.micMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1.0, 0.42, 0.42, 0.15)
+                    border.color: !root.micMuted ? Theme.accent : Qt.rgba(1.0, 0.42, 0.42, 0.4)
                     border.width: 1
 
+                    Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
+
                     RowLayout {
-                        anchors.centerIn: parent
-                        spacing: Theme.spacingXs
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
+                        anchors.fill: parent
+                        anchors.margins: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Rectangle {
+                            width: 34
+                            height: 34
+                            radius: width / 2
                             color: !root.micMuted ? Theme.accent : Theme.destructive
-                            text: !root.micMuted ? "󰍬" : "󰍭"
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: Theme.backgroundSolid
+                                text: !root.micMuted ? "󰍬" : "󰍭"
+                            }
                         }
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTiny
-                            font.bold: true
-                            color: Theme.textPrimary
-                            text: "Micro"
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                font.bold: true
+                                color: Theme.textPrimary
+                                text: "Microphone"
+                            }
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMicro
+                                color: !root.micMuted ? Theme.accent : Theme.destructive
+                                text: !root.micMuted ? "Actif" : "Muet"
+                            }
                         }
                     }
 
@@ -362,34 +476,58 @@ PanelWindow {
                         onClicked: {
                             Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"]);
                             root.micMuted = !root.micMuted;
+                            getMicStatus.running = true;
                         }
                     }
                 }
 
-                // Toggle Mute Audio
+                // Toggle 4 : Mute Audio
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 42
+                    height: 52
                     radius: Theme.radiusMedium
-                    color: !root.audioMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : Theme.cardBackgroundHover
-                    border.color: !root.audioMuted ? Theme.accent : Theme.glassBorderSubtle
+                    color: !root.audioMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1.0, 0.42, 0.42, 0.15)
+                    border.color: !root.audioMuted ? Theme.accent : Qt.rgba(1.0, 0.42, 0.42, 0.4)
                     border.width: 1
 
+                    Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
+
                     RowLayout {
-                        anchors.centerIn: parent
-                        spacing: Theme.spacingXs
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
+                        anchors.fill: parent
+                        anchors.margins: Theme.spacingSm
+                        spacing: Theme.spacingSm
+
+                        Rectangle {
+                            width: 34
+                            height: 34
+                            radius: width / 2
                             color: !root.audioMuted ? Theme.accent : Theme.destructive
-                            text: !root.audioMuted ? "󰕾" : "󰝟"
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: Theme.backgroundSolid
+                                text: !root.audioMuted ? "󰕾" : "󰝟"
+                            }
                         }
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTiny
-                            font.bold: true
-                            color: Theme.textPrimary
-                            text: "Audio"
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                font.bold: true
+                                color: Theme.textPrimary
+                                text: "Audio"
+                            }
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMicro
+                                color: !root.audioMuted ? Theme.accent : Theme.destructive
+                                text: !root.audioMuted ? "Actif" : "Muet"
+                            }
                         }
                     }
 
@@ -400,242 +538,335 @@ PanelWindow {
                         onClicked: {
                             Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]);
                             root.audioMuted = !root.audioMuted;
+                            getAudioStatus.running = true;
                         }
                     }
                 }
+            }
 
-                // Toggle Verrou (hyprlock)
+            // ==========================================
+            // 3. CURSEURS RAPIDES (Volume & Luminosité)
+            // ==========================================
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: slidersCol.implicitHeight + Theme.spacingMd * 2
+                radius: Theme.radiusLarge
+                color: Qt.rgba(1, 1, 1, 0.03)
+                border.color: Theme.glassBorderSubtle
+                border.width: 1
+
+                ColumnLayout {
+                    id: slidersCol
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        top: parent.top
+                        margins: Theme.spacingMd
+                    }
+                    spacing: Theme.spacingMd
+
+                    // Slider Volume
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingSm
+
+                        Rectangle {
+                            width: 30
+                            height: 30
+                            radius: width / 2
+                            color: root.audioMuted ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : Qt.rgba(0.365, 0.678, 0.886, 0.15)
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: root.audioMuted ? Theme.destructive : Theme.accent
+                                text: root.audioMuted ? "󰝟" : (root.currentVolume > 50 ? "󰕾" : "󰖀")
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]);
+                                    root.audioMuted = !root.audioMuted;
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            id: volSliderTrack
+                            Layout.fillWidth: true
+                            height: 10
+                            radius: 5
+                            color: Qt.rgba(1, 1, 1, 0.08)
+
+                            Rectangle {
+                                height: parent.height
+                                width: parent.width * Math.min(1.0, root.currentVolume / 100.0)
+                                radius: 5
+                                color: root.audioMuted ? Theme.destructive : Theme.accent
+
+                                Behavior on width { NumberAnimation { duration: 80 } }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                function setVol(mouseX) {
+                                    var pct = Math.max(0, Math.min(100, Math.round((mouseX / width) * 100)));
+                                    root.currentVolume = pct;
+                                    Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", pct + "%"]);
+                                }
+                                onPressed: function(mouse) { setVol(mouse.x); }
+                                onPositionChanged: function(mouse) { if (pressed) setVol(mouse.x); }
+                            }
+                        }
+
+                        Text {
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeSmall
+                            font.bold: true
+                            color: Theme.textPrimary
+                            text: root.currentVolume + "%"
+                            Layout.preferredWidth: 38
+                            horizontalAlignment: Text.AlignRight
+                        }
+                    }
+
+                    // Slider Luminosité
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingSm
+
+                        Rectangle {
+                            width: 30
+                            height: 30
+                            radius: width / 2
+                            color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.accent
+                                text: "󰃠"
+                            }
+                        }
+
+                        Rectangle {
+                            id: brightSliderTrack
+                            Layout.fillWidth: true
+                            height: 10
+                            radius: 5
+                            color: Qt.rgba(1, 1, 1, 0.08)
+
+                            Rectangle {
+                                height: parent.height
+                                width: parent.width * Math.min(1.0, root.currentBrightness / 100.0)
+                                radius: 5
+                                color: Theme.accent
+
+                                Behavior on width { NumberAnimation { duration: 80 } }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                function setBright(mouseX) {
+                                    var pct = Math.max(5, Math.min(100, Math.round((mouseX / width) * 100)));
+                                    root.currentBrightness = pct;
+                                    Quickshell.execDetached(["brightnessctl", "set", pct + "%"]);
+                                }
+                                onPressed: function(mouse) { setBright(mouse.x); }
+                                onPositionChanged: function(mouse) { if (pressed) setBright(mouse.x); }
+                            }
+                        }
+
+                        Text {
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeSmall
+                            font.bold: true
+                            color: Theme.textPrimary
+                            text: root.currentBrightness + "%"
+                            Layout.preferredWidth: 38
+                            horizontalAlignment: Text.AlignRight
+                        }
+                    }
+                }
+            }
+
+            // ==========================================
+            // 4. BOUTONS D'ACTIONS SYSTÈME (Lock & Session)
+            // ==========================================
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingSm
+
+                // Verrouiller
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 42
+                    height: 36
                     radius: Theme.radiusMedium
-                    color: Theme.cardBackgroundHover
+                    color: lockMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.04)
                     border.color: Theme.glassBorderSubtle
                     border.width: 1
 
                     RowLayout {
                         anchors.centerIn: parent
-                        spacing: Theme.spacingXs
+                        spacing: Theme.spacingSm
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
+                            font.pixelSize: Theme.fontSizeSmall
                             color: Theme.accent
                             text: "󰌾"
                         }
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTiny
+                            font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
                             color: Theme.textPrimary
-                            text: "Lock"
+                            text: "Verrouiller"
                         }
                     }
 
                     MouseArea {
+                        id: lockMouse
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            Quickshell.execDetached(["hyprlock"]);
-                        }
+                        onClicked: { Quickshell.execDetached(["hyprlock"]); }
                     }
                 }
 
-                // Toggle Éteindre / Menu Énergie
+                // Éteindre / Menu Wlogout
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 42
+                    height: 36
                     radius: Theme.radiusMedium
-                    color: Theme.cardBackgroundHover
-                    border.color: Theme.glassBorderSubtle
+                    color: pwrMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : Qt.rgba(1, 1, 1, 0.04)
+                    border.color: pwrMouse.containsMouse ? Theme.destructive : Theme.glassBorderSubtle
                     border.width: 1
 
                     RowLayout {
                         anchors.centerIn: parent
-                        spacing: Theme.spacingXs
+                        spacing: Theme.spacingSm
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeMedium
+                            font.pixelSize: Theme.fontSizeSmall
                             color: Theme.destructive
                             text: "⏻"
                         }
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTiny
+                            font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
                             color: Theme.textPrimary
-                            text: "Power"
+                            text: "Session"
                         }
                     }
 
                     MouseArea {
+                        id: pwrMouse
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            Quickshell.execDetached(["wlogout"]);
-                        }
+                        onClicked: { Quickshell.execDetached(["wlogout"]); }
                     }
                 }
             }
 
-            // 3. Curseurs Rapides (Volume & Luminosité)
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: Theme.spacingSm
-
-                // Slider Volume
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSm
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: root.audioMuted ? Theme.destructive : Theme.accent
-                        text: root.audioMuted ? "󰝟" : "󰕾"
-                    }
-
-                    Rectangle {
-                        id: volSlider
-                        Layout.fillWidth: true
-                        height: Theme.progressBarHeight
-                        radius: Theme.progressBarHeight / 2
-                        color: Qt.rgba(1, 1, 1, 0.1)
-
-                        Rectangle {
-                            height: parent.height
-                            width: parent.width * Math.min(1.0, root.currentVolume / 100.0)
-                            radius: Theme.progressBarHeight / 2
-                            color: root.audioMuted ? Theme.destructive : Theme.accent
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            function setVol(mouseX) {
-                                var pct = Math.max(0, Math.min(100, Math.round((mouseX / width) * 100)));
-                                root.currentVolume = pct;
-                                Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", pct + "%"]);
-                            }
-                            onPressed: function(mouse) { setVol(mouse.x); }
-                            onPositionChanged: function(mouse) { if (pressed) setVol(mouse.x); }
-                        }
-                    }
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                        color: Theme.textSecondary
-                        text: root.currentVolume + "%"
-                        Layout.preferredWidth: 36
-                        horizontalAlignment: Text.AlignRight
-                    }
-                }
-
-                // Slider Luminosité
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSm
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.accent
-                        text: "󰃠"
-                    }
-
-                    Rectangle {
-                        id: brightSlider
-                        Layout.fillWidth: true
-                        height: Theme.progressBarHeight
-                        radius: Theme.progressBarHeight / 2
-                        color: Qt.rgba(1, 1, 1, 0.1)
-
-                        Rectangle {
-                            height: parent.height
-                            width: parent.width * Math.min(1.0, root.currentBrightness / 100.0)
-                            radius: Theme.progressBarHeight / 2
-                            color: Theme.accent
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            function setBright(mouseX) {
-                                var pct = Math.max(5, Math.min(100, Math.round((mouseX / width) * 100)));
-                                root.currentBrightness = pct;
-                                Quickshell.execDetached(["brightnessctl", "set", pct + "%"]);
-                            }
-                            onPressed: function(mouse) { setBright(mouse.x); }
-                            onPositionChanged: function(mouse) { if (pressed) setBright(mouse.x); }
-                        }
-                    }
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                        color: Theme.textSecondary
-                        text: root.currentBrightness + "%"
-                        Layout.preferredWidth: 36
-                        horizontalAlignment: Text.AlignRight
-                    }
-                }
-            }
-
-            // Séparateur
+            // Séparateur fin
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
                 color: Theme.glassBorder
             }
 
-            // 4. Section Notifications
+            // ==========================================
+            // 5. HISTORIQUE DES NOTIFICATIONS
+            // ==========================================
             RowLayout {
                 Layout.fillWidth: true
 
                 Text {
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
+                    font.pixelSize: Theme.fontSizeMedium
                     font.bold: true
                     color: Theme.textPrimary
-                    text: "Notifications (" + NotificationService.unreadCount + ")"
+                    text: "Notifications"
+                }
+
+                Item { Layout.fillWidth: true }
+
+                Rectangle {
+                    visible: NotificationService.unreadCount > 0
+                    width: 22
+                    height: 22
+                    radius: width / 2
+                    color: Theme.accent
+
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTiny
+                        font.bold: true
+                        color: Theme.backgroundSolid
+                        text: NotificationService.unreadCount.toString()
+                    }
                 }
             }
 
-            // Liste des notifications défilante
+            // Liste défilante des notifications
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                // État vide
+                // État vide élégant
                 ColumnLayout {
                     anchors.centerIn: parent
                     visible: NotificationService.unreadCount === 0
                     spacing: Theme.spacingSm
 
-                    Text {
+                    Rectangle {
                         Layout.alignment: Qt.AlignHCenter
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle + 8
-                        color: Qt.rgba(1, 1, 1, 0.15)
-                        text: "󰂚"
+                        width: 54
+                        height: 54
+                        radius: width / 2
+                        color: Qt.rgba(1, 1, 1, 0.03)
+                        border.color: Theme.glassBorderSubtle
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeTitle
+                            color: Theme.textDisabled
+                            text: "󰂚"
+                        }
                     }
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textDisabled
+                        font.bold: true
+                        color: Theme.textSecondary
                         text: "Aucune notification"
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTiny
+                        color: Theme.textDisabled
+                        text: "Vous êtes à jour"
                     }
                 }
 
-                // Vue liste
+                // Vue Liste
                 ListView {
                     id: notifList
                     anchors.fill: parent
@@ -645,57 +876,80 @@ PanelWindow {
                     spacing: Theme.spacingSm
 
                     delegate: Rectangle {
-                        id: notifItem
+                        id: notifCard
                         required property var modelData
                         width: notifList.width
-                        implicitHeight: itemCol.implicitHeight + Theme.spacingSm * 2
-                        radius: Theme.radiusMedium
-                        color: Theme.cardBackgroundHover
-                        border.color: Theme.glassBorderSubtle
+                        implicitHeight: cardInnerCol.implicitHeight + Theme.spacingMd * 2
+                        radius: Theme.radiusLarge
+                        color: Qt.rgba(1, 1, 1, 0.04)
+                        border.color: cardHover.containsMouse ? Theme.glassBorder : Theme.glassBorderSubtle
                         border.width: 1
 
+                        Behavior on border.color { ColorAnimation { duration: Theme.animDurationFast } }
+
+                        MouseArea {
+                            id: cardHover
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.NoButton
+                        }
+
                         ColumnLayout {
-                            id: itemCol
+                            id: cardInnerCol
                             anchors {
                                 left: parent.left
                                 right: parent.right
                                 top: parent.top
-                                margins: Theme.spacingSm
+                                margins: Theme.spacingMd
                             }
                             spacing: Theme.spacingXs
 
-                            // En-tête de l'item
+                            // En-tête de la notification
                             RowLayout {
                                 Layout.fillWidth: true
                                 spacing: Theme.spacingSm
 
-                                Text {
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeSmall
-                                    color: Theme.accent
-                                    text: modelData.appName || "Application"
-                                    font.bold: true
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
-                                }
-
-                                // Bouton supprimer
                                 Rectangle {
-                                    width: 18
-                                    height: 18
-                                    radius: width / 2
-                                    color: delMouse.containsMouse ? Theme.cardBackground : "transparent"
+                                    width: 22
+                                    height: 22
+                                    radius: Theme.radiusSmall
+                                    color: Qt.rgba(0.365, 0.678, 0.886, 0.2)
 
                                     Text {
                                         anchors.centerIn: parent
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeTiny
-                                        color: delMouse.containsMouse ? Theme.destructive : Theme.textSecondary
+                                        color: Theme.accent
+                                        text: "󰂚"
+                                    }
+                                }
+
+                                Text {
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    font.bold: true
+                                    color: Theme.accent
+                                    text: modelData.appName || "Application"
+                                    elide: Text.ElideRight
+                                    Layout.fillWidth: true
+                                }
+
+                                Rectangle {
+                                    width: 22
+                                    height: 22
+                                    radius: width / 2
+                                    color: itemDelMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : "transparent"
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.fontSizeTiny
+                                        color: itemDelMouse.containsMouse ? Theme.destructive : Theme.textDisabled
                                         text: "󰅖"
                                     }
 
                                     MouseArea {
-                                        id: delMouse
+                                        id: itemDelMouse
                                         anchors.fill: parent
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
@@ -722,7 +976,7 @@ PanelWindow {
                             Text {
                                 Layout.fillWidth: true
                                 font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeTiny
+                                font.pixelSize: Theme.fontSizeSmall
                                 color: Theme.textSecondary
                                 text: modelData.body || ""
                                 wrapMode: Text.Wrap
@@ -731,36 +985,37 @@ PanelWindow {
                                 visible: text !== ""
                             }
 
-                            // Actions
+                            // Boutons d'actions
                             RowLayout {
                                 Layout.fillWidth: true
                                 visible: modelData.actions && modelData.actions.values && modelData.actions.values.length > 0
                                 spacing: Theme.spacingXs
+                                Layout.topMargin: Theme.spacingXs
 
                                 Repeater {
                                     model: modelData.actions ? modelData.actions.values : []
 
                                     delegate: Rectangle {
                                         required property var modelData
-                                        implicitWidth: actTxt.implicitWidth + Theme.spacingSm * 2
-                                        implicitHeight: 20
+                                        implicitWidth: actLabel.implicitWidth + Theme.spacingSm * 2
+                                        implicitHeight: 24
                                         radius: Theme.radiusSmall
-                                        color: actMouse.containsMouse ? Theme.accent : Theme.cardBackground
-                                        border.color: Theme.glassBorder
+                                        color: actBtnMouse.containsMouse ? Theme.accent : Qt.rgba(1, 1, 1, 0.08)
+                                        border.color: Theme.glassBorderSubtle
                                         border.width: 1
 
                                         Text {
-                                            id: actTxt
+                                            id: actLabel
                                             anchors.centerIn: parent
                                             font.family: Theme.fontFamily
                                             font.pixelSize: Theme.fontSizeTiny
                                             font.bold: true
-                                            color: actMouse.containsMouse ? Theme.backgroundSolid : Theme.textPrimary
+                                            color: actBtnMouse.containsMouse ? Theme.backgroundSolid : Theme.textPrimary
                                             text: modelData.text || "Action"
                                         }
 
                                         MouseArea {
-                                            id: actMouse
+                                            id: actBtnMouse
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
@@ -768,7 +1023,7 @@ PanelWindow {
                                                 if (modelData && typeof modelData.invoke === "function") {
                                                     modelData.invoke();
                                                 }
-                                                NotificationService.dismissNotification(notifItem.modelData);
+                                                NotificationService.dismissNotification(notifCard.modelData);
                                             }
                                         }
                                     }
