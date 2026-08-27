@@ -30,6 +30,7 @@ et ce projet adhère au versionnage sémantique.
 - Configuration explicite du contrôleur de rétroéclairage (`amdgpu_bl1`) dans SwayNC (`.config/swaync/config.json`).
 
 ### Corrigé
+- Utilisation d'un gestionnaire de pointeur `HoverHandler` non-bloquant sur les fenêtres flottantes `ModulePopup`, empêchant la fermeture prématurée de la fenêtre lors du survol de boutons ou sliders internes.
 - Suppression des déclarations redondantes de `parentWindow` dans les modules dérivés de `PillButton`, résolvant l'erreur de chargement QML `Property value set multiple times`.
 - Utilisation de la méthode native Quickshell `togglePlaying()` sur `MprisPlayer` au lieu de `playPause()`, éliminant le `TypeError` lors du clic de bascule lecture/pause.
 - Définition de la propriété de couleur `accentSecondary` dans `Theme.qml`, éliminant les avertissements QML `Unable to assign [undefined] to QColor` dans `ClockPopup`, `PowerPopup` et `MemoryPopup`.

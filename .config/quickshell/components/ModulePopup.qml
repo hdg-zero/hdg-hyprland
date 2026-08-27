@@ -14,7 +14,7 @@ PopupWindow {
     property alias cardHeight: card.implicitHeight
     default property alias content: innerContainer.data
 
-    readonly property bool isHovered: (anchorItem && anchorItem.isHovered) || cardMouse.containsMouse
+    readonly property bool isHovered: (anchorItem && anchorItem.isHovered) || cardHoverHandler.hovered
 
     anchor.window: parentWindow
     anchor.item: anchorItem
@@ -53,7 +53,7 @@ PopupWindow {
 
     Timer {
         id: hoverCloseTimer
-        interval: 250
+        interval: 350
         repeat: false
         onTriggered: {
             if (root.autoHover && !root.isHovered) {
@@ -74,7 +74,9 @@ PopupWindow {
         function onExited() {
             if (root.autoHover) {
                 hoverOpenTimer.stop();
-                hoverCloseTimer.restart();
+                if (!cardHoverHandler.hovered) {
+                    hoverCloseTimer.restart();
+                }
             }
         }
     }
@@ -86,17 +88,15 @@ PopupWindow {
         customBorderColor: Theme.glassBorder
         customRadius: Theme.radiusLarge
 
-        MouseArea {
-            id: cardMouse
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.NoButton
-            onEntered: {
-                hoverCloseTimer.stop();
-            }
-            onExited: {
-                if (root.autoHover) {
-                    hoverCloseTimer.restart();
+        HoverHandler {
+            id: cardHoverHandler
+            onHoveredChanged: {
+                if (hovered) {
+                    hoverCloseTimer.stop();
+                } else {
+                    if (root.autoHover && (!root.anchorItem || !root.anchorItem.isHovered)) {
+                        hoverCloseTimer.restart();
+                    }
                 }
             }
         }
