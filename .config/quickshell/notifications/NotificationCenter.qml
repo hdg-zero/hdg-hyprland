@@ -32,8 +32,17 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
-    Keys.onEscapePressed: {
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.visible
+        onActivated: {
+            NotificationService.panelVisible = false;
+        }
+    }
+
+    Keys.onEscapePressed: function(event) {
         NotificationService.panelVisible = false;
+        event.accepted = true;
     }
 
     visible: NotificationService.panelVisible
@@ -944,6 +953,11 @@ PanelWindow {
                         wrapMode: TextEdit.Wrap
                         selectByMouse: true
                         activeFocusOnPress: true
+
+                        Keys.onEscapePressed: function(event) {
+                            NotificationService.panelVisible = false;
+                            event.accepted = true;
+                        }
 
                         Text {
                             anchors.fill: parent
