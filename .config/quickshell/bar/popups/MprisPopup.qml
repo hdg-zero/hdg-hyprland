@@ -8,11 +8,15 @@ import "../../components"
 ModulePopup {
     id: root
 
-    cardWidth: 175
+    widthPercent: Theme.popupWidthPercentWide
     cardHeight: mprisCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var player: (Mpris.players && Mpris.players.values && Mpris.players.values.length > 0) ? Mpris.players.values[0] : null
     readonly property bool isPlaying: player ? (player.playbackState === MprisPlaybackState.Playing) : false
+
+    readonly property int coverSize: Math.round(effectiveWidth * 0.72)
+    readonly property int btnSmallSize: Math.round(coverSize * 0.22)
+    readonly property int btnPlaySize: Math.round(coverSize * 0.28)
 
     ColumnLayout {
         id: mprisCol
@@ -23,11 +27,11 @@ ModulePopup {
         }
         spacing: Theme.spacingSm
 
-        // Pochette d'album centrée en haut
+        // Pochette d'album centrée en haut (proportionnelle à la largeur de carte)
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
-            width: 140
-            height: 140
+            width: root.coverSize
+            height: root.coverSize
             radius: Theme.radiusMedium
             color: Qt.rgba(1, 1, 1, 0.05)
             clip: true
@@ -38,7 +42,7 @@ ModulePopup {
                 id: albumArt
                 anchors.fill: parent
                 source: (root.visible && root.player) ? (root.player.trackArtUrl || root.player.artUrl || "") : ""
-                sourceSize: Qt.size(280, 280)
+                sourceSize: Qt.size(root.coverSize * 2, root.coverSize * 2)
                 fillMode: Image.PreserveAspectCrop
                 visible: source !== "" && status === Image.Ready
                 smooth: true
@@ -50,7 +54,7 @@ ModulePopup {
                 anchors.centerIn: parent
                 visible: !albumArt.visible
                 font.family: Theme.fontFamily
-                font.pixelSize: 42
+                font.pixelSize: Math.round(root.coverSize * 0.35)
                 color: Theme.textDisabled
                 text: "󰝚"
             }
@@ -66,7 +70,7 @@ ModulePopup {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 font.bold: true
                 color: Theme.textPrimary
                 text: root.player ? (root.player.trackTitle || "Aucune lecture") : "Aucun lecteur"
@@ -77,7 +81,7 @@ ModulePopup {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeRegular
+                font.pixelSize: Theme.fontSizeMedium
                 color: Theme.accent
                 text: root.player ? (root.player.trackArtist || "Artiste inconnu") : ""
                 elide: Text.ElideRight
@@ -105,7 +109,7 @@ ModulePopup {
             Layout.bottomMargin: Theme.spacingXs
         }
 
-        // Boutons de commandes centrés en bas
+        // Boutons de commandes multimédia proportionnels
         RowLayout {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
@@ -113,15 +117,15 @@ ModulePopup {
 
             // Précédent
             Rectangle {
-                width: 36
-                height: 36
+                width: root.btnSmallSize
+                height: root.btnSmallSize
                 radius: width / 2
                 color: prevMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
 
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    font.pixelSize: Theme.fontSizeHeader
                     color: root.player ? Theme.textPrimary : Theme.textDisabled
                     text: "󰒮"
                 }
@@ -137,10 +141,10 @@ ModulePopup {
                 }
             }
 
-            // Lecture / Pause (Grand bouton rond)
+            // Lecture / Pause (Bouton d'action principal)
             Rectangle {
-                width: 46
-                height: 46
+                width: root.btnPlaySize
+                height: root.btnPlaySize
                 radius: width / 2
                 color: playMouse.containsMouse ? Qt.lighter(Theme.accent, 1.1) : Theme.accent
 
@@ -151,7 +155,7 @@ ModulePopup {
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeTitle
+                    font.pixelSize: Theme.fontSizeTitle + 2
                     color: Theme.background
                     text: root.isPlaying ? "󰏤" : "󰐊"
                 }
@@ -175,15 +179,15 @@ ModulePopup {
 
             // Suivant
             Rectangle {
-                width: 36
-                height: 36
+                width: root.btnSmallSize
+                height: root.btnSmallSize
                 radius: width / 2
                 color: nextMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
 
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    font.pixelSize: Theme.fontSizeHeader
                     color: root.player ? Theme.textPrimary : Theme.textDisabled
                     text: "󰒭"
                 }
