@@ -5,7 +5,7 @@ import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Services.Notifications as Notifs
 
-QtObject {
+Scope {
     id: root
 
     property bool dnd: false
