@@ -8,7 +8,6 @@ import "../popups"
 PillButton {
     id: root
 
-    property var parentWindow: null
     property int brightnessPercent: 100
 
     readonly property var icons: ["", "", "", "󰃝", "󰃞", "󰃟", "󰃠"]

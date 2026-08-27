@@ -9,7 +9,6 @@ import "../popups"
 PillButton {
     id: root
 
-    property var parentWindow: null
     property int wpVolumePercent: 0
     property bool wpMuted: false
     property bool wpIsBluetooth: false

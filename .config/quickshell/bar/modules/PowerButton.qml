@@ -7,8 +7,6 @@ import "../popups"
 PillButton {
     id: root
 
-    property var parentWindow: null
-
     PowerPopup {
         id: pwrPopup
         parentWindow: root.parentWindow

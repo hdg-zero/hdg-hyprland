@@ -8,7 +8,6 @@ import "../popups"
 PillButton {
     id: root
 
-    property var parentWindow: null
     property int memPercent: 0
     property string memUsedGb: "0"
     property string memTotalGb: "0"
@@ -16,7 +15,6 @@ PillButton {
     icon: "󰍛"
     iconColor: memPercent > 85 ? Theme.destructive : (memPercent > 70 ? Theme.warning : Theme.accent)
     text: memPercent + "% RAM"
-    parentWindow: root.parentWindow
     customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
     widthPercent: 0.03

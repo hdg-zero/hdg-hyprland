@@ -8,7 +8,6 @@ import "../popups"
 PillButton {
     id: root
 
-    property var parentWindow: null
     property int cpuUsage: 0
     property var lastTotal: 0
     property var lastIdle: 0
@@ -16,7 +15,6 @@ PillButton {
     icon: "󰻠"
     iconColor: cpuUsage > 80 ? Theme.destructive : (cpuUsage > 50 ? Theme.warning : Theme.accent)
     text: cpuUsage + "% CPU"
-    parentWindow: root.parentWindow
     customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
     widthPercent: 0.03

@@ -9,7 +9,6 @@ import "../popups"
 PillButton {
     id: root
 
-    property var parentWindow: null
     property var lastRx: 0
     property var lastTx: 0
     property var lastTime: 0
@@ -120,7 +119,6 @@ PillButton {
     icon: netIcon
     iconColor: isConnected ? Theme.accent : Theme.textDisabled
     text: isConnected ? totalSpeedFormatted : "Déconnecté"
-    parentWindow: root.parentWindow
     customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
     widthPercent: 0.03

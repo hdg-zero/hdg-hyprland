@@ -7,8 +7,6 @@ import "../popups"
 PillButton {
     id: root
 
-    property var parentWindow: null
-
     SystemClock {
         id: sysClock
         precision: SystemClock.Minutes
