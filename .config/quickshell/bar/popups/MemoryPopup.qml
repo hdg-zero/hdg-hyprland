@@ -102,7 +102,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 color: root.ramPercent > 85 ? Theme.destructive : (root.ramPercent > 70 ? Theme.warning : Theme.accent)
                 text: "󰍛"
             }
@@ -110,7 +110,7 @@ ModulePopup {
             Text {
                 Layout.fillWidth: true
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
                 color: Theme.textPrimary
                 text: "Mémoire"
@@ -118,24 +118,24 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 font.bold: true
                 color: root.ramPercent > 85 ? Theme.destructive : (root.ramPercent > 70 ? Theme.warning : Theme.accent)
                 text: root.ramPercent + "%"
             }
         }
 
-        // Barre d'utilisation RAM
+        // Barre d'utilisation RAM (plus épaisse)
         Rectangle {
             Layout.fillWidth: true
-            height: Theme.spacingXs
-            radius: Theme.radiusSmall / 2
+            height: Theme.progressBarHeight
+            radius: Theme.progressBarHeight / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: parent.width * (Math.min(100, Math.max(0, root.ramPercent)) / 100.0)
                 height: parent.height
-                radius: Theme.radiusSmall / 2
+                radius: Theme.progressBarHeight / 2
                 color: root.ramPercent > 85 ? Theme.destructive : (root.ramPercent > 70 ? Theme.warning : Theme.accent)
 
                 Behavior on width {

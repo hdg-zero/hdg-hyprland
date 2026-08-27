@@ -34,7 +34,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 color: Theme.accent
                 text: "󰃠"
             }
@@ -42,7 +42,7 @@ ModulePopup {
             Text {
                 Layout.fillWidth: true
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
                 color: Theme.textPrimary
                 text: "Luminosité"
@@ -50,25 +50,25 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 font.bold: true
                 color: Theme.accent
                 text: root.brightnessPercent + "%"
             }
         }
 
-        // Slider interactif
+        // Slider interactif (plus épais)
         Rectangle {
             id: lightSliderTrack
             Layout.fillWidth: true
-            height: Theme.spacingXs
-            radius: Theme.radiusSmall / 2
+            height: Theme.progressBarHeight
+            radius: Theme.progressBarHeight / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: Math.min(parent.width, parent.width * (root.brightnessPercent / 100.0))
                 height: parent.height
-                radius: Theme.radiusSmall / 2
+                radius: Theme.progressBarHeight / 2
                 color: Theme.accent
             }
 

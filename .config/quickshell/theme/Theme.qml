@@ -28,43 +28,47 @@ QtObject {
     readonly property color destructive: "#ff6b6b"
     readonly property color success: "#2ecc71"
 
-    // --- Typographie & Polices ---
+    // --- Typographie & Polices Augmentées ---
     readonly property string fontFamily: "JetBrainsMono Nerd Font"
-    readonly property int fontSizeMicro: 9
-    readonly property int fontSizeTiny: 10
-    readonly property int fontSizeSmall: 11
-    readonly property int fontSizeRegular: 12
-    readonly property int fontSizeMedium: 13
-    readonly property int fontSizeLarge: 15
-    readonly property int fontSizeHeader: 17
-    readonly property int fontSizeTitle: 20
+    readonly property int fontSizeMicro: 11
+    readonly property int fontSizeTiny: 12
+    readonly property int fontSizeSmall: 13
+    readonly property int fontSizeRegular: 14
+    readonly property int fontSizeMedium: 16
+    readonly property int fontSizeLarge: 18
+    readonly property int fontSizeHeader: 20
+    readonly property int fontSizeTitle: 24
 
     // --- Espacements & Marges Relatifs ---
-    readonly property int spacingXs: 3
-    readonly property int spacingSm: 6
-    readonly property int spacingMd: 10
-    readonly property int spacingLg: 14
-    readonly property int spacingXl: 20
+    readonly property int spacingXs: 4
+    readonly property int spacingSm: 8
+    readonly property int spacingMd: 12
+    readonly property int spacingLg: 16
+    readonly property int spacingXl: 22
 
     // --- Rayons de bordure Relatifs (Border Radius) ---
-    readonly property real radiusSmall: 5
-    readonly property real radiusMedium: 8
-    readonly property real radiusLarge: 12
-    readonly property real radiusXLarge: 16
+    readonly property real radiusSmall: 6
+    readonly property real radiusMedium: 10
+    readonly property real radiusLarge: 14
+    readonly property real radiusXLarge: 18
     readonly property real radiusPill: 9999
 
+    // --- Épaisseur des barres et jauges (Progress bars & Sliders) ---
+    readonly property int progressBarHeight: 8
+    readonly property int progressBarMiniHeight: 6
+
     // --- Ratios & Dimensions Relatifs d'Écran ---
-    readonly property real barHeightRatio: 0.028       // ~30px sur 1080p, ~40px sur 1440p
+    readonly property real barHeightRatio: 0.033       // ~35px sur 1080p, ~47px sur 1440p
 
     // Pourcentages de largeur pour modules de la barre
-    readonly property real moduleWidthPercentMetrics: 0.03   // CPU, RAM, Réseau
-    readonly property real moduleWidthPercentMpris: 0.10     // Musique
+    readonly property real moduleWidthPercentMetrics: 0.038   // CPU, RAM, Réseau
+    readonly property real moduleWidthPercentMpris: 0.12      // Musique
 
     // Pourcentages de largeur pour popups
-    readonly property real popupWidthPercentNarrow: 0.09     // Power, Backlight
-    readonly property real popupWidthPercentCompact: 0.10    // CPU, RAM, Volume, Battery
-    readonly property real popupWidthPercentStandard: 0.115  // Network, Clock, App
-    readonly property real popupWidthPercentWide: 0.13       // MPRIS
+    readonly property real popupWidthPercentNarrow: 0.11      // Power, Backlight
+    readonly property real popupWidthPercentCompact: 0.125    // CPU, RAM, Volume, Battery
+    readonly property real popupWidthPercentStandard: 0.14    // Network, Clock, App
+    readonly property real popupWidthPercentWide: 0.16        // MPRIS
 
     // Fonctions d'aide au dimensionnement relatif
     function relWidth(ratio, screen) {

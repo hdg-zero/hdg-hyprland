@@ -140,7 +140,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 color: root.cpuPercent > 80 ? Theme.destructive : (root.cpuPercent > 50 ? Theme.warning : Theme.accent)
                 text: "󰻠"
             }
@@ -148,7 +148,7 @@ ModulePopup {
             Text {
                 Layout.fillWidth: true
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
                 color: Theme.textPrimary
                 text: "Processeur"
@@ -164,24 +164,24 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 font.bold: true
                 color: root.cpuPercent > 80 ? Theme.destructive : (root.cpuPercent > 50 ? Theme.warning : Theme.accent)
                 text: root.cpuPercent + "%"
             }
         }
 
-        // Barre d'utilisation globale
+        // Barre d'utilisation globale (plus épaisse)
         Rectangle {
             Layout.fillWidth: true
-            height: Theme.spacingXs + 1
-            radius: Theme.radiusSmall / 2
+            height: Theme.progressBarHeight
+            radius: Theme.progressBarHeight / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: parent.width * (Math.min(100, Math.max(0, root.cpuPercent)) / 100.0)
                 height: parent.height
-                radius: Theme.radiusSmall / 2
+                radius: Theme.progressBarHeight / 2
                 color: root.cpuPercent > 80 ? Theme.destructive : (root.cpuPercent > 50 ? Theme.warning : Theme.accent)
 
                 Behavior on width {
@@ -198,12 +198,12 @@ ModulePopup {
             color: Theme.glassBorder
         }
 
-        // Grille des cœurs
+        // Grille des cœurs avec barres plus visibles
         GridLayout {
             Layout.fillWidth: true
             columns: root.coreList.length > 8 ? 4 : 2
             rowSpacing: Theme.spacingXs
-            columnSpacing: Theme.spacingSm
+            columnSpacing: Theme.spacingMd
 
             Repeater {
                 model: root.coreList
@@ -215,7 +215,7 @@ ModulePopup {
 
                     Text {
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTiny
+                        font.pixelSize: Theme.fontSizeSmall
                         color: Theme.textSecondary
                         text: "C" + modelData.id
                         Layout.preferredWidth: Theme.spacingLg
@@ -223,14 +223,14 @@ ModulePopup {
 
                     Rectangle {
                         Layout.fillWidth: true
-                        height: Theme.spacingXs
-                        radius: 1
-                        color: Qt.rgba(1, 1, 1, 0.08)
+                        height: Theme.progressBarMiniHeight
+                        radius: Theme.progressBarMiniHeight / 2
+                        color: Qt.rgba(1, 1, 1, 0.1)
 
                         Rectangle {
                             width: parent.width * (Math.min(100, Math.max(0, modelData.percent)) / 100.0)
                             height: parent.height
-                            radius: 1
+                            radius: Theme.progressBarMiniHeight / 2
                             color: modelData.percent > 80 ? Theme.destructive : (modelData.percent > 50 ? Theme.warning : Theme.accent)
 
                             Behavior on width {
@@ -241,7 +241,8 @@ ModulePopup {
 
                     Text {
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTiny
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
                         color: modelData.percent > 80 ? Theme.destructive : (modelData.percent > 50 ? Theme.warning : Theme.textPrimary)
                         text: modelData.percent + "%"
                         horizontalAlignment: Text.AlignRight

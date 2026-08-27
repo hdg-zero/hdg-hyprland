@@ -47,7 +47,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 color: root.isCharging ? Theme.success : (root.chargePercent <= 20 ? Theme.destructive : Theme.accent)
                 text: root.isCharging ? "󰂄" : (root.chargePercent >= 90 ? "󰁹" : (root.chargePercent >= 50 ? "󰁿" : (root.chargePercent >= 20 ? "󰁼" : "󰁺")))
             }
@@ -55,7 +55,7 @@ ModulePopup {
             Text {
                 Layout.fillWidth: true
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
                 color: Theme.textPrimary
                 text: "Batterie"
@@ -63,24 +63,24 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 font.bold: true
                 color: root.isCharging ? Theme.success : (root.chargePercent <= 20 ? Theme.destructive : Theme.accent)
                 text: root.chargePercent + "%"
             }
         }
 
-        // Barre de charge
+        // Barre de charge (plus épaisse)
         Rectangle {
             Layout.fillWidth: true
-            height: Theme.spacingXs
-            radius: Theme.radiusSmall / 2
+            height: Theme.progressBarHeight
+            radius: Theme.progressBarHeight / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: parent.width * (Math.min(100, Math.max(0, root.chargePercent)) / 100.0)
                 height: parent.height
-                radius: Theme.radiusSmall / 2
+                radius: Theme.progressBarHeight / 2
                 color: root.isCharging ? Theme.success : (root.chargePercent <= 20 ? Theme.destructive : Theme.accent)
 
                 Behavior on width {

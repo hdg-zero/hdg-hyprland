@@ -39,7 +39,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 color: root.isMuted ? Theme.destructive : Theme.accent
                 text: root.isMuted ? (root.isBluetooth ? "󰂲" : "󰝟") : (root.isBluetooth ? "󰂯" : "󰕾")
             }
@@ -47,7 +47,7 @@ ModulePopup {
             Text {
                 Layout.fillWidth: true
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
                 color: Theme.textPrimary
                 text: root.isBluetooth ? "Bluetooth" : "Volume"
@@ -55,25 +55,25 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeHeader
                 font.bold: true
                 color: root.isMuted ? Theme.destructive : (root.volumePercent > 100 ? Theme.warning : Theme.accent)
                 text: root.isMuted ? "Muet" : root.volumePercent + "%"
             }
         }
 
-        // Slider interactif
+        // Slider interactif (plus épais)
         Rectangle {
             id: sliderTrack
             Layout.fillWidth: true
-            height: Theme.spacingXs + 1
-            radius: Theme.radiusSmall / 2
+            height: Theme.progressBarHeight
+            radius: Theme.progressBarHeight / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: Math.min(parent.width, parent.width * (root.volumePercent / 150.0))
                 height: parent.height
-                radius: Theme.radiusSmall / 2
+                radius: Theme.progressBarHeight / 2
                 color: root.isMuted ? Theme.destructive : (root.volumePercent > 100 ? Theme.warning : Theme.accent)
             }
 
