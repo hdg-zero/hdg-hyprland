@@ -23,6 +23,6 @@ PillButton {
     }
 
     onRightClicked: {
-        Hyprland.dispatch("hl.dsp.exec_cmd('wlogout --protocol layer-shell')");
+        Quickshell.execDetached(["wlogout", "--protocol", "layer-shell"]);
     }
 }

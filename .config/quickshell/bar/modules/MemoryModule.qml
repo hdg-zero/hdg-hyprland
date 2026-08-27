@@ -73,6 +73,6 @@ PillButton {
     }
 
     onRightClicked: {
-        Hyprland.dispatch("hl.dsp.exec_cmd('kitty --title btop -e btop')");
+        Quickshell.execDetached(["kitty", "--title", "btop", "-e", "btop"]);
     }
 }

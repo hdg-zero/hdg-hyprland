@@ -15,7 +15,7 @@ ModulePopup {
 
     function setBrightness(pct) {
         var clamped = Math.max(1, Math.min(100, pct));
-        Hyprland.dispatch("hl.dsp.exec_cmd('brightnessctl s " + clamped + "%')");
+        Quickshell.execDetached(["brightnessctl", "s", clamped + "%"]);
         root.brightnessPercent = clamped;
     }
 

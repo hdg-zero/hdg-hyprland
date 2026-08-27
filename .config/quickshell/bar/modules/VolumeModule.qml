@@ -107,14 +107,14 @@ PillButton {
     }
 
     onRightClicked: {
-        Hyprland.dispatch("hl.dsp.exec_cmd('pavucontrol -t 3')");
+        Quickshell.execDetached(["pavucontrol", "-t", "3"]);
     }
 
     onScrolled: function(wheel) {
         if (wheel.angleDelta.y > 0) {
-            Hyprland.dispatch("hl.dsp.exec_cmd('wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+')");
+            Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%+"]);
         } else if (wheel.angleDelta.y < 0) {
-            Hyprland.dispatch("hl.dsp.exec_cmd('wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-')");
+            Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-"]);
         }
         syncTimer.restart();
     }

@@ -108,7 +108,7 @@ ModulePopup {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        Hyprland.dispatch("hl.dsp.exec_cmd('" + modelData.cmd + "')");
+                        Quickshell.execDetached(["sh", "-c", modelData.cmd]);
                         root.close();
                     }
                 }

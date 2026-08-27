@@ -12,6 +12,6 @@ PillButton {
     customPaddingV: Theme.spacingSm
     
     onClicked: {
-        Hyprland.dispatch("hl.dsp.exec_cmd('rofi -show drun')");
+        Quickshell.execDetached(["rofi", "-show", "drun"]);
     }
 }

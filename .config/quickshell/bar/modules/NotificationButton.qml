@@ -42,14 +42,14 @@ PillButton {
     }
 
     onClicked: {
-        Hyprland.dispatch("hl.dsp.exec_cmd('swaync-client -t -sw')");
+        Quickshell.execDetached(["swaync-client", "-t", "-sw"]);
         if (!swayncStatus.running) {
             swayncStatus.running = true;
         }
     }
 
     onRightClicked: {
-        Hyprland.dispatch("hl.dsp.exec_cmd('swaync-client -d -sw')");
+        Quickshell.execDetached(["swaync-client", "-d", "-sw"]);
         root.dnd = !root.dnd;
     }
 }

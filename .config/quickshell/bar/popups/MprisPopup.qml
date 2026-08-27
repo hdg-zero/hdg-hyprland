@@ -41,7 +41,7 @@ ModulePopup {
                 Image {
                     id: albumArt
                     anchors.fill: parent
-                    source: root.player ? (root.player.artUrl || "") : ""
+                    source: root.player ? (root.player.trackArtUrl || root.player.artUrl || "") : ""
                     fillMode: Image.PreserveAspectCrop
                     visible: source !== "" && status === Image.Ready
                     smooth: true

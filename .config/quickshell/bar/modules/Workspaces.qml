@@ -73,14 +73,14 @@ RowLayout {
                 cursorShape: Qt.PointingHandCursor
 
                 onClicked: {
-                    Hyprland.dispatch("hl.dsp.focus({ workspace = " + wsId + " })");
+                    Quickshell.execDetached(["hyprctl", "dispatch", "workspace", wsId.toString()]);
                 }
 
                 onWheel: function(wheel) {
                     if (wheel.angleDelta.y > 0) {
-                        Hyprland.dispatch("hl.dsp.focus({ workspace = 'e-1' })");
+                        Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e-1"]);
                     } else if (wheel.angleDelta.y < 0) {
-                        Hyprland.dispatch("hl.dsp.focus({ workspace = 'e+1' })");
+                        Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e+1"]);
                     }
                 }
             }
@@ -91,9 +91,9 @@ RowLayout {
     WheelHandler {
         onWheel: function(event) {
             if (event.angleDelta.y > 0) {
-                Hyprland.dispatch("hl.dsp.focus({ workspace = 'e-1' })");
+                Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e-1"]);
             } else if (event.angleDelta.y < 0) {
-                Hyprland.dispatch("hl.dsp.focus({ workspace = 'e+1' })");
+                Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e+1"]);
             }
         }
     }

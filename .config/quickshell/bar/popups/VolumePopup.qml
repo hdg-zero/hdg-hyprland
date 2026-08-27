@@ -18,11 +18,11 @@ ModulePopup {
 
     function setVolume(pct) {
         var frac = (pct / 100.0).toFixed(2);
-        Hyprland.dispatch("hl.dsp.exec_cmd('wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ " + frac + "')");
+        Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", frac]);
     }
 
     function toggleMute() {
-        Hyprland.dispatch("hl.dsp.exec_cmd('wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle')");
+        Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]);
     }
 
     ColumnLayout {
@@ -236,7 +236,7 @@ ModulePopup {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        Hyprland.dispatch("hl.dsp.exec_cmd('pavucontrol -t 3')");
+                        Quickshell.execDetached(["pavucontrol", "-t", "3"]);
                         root.close();
                     }
                 }

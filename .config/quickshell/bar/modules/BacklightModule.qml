@@ -61,10 +61,10 @@ PillButton {
 
     onScrolled: function(wheel) {
         if (wheel.angleDelta.y > 0) {
-            Hyprland.dispatch("hl.dsp.exec_cmd('brightnessctl set +3%')");
+            Quickshell.execDetached(["brightnessctl", "set", "+3%"]);
             root.brightnessPercent = Math.min(100, root.brightnessPercent + 3);
         } else if (wheel.angleDelta.y < 0) {
-            Hyprland.dispatch("hl.dsp.exec_cmd('brightnessctl set 3%- -n 1%')");
+            Quickshell.execDetached(["brightnessctl", "set", "3%-", "-n", "1%"]);
             root.brightnessPercent = Math.max(1, root.brightnessPercent - 3);
         }
     }

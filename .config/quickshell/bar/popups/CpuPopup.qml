@@ -241,7 +241,7 @@ ModulePopup {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    Hyprland.dispatch("hl.dsp.exec_cmd('kitty --title btop -e btop')");
+                    Quickshell.execDetached(["kitty", "--title", "btop", "-e", "btop"]);
                     root.close();
                 }
             }

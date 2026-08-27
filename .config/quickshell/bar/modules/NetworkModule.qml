@@ -128,6 +128,6 @@ PillButton {
     }
 
     onRightClicked: {
-        Hyprland.dispatch("hl.dsp.exec_cmd('kitty -e nmtui')");
+        Quickshell.execDetached(["kitty", "-e", "nmtui"]);
     }
 }

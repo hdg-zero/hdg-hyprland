@@ -349,7 +349,7 @@ ModulePopup {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        Hyprland.dispatch("hl.dsp.exec_cmd('nm-connection-editor')");
+                        Quickshell.execDetached(["nm-connection-editor"]);
                         root.close();
                     }
                 }
@@ -386,7 +386,7 @@ ModulePopup {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        Hyprland.dispatch("hl.dsp.exec_cmd('kitty -e nmtui')");
+                        Quickshell.execDetached(["kitty", "-e", "nmtui"]);
                         root.close();
                     }
                 }

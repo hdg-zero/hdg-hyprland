@@ -29,7 +29,7 @@ ModulePopup {
     cardHeight: batCol.implicitHeight + Theme.spacingMd * 2
 
     function setProfile(profile) {
-        Hyprland.dispatch("hl.dsp.exec_cmd('powerprofilesctl set " + profile + "')");
+        Quickshell.execDetached(["powerprofilesctl", "set", profile]);
     }
 
     ColumnLayout {
