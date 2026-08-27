@@ -1,56 +1,24 @@
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
-import Quickshell.Io
 import "../../theme"
 import "../../components"
+import "../../notifications"
 
 PillButton {
     id: root
 
-    property int unreadCount: 0
-    property bool dnd: false
-
-    icon: dnd ? "󰂛" : (unreadCount > 0 ? "󱅫" : "󰂚")
-    iconColor: dnd ? Theme.warning : (unreadCount > 0 ? Theme.accent : Theme.textSecondary)
-    text: unreadCount > 0 ? unreadCount.toString() : ""
+    icon: NotificationService.dnd ? "󰂛" : (NotificationService.unreadCount > 0 ? "󱅫" : "󰂚")
+    iconColor: NotificationService.dnd ? Theme.warning : (NotificationService.unreadCount > 0 ? Theme.accent : Theme.textSecondary)
+    text: NotificationService.unreadCount > 0 ? NotificationService.unreadCount.toString() : ""
     textColor: Theme.textPrimary
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
 
-    Process {
-        id: swayncStatus
-        command: ["swaync-client", "-c"]
-        stdout: StdioCollector {
-            id: swayncOut
-        }
-        onExited: function(exitCode, exitStatus) {
-            var count = parseInt(swayncOut.text.trim()) || 0;
-            root.unreadCount = count;
-        }
-    }
-
-    Timer {
-        interval: 3000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            if (!swayncStatus.running) {
-                swayncStatus.running = true;
-            }
-        }
-    }
-
     onClicked: {
-        Quickshell.execDetached(["swaync-client", "-t", "-sw"]);
-        if (!swayncStatus.running) {
-            swayncStatus.running = true;
-        }
+        NotificationService.togglePanel();
     }
 
     onRightClicked: {
-        Quickshell.execDetached(["swaync-client", "-d", "-sw"]);
-        root.dnd = !root.dnd;
+        NotificationService.toggleDnd();
     }
 }

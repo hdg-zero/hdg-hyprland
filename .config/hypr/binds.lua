@@ -107,8 +107,8 @@ return function(programs)
         description = "Capture écran d'une région",
     })
 
-    hl.bind(main_mod .. " + f", hl.dsp.exec_cmd("swaync-client -op"), {
-        description = "Ouvrir le centre de notifications",
+    hl.bind(main_mod .. " + f", hl.dsp.exec_cmd("quickshell ipc call notifications toggle || qs ipc call notifications toggle"), {
+        description = "Basculer le centre de contrôle et notifications",
     })
 
     hl.bind(main_mod .. " + a", hl.dsp.exec_cmd("hyprctl switchxkblayout all next"), {

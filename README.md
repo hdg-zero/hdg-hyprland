@@ -39,18 +39,16 @@ La configuration est organisée comme suit :
     │       └── check-dependencies.sh # Validation automatique des dépendances (exit code)
     ├── kitty
     │   └── kitty.conf              # Émulateur de terminal Kitty
-    ├── quickshell                  # Barre d'état réactive & fenêtres flottantes (Quickshell 0.3.1)
+    ├── quickshell                  # Barre d'état réactive, popups & notifications (Quickshell 0.3.1)
     │   ├── shell.qml               # Point d'entrée ShellRoot (multi-écrans)
     │   ├── theme/                  # Tokens visuels (Obsidian Glass & Glacier Blue)
     │   ├── components/             # Composants d'interface (GlassCard, PillButton, ModulePopup)
-    │   └── bar/                    # Modules de la barre et fenêtres flottantes interactives (popups)
+    │   ├── bar/                    # Modules de la barre et fenêtres popups
+    │   └── notifications/          # Serveur de notifications natif D-Bus & Centre de Contrôle
     ├── rofi
     │   ├── config.rasi             # Configuration globale de Rofi
     │   └── themes/
     │       └── theme.rasi          # Thème graphique Rofi
-    ├── swaync
-    │   ├── config.json             # Configuration SwayNC (détection auto backlight & POSIX)
-    │   └── style.css               # Style personnalisé SwayNC
     ├── wlogout
     │   ├── layout                  # Disposition (verrouillage sécurisé avant suspend)
     │   ├── style.css               # Feuille de style Wlogout
@@ -101,7 +99,7 @@ Pour vérifier l'état des dépendances sur votre système :
 - **UWSM** (Wayland Session Manager)
 - **Quickshell** (>= 0.3.1)
 - **hypridle** & **hyprlock**
-- **Rofi**, **SwayNC**, **Wlogout**, **kitty**
+- **Rofi**, **Wlogout**, **kitty**
 - **brightnessctl**, **playerctl**, **wpctl**
 
 ---
@@ -121,7 +119,7 @@ Pour vérifier l'état des dépendances sur votre système :
    ```bash
    REPO_PATH="$(pwd)"
 
-   for dir in hypr kitty quickshell rofi swaync wlogout; do
+   for dir in hypr kitty quickshell rofi wlogout; do
      if [ -e "$HOME/.config/$dir" ] && [ ! -L "$HOME/.config/$dir" ]; then
        mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
      fi

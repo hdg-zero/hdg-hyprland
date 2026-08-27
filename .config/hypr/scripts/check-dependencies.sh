@@ -15,8 +15,6 @@ REQUIRED_DEPS=(
   playerctl
   quickshell
   rofi
-  swaync
-  swaync-client
   uwsm
   wlogout
   wl-copy

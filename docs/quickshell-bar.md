@@ -137,10 +137,11 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
 - **󰁹 Batterie (`BatteryModule` + `BatteryPopup`) :**
   - Détection automatique (masqué sur PC fixe).
   - Popup épuré : Jauge fine, pourcentage, temps restant estimé, débit en Watts et sélecteur de profils UPower (**Éco**, **Équilibré**, **Max**).
-- **󰂚 Centre de Notifications (`NotificationButton`) :**
-  - Clic gauche : Ouvre/Ferme le panneau SwayNC.
-  - Clic droit : Bascule le mode Ne Pas Déranger (DND).
-  - Badge avec compteur de notifications non lues.
+- **󰂚 Centre de Contrôle & Notifications (`NotificationButton` + `NotificationCenter`) :**
+  - Clic gauche : Ouvre/Ferme le Centre de Contrôle natif Quickshell (`NotificationService.togglePanel()`).
+  - Clic droit : Bascule le mode Ne Pas Déranger (`NotificationService.toggleDnd()`).
+  - Badge dynamique en temps réel sans polling affichant le nombre de notifications non lues.
+  - Toasts OSD flottants (`NotificationToastWindow`) avec compte à rebours de fermeture automatique.
 - **󰥔 Horloge (`ClockModule` + `ClockPopup`) :**
   - Barre : Heure au format `HH:mm` cadencée à la minute.
   - Popup épuré : Heure avec secondes, date en français, calendrier compact du mois avec jour courant en surbrillance et Uptime système.

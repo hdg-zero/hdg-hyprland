@@ -6,8 +6,9 @@ import "../theme"
 PanelWindow {
     id: root
 
-    property var modelData
-    screen: modelData
+    property var modelData: null
+    property var targetScreen: null
+    screen: targetScreen || modelData
 
     anchors {
         top: true

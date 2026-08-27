@@ -8,6 +8,7 @@ et ce projet adhère au versionnage sémantique.
 ## [Unreleased]
 
 ### Ajouté
+- Serveur de notifications D-Bus natif et Centre de Contrôle sous Quickshell v0.3.1 (`notifications/NotificationService.qml`, `notifications/NotificationToastWindow.qml`, `notifications/NotificationCenter.qml`) avec gestion DND, alertes OSD éphémères avec timers d'expiration, curseurs rapides (volume/luminosité) et grille de commandes système (WiFi, Bluetooth, Micro, Audio, Lock, Power).
 - Initialisation de la structure de configuration Quickshell v0.3.1 (`.config/quickshell/`) avec `shell.qml`, singleton `Theme.qml` (tokens Obsidian Glass & Glacier Blue) et composants UI réutilisables (`GlassCard`, `PillButton`, `IconLabel`, `ModulePopup`).
 - Barre d'état Quickshell complète multi-écrans (`BarWindow`, `BarContent`) intégrant tous les modules : Workspaces, CPU, Mémoire, Réseau, MPRIS, ActiveWindow, Taskbar, SystemTray, Luminosité, Volume, Batterie, Notifications, Horloge et Power.
 - Fenêtres flottantes et popups interactives riches (`bar/popups/`) avec ancrage dynamique sous chaque module :
@@ -25,7 +26,9 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
-- Intégration de `quickshell` et `swaync` dans la table `autostart_commands` de `.config/hypr/programs.lua` avec vérification préalable de présence (`command -v`) et lancement encapsulé sous UWSM (`uwsm app -- ...`).
+- Liaison réactive instantanée et zéro polling pour le bouton de notification de la barre (`NotificationButton.qml`) connecté directement au `NotificationService` natif.
+- Bascule du raccourci clavier `SUPER + f` dans `binds.lua` vers l'IPC natif Quickshell (`quickshell ipc call notifications toggle`).
+- Intégration de `quickshell` dans la table `autostart_commands` de `.config/hypr/programs.lua` avec vérification préalable de présence (`command -v`) et lancement encapsulé sous UWSM (`uwsm app -- quickshell`).
 - Dimensionnement 100% relatif et proportionnel en pourcentage d'écran pour la popup MPRIS (`widthPercent: Theme.popupWidthPercentWide`), avec pochette d'album (`coverSize: 72% effectiveWidth`), typographie et commandes multimédia (`btnPlaySize: 28% coverSize`) adaptatives sans pixels fixes.
 - Agrandissement des icônes d'applications de la barre des tâches (`20x20px`) dans `TaskbarModule.qml` sans impacter la compacité de la barre.
 - Refonte de la disposition de la popup MPRIS (`MprisPopup.qml`) : pochette d'album grand format centrée en haut, métadonnées (titre, artiste, album) centrées en dessous et commandes multimédia élargies en bas.
@@ -44,9 +47,9 @@ et ce projet adhère au versionnage sémantique.
 - Adoption d'un dimensionnement responsive en pourcentage relatif d'écran (`widthPercent`) dans `PillButton.qml`, assurant une échelle visuelle fluide et sans décalage quelle que soit la résolution de l'écran (FHD, QHD, 4K).
 - Configuration du clic gauche sur le module musique MPRIS pour basculer directement lecture/pause (`playPause()`), clic droit pour afficher le popup multimédia détaillé, clic milieu et molette pour passer aux pistes suivantes/précédentes.
 - Ajout et configuration du module `python` dans `.config/starship.toml` pour afficher la version Python et l'environnement virtuel (venv) actif (`$virtualenv`).
-- Configuration explicite du contrôleur de rétroéclairage (`amdgpu_bl1`) dans SwayNC (`.config/swaync/config.json`).
 
 ### Supprimé
+- Suppression définitive du démon et de la configuration SwayNC (`.config/swaync/`) et retrait des dépendances `swaync` et `swaync-client`.
 - Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
