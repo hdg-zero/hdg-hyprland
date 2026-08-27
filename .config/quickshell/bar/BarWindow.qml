@@ -15,6 +15,12 @@ PanelWindow {
         right: true
     }
 
+    margins {
+        top: 6
+        left: 8
+        right: 8
+    }
+
     implicitHeight: 38
     color: "transparent"
     exclusionMode: ExclusionMode.Normal
