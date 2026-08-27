@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import "../../theme"
@@ -60,10 +61,14 @@ PillButton {
     }
 
     onScrolled: function(wheel) {
-        if (wheel.angleDelta.y > 0) {
+        var dy = (wheel && wheel.angleDelta && wheel.angleDelta.y !== undefined)
+            ? wheel.angleDelta.y
+            : ((wheel && wheel.delta !== undefined) ? wheel.delta : 0);
+
+        if (dy > 0) {
             Quickshell.execDetached(["brightnessctl", "set", "+3%"]);
             root.brightnessPercent = Math.min(100, root.brightnessPercent + 3);
-        } else if (wheel.angleDelta.y < 0) {
+        } else if (dy < 0) {
             Quickshell.execDetached(["brightnessctl", "set", "3%-", "-n", "1%"]);
             root.brightnessPercent = Math.max(1, root.brightnessPercent - 3);
         }

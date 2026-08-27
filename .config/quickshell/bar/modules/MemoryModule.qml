@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import "../../theme"
@@ -37,7 +38,6 @@ PillButton {
         running: true
         repeat: true
         triggeredOnStart: true
-
         onTriggered: {
             procMeminfo.reload();
             var content = procMeminfo.text();

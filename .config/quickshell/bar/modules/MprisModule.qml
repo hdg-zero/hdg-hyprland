@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Services.Mpris
 import "../../theme"
 import "../../components"
@@ -99,11 +100,15 @@ Item {
         }
 
         onScrolled: function(wheel) {
-            if (wheel.angleDelta.y > 0) {
+            var dy = (wheel && wheel.angleDelta && wheel.angleDelta.y !== undefined)
+                ? wheel.angleDelta.y
+                : ((wheel && wheel.delta !== undefined) ? wheel.delta : 0);
+
+            if (dy > 0) {
                 if (root.activePlayer && root.activePlayer.canGoNext) {
                     root.activePlayer.next();
                 }
-            } else if (wheel.angleDelta.y < 0) {
+            } else if (dy < 0) {
                 if (root.activePlayer && root.activePlayer.canGoPrevious) {
                     root.activePlayer.previous();
                 }

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Services.Pipewire
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -111,9 +112,13 @@ PillButton {
     }
 
     onScrolled: function(wheel) {
-        if (wheel.angleDelta.y > 0) {
+        var dy = (wheel && wheel.angleDelta && wheel.angleDelta.y !== undefined)
+            ? wheel.angleDelta.y
+            : ((wheel && wheel.delta !== undefined) ? wheel.delta : 0);
+
+        if (dy > 0) {
             Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%+"]);
-        } else if (wheel.angleDelta.y < 0) {
+        } else if (dy < 0) {
             Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-"]);
         }
         syncTimer.restart();

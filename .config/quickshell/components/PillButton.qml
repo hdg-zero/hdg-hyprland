@@ -95,6 +95,15 @@ Rectangle {
         }
     }
 
+    WheelHandler {
+        id: wheelHandler
+        target: root
+        onWheel: function(event) {
+            var dy = event.angleDelta.y !== 0 ? event.angleDelta.y : (event.pixelDelta.y !== 0 ? event.pixelDelta.y : 0);
+            root.scrolled({ angleDelta: { y: dy, x: event.angleDelta.x }, pixelDelta: event.pixelDelta, delta: dy });
+        }
+    }
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent
@@ -121,7 +130,8 @@ Rectangle {
         }
 
         onWheel: function(wheel) {
-            root.scrolled(wheel);
+            var dy = wheel.angleDelta.y !== 0 ? wheel.angleDelta.y : (wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : 0);
+            root.scrolled({ angleDelta: { y: dy, x: wheel.angleDelta.x }, pixelDelta: wheel.pixelDelta, delta: dy });
         }
     }
 }

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Hyprland
 import "../../theme"
 
@@ -77,9 +78,10 @@ RowLayout {
                 }
 
                 onWheel: function(wheel) {
-                    if (wheel.angleDelta.y > 0) {
+                    var dy = wheel.angleDelta.y !== 0 ? wheel.angleDelta.y : (wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : 0);
+                    if (dy > 0) {
                         Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e-1"]);
-                    } else if (wheel.angleDelta.y < 0) {
+                    } else if (dy < 0) {
                         Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e+1"]);
                     }
                 }
@@ -89,10 +91,12 @@ RowLayout {
 
     // Gestion du changement de workspace à la molette
     WheelHandler {
+        target: root
         onWheel: function(event) {
-            if (event.angleDelta.y > 0) {
+            var dy = event.angleDelta.y !== 0 ? event.angleDelta.y : (event.pixelDelta.y !== 0 ? event.pixelDelta.y : 0);
+            if (dy > 0) {
                 Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e-1"]);
-            } else if (event.angleDelta.y < 0) {
+            } else if (dy < 0) {
                 Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e+1"]);
             }
         }
