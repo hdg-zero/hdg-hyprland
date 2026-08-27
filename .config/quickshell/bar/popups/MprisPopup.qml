@@ -8,7 +8,7 @@ import "../../components"
 ModulePopup {
     id: root
 
-    cardWidth: Theme.relWidth(0.16, parentWindow ? parentWindow.screen : null)
+    cardWidth: 175
     cardHeight: mprisCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var player: (Mpris.players && Mpris.players.values && Mpris.players.values.length > 0) ? Mpris.players.values[0] : null

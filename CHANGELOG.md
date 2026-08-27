@@ -25,6 +25,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Agrandissement des icônes d'applications de la barre des tâches (`20x20px`) dans `TaskbarModule.qml` sans impacter la compacité de la barre, et resserrement de la largeur de la popup MPRIS (`175px`) dans `MprisPopup.qml` pour épouser parfaitement la pochette et les commandes sans marges vides.
 - Refonte de la disposition de la popup MPRIS (`MprisPopup.qml`) : pochette d'album grand format centrée en haut, métadonnées (titre, artiste, album) centrées en dessous et commandes multimédia élargies en bas.
 - Réduction drastique des marges et espacements verticaux (`customPaddingV: 1px`, `barHeightRatio: 0.024`, ~25px) autour des textes et icônes sur l'ensemble des modules de la top barre pour éliminer tout vide inutile.
 - Augmentation globale de l'échelle typographique de l'environnement (`Theme.fontSize*` rehaussé de 2px à 4px) et épaississement des barres de progression et curseurs de réglage (`progressBarHeight: 8px`, `progressBarMiniHeight: 6px`) pour une lisibilité accrue sur la barre et les popups.

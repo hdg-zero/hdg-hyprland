@@ -88,8 +88,8 @@ RowLayout {
             Image {
                 id: appIcon
                 anchors.centerIn: parent
-                width: 16
-                height: 16
+                width: 20
+                height: 20
                 source: taskItem.iconSource
                 sourceSize: Qt.size(Theme.spacingXl * 2, Theme.spacingXl * 2)
                 smooth: true
@@ -104,7 +104,7 @@ RowLayout {
                 anchors.centerIn: parent
                 visible: !appIcon.visible
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeHeader
                 color: isFocused ? Theme.accent : Theme.textPrimary
                 text: {
                     var cls = taskItem.appClass.toLowerCase();
