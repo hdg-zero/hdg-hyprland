@@ -76,7 +76,7 @@ PillButton {
 
         onTriggered: {
             netDevFile.reload();
-            var content = netDevFile.text();
+            var content = typeof netDevFile.text === "function" ? netDevFile.text() : (netDevFile.text || "");
             if (!content) return;
 
             var now = Date.now();

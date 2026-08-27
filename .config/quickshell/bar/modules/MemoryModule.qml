@@ -40,7 +40,7 @@ PillButton {
         triggeredOnStart: true
         onTriggered: {
             procMeminfo.reload();
-            var content = procMeminfo.text();
+            var content = typeof procMeminfo.text === "function" ? procMeminfo.text() : (procMeminfo.text || "");
             if (!content) return;
 
             var totalKb = 0;

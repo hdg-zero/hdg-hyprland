@@ -72,7 +72,7 @@ ModulePopup {
         onTriggered: {
             root.updateDateTime();
             uptimeFile.reload();
-            var txt = uptimeFile.text();
+            var txt = typeof uptimeFile.text === "function" ? uptimeFile.text() : (uptimeFile.text || "");
             if (txt) {
                 var secs = parseFloat(txt.split(" ")[0]) || 0;
                 var hrs = Math.floor(secs / 3600);

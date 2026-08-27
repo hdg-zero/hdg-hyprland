@@ -88,17 +88,4 @@ RowLayout {
             }
         }
     }
-
-    // Gestion du changement de workspace à la molette
-    WheelHandler {
-        target: root
-        onWheel: function(event) {
-            var dy = event.angleDelta.y !== 0 ? event.angleDelta.y : (event.pixelDelta.y !== 0 ? event.pixelDelta.y : 0);
-            if (dy > 0) {
-                Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e-1"]);
-            } else if (dy < 0) {
-                Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e+1"]);
-            }
-        }
-    }
 }

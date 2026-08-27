@@ -41,7 +41,7 @@ PillButton {
 
         onTriggered: {
             procStat.reload();
-            var content = procStat.text();
+            var content = typeof procStat.text === "function" ? procStat.text() : (procStat.text || "");
             if (!content) return;
 
             var firstLine = content.split("\n")[0];
