@@ -16,7 +16,6 @@ REQUIRED_DEPS=(
   quickshell
   rofi
   uwsm
-  wlogout
   wl-copy
   wl-paste
   wpctl

@@ -7,6 +7,7 @@ import Quickshell.Io
 import Quickshell.Services.Notifications as Notifs
 import "../theme"
 import "../components"
+import "../session"
 
 PanelWindow {
     id: root
@@ -619,7 +620,10 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: { Quickshell.execDetached(["wlogout"]); }
+                        onClicked: {
+                            NotificationService.panelVisible = false;
+                            SessionService.openSession();
+                        }
                     }
                 }
             }

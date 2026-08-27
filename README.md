@@ -44,15 +44,12 @@ La configuration est organisée comme suit :
     │   ├── theme/                  # Tokens visuels (Obsidian Glass & Glacier Blue)
     │   ├── components/             # Composants d'interface (GlassCard, PillButton, ModulePopup)
     │   ├── bar/                    # Modules de la barre et fenêtres popups
-    │   └── notifications/          # Serveur de notifications natif D-Bus & Centre de Contrôle
+    │   ├── notifications/          # Serveur de notifications natif D-Bus & Centre de Contrôle
+    │   └── session/                # Menu de session plein écran natif (Power Menu)
     ├── rofi
     │   ├── config.rasi             # Configuration globale de Rofi
     │   └── themes/
     │       └── theme.rasi          # Thème graphique Rofi
-    ├── wlogout
-    │   ├── layout                  # Disposition (verrouillage sécurisé avant suspend)
-    │   ├── style.css               # Feuille de style Wlogout
-    │   └── icons/                  # Icônes SVG associées
     └── starship.toml               # Configuration du prompt de terminal Starship
 ```
 
@@ -75,8 +72,12 @@ L'ensemble de la configuration a été audité et mis à niveau pour **Hyprland 
   - **Horloge & Calendrier** : Vue calendaire complète du mois en français avec jour actif surligné et uptime système.
 * **Serveur de Notifications D-Bus & Centre de Contrôle Natif** :
   - **Démon natif D-Bus** : Implémente la spécification standard `org.freedesktop.Notifications` sous Quickshell sans nécessiter de démon tiers (SwayNC supprimé).
-  - **Centre de Contrôle inspiré d'Apple macOS/iOS** : Toggles tactiles compacts sans texte superflu (Wi-Fi, Bluetooth, Mute Micro, Mute Audio), curseurs de volume et luminosité en capsules de verre, raccourcis de session (`hyprlock`, `wlogout`), mode Ne Pas Déranger (DND) et historique complet.
+  - **Centre de Contrôle inspiré d'Apple macOS/iOS** : Toggles tactiles compacts sans texte superflu (Wi-Fi, Bluetooth, Mute Micro, Mute Audio), curseurs de volume et luminosité en capsules de verre, raccourcis de session (`hyprlock`, Menu de Session Quickshell), mode Ne Pas Déranger (DND) et historique complet.
+  - **Mini Bloc-Notes persistant (Scratchpad)** : Éditeur de notes rapides intégré au Centre de Contrôle avec synchronisation automatique dans `scratchpad.txt` et raccourci de copie instantanée dans le presse-papier (`wl-copy`).
   - **Toasts OSD éphémères** : Alertes flottantes animées avec barre de compte à rebours d'expiration et pause au survol.
+* **Menu de Session Plein Écran Natif Quickshell** :
+  - Remplace intégralement `wlogout` sans dépendance externe GTK.
+  - 6 cartes d'actions centrées en verre poli : Verrouiller (<kbd>L</kbd>), Veille (<kbd>U</kbd>), Déconnexion (<kbd>E</kbd>), Hiberner (<kbd>H</kbd>), Redémarrer (<kbd>R</kbd>), Éteindre (<kbd>S</kbd>) et annulation par <kbd>Échap</kbd> ou clic extérieur.
 * **Sobriété énergétique & performances** : Empreinte RAM minimale (< 25 Mo), lazy-loading des processus système (0% CPU au repos), zéro polling et exécutions asynchrones non-bloquantes via `Quickshell.execDetached`.
 
 ### 2. Gestion des Écrans (Monitors 0.56) 🟢
@@ -85,11 +86,11 @@ L'ensemble de la configuration a été audité et mis à niveau pour **Hyprland 
 * **Sécurité Capot** : Fallback `SAFETY_FALLBACK` garantissant que l'écran interne reste actif si le capot est fermé sans écran externe connecté.
 
 ### 3. Veille et Verrouillage (Lock/Suspend) 🟢
-* **Attente du verrouillage** : Ajout de `inhibit_sleep = true` dans `hypridle.conf` et mise à jour de Wlogout (`loginctl lock-session && systemctl suspend`) pour éliminer tout risque de session visible au réveil.
+* **Attente du verrouillage** : Ajout de `inhibit_sleep = true` dans `hypridle.conf` et exécution sécurisée (`loginctl lock-session && systemctl suspend`) pour éliminer tout risque de session visible au réveil.
 
 ### 4. Contrôle des Dépendances & Nettoyage 🟢
 * **Script de vérification** : `check-dependencies.sh` distingue les dépendances obligatoires des optionnelles et retourne un code d'erreur non-nul (`exit 1`) en cas de prérequis manquant.
-* **Suppression des composants obsolètes** : Suppression intégrale de `waybar`, `monitor.sh` et `gesture.sh` pour maintenir un environnement propre et sans redondance.
+* **Suppression des composants obsolètes** : Suppression intégrale de `waybar`, `swaync`, `wlogout`, `monitor.sh` et `gesture.sh` pour maintenir un environnement propre, unifié et sans redondance.
 
 ---
 
@@ -104,7 +105,7 @@ Pour vérifier l'état des dépendances sur votre système :
 - **UWSM** (Wayland Session Manager)
 - **Quickshell** (>= 0.3.1)
 - **hypridle** & **hyprlock**
-- **Rofi**, **Wlogout**, **kitty**
+- **Rofi**, **kitty**
 - **brightnessctl**, **playerctl**, **wpctl**
 
 ---
@@ -124,7 +125,7 @@ Pour vérifier l'état des dépendances sur votre système :
    ```bash
    REPO_PATH="$(pwd)"
 
-   for dir in hypr kitty quickshell rofi wlogout; do
+   for dir in hypr kitty quickshell rofi; do
      if [ -e "$HOME/.config/$dir" ] && [ ! -L "$HOME/.config/$dir" ]; then
        mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
      fi

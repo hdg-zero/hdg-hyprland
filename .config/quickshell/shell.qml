@@ -4,11 +4,12 @@ import "./theme"
 import "./components"
 import "./bar"
 import "./notifications"
+import "./session"
 
 ShellRoot {
     id: root
 
-    // Barre d'état et fenêtres de notifications déployées dynamiquement sur chaque écran connecté
+    // Barre d'état, notifications et menu de session déployés dynamiquement sur chaque écran connecté
     Variants {
         model: Quickshell.screens
 
@@ -24,6 +25,10 @@ ShellRoot {
             }
 
             NotificationCenter {
+                targetScreen: modelData
+            }
+
+            SessionWindow {
                 targetScreen: modelData
             }
         }

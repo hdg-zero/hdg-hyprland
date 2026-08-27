@@ -8,6 +8,7 @@ et ce projet adhère au versionnage sémantique.
 ## [Unreleased]
 
 ### Ajouté
+- Module de Menu de Session plein écran natif Quickshell (`.config/quickshell/session/` avec `SessionService.qml`, `SessionWindow.qml`, `qmldir`) : calque overlay en verre dépoli Obsidian Glass, 6 cartes d'actions centrées avec raccourcis clavier directs (<kbd>L</kbd> Verrouiller, <kbd>U</kbd> Veille, <kbd>E</kbd> Déconnexion, <kbd>H</kbd> Hiberner, <kbd>R</kbd> Redémarrer, <kbd>S</kbd> Éteindre, <kbd>Échap</kbd> Annuler), et gestionnaire IPC dédié (`quickshell ipc call session toggle`).
 - Module de bloc-notes rapide persistant (`scratchpad`) intégré dans le Centre de Contrôle (`NotificationCenter.qml`) : zone d'édition en verre dépoli, sauvegarde automatique temporisée dans `$XDG_STATE_HOME/quickshell/scratchpad.txt`, bouton de copie instantanée vers le presse-papier (`wl-copy`) et bouton d'effacement rapide.
 - Système complet de fenêtres popups interactives pour chaque module sous `.config/quickshell/bar/popups/` :
 - Initialisation de la structure de configuration Quickshell v0.3.1 (`.config/quickshell/`) avec `shell.qml`, singleton `Theme.qml` (tokens Obsidian Glass & Glacier Blue) et composants UI réutilisables (`GlassCard`, `PillButton`, `IconLabel`, `ModulePopup`).
@@ -27,6 +28,8 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Remplacement du raccourci clavier `SUPER + M` dans `binds.lua` par le déclencheur IPC natif Quickshell (`quickshell ipc call session toggle`).
+- Remplacement des ouvertures de `wlogout` par `SessionService` dans le Centre de Contrôle (`NotificationCenter.qml`) et le clic droit du bouton d'énergie (`PowerButton.qml`).
 - Refonte graphique intégrale du Centre de Contrôle (`NotificationCenter.qml`) : cartes de connectivité modernes style Control Center (Wi-Fi, Bluetooth, Micro, Sortie son) avec retours d'état précis, curseurs audio/luminosité en capsules de verre, boutons d'actions système et cartes de notifications multicouches.
 - Augmentation de l'espacement et de la zone cliquable entre les icônes d'applications (`spacing: 10px`, `width: 26px`) dans la barre des tâches (`TaskbarModule.qml`).
 - Liaison réactive instantanée et zéro polling pour le bouton de notification de la barre (`NotificationButton.qml`) connecté directement au `NotificationService` natif.
@@ -43,7 +46,7 @@ et ce projet adhère au versionnage sémantique.
 - Transformation de la barre d'état en îlot flottant avec marges natives Wayland layer-shell (`top: 6px`, `left: 8px`, `right: 8px`), coins arrondis (`12px`) et zone d'exclusion dynamique pour les fenêtres Hyprland.
 - Épuration complète et minimaliste de l'ensemble des fenêtres flottantes (`bar/popups/*.qml`) : suppression des textes verbeux et listes surchargées, réduction des dimensions et concentration exclusive sur les métriques et actions essentielles.
 - Mise à jour du `README.md` (architecture, documentation de la top barre Quickshell, dépendances et procédure d'installation).
-- Remplacement de la dépendance `waybar` par `quickshell` dans `.config/hypr/scripts/check-dependencies.sh`.
+- Remplacement de la dépendance `waybar` et retrait de `wlogout` dans `.config/hypr/scripts/check-dependencies.sh`.
 - Optimisation globale et unification de tous les modules et popups sous l'API native Quickshell v0.3.1 (`Quickshell.execDetached`, `Quickshell.Services.Mpris.trackArtUrl`, `Quickshell.Services.UPower`, `Quickshell.Services.SystemTray`), éliminant tout blocage du thread d'interface et garantissant une exécution asynchrone déterministe.
 - Ajout d'une animation fluide de fondu (`opacity`) et de micro-zoom (`scale 0.95 -> 1.0`) à l'ouverture et à la fermeture de toutes les fenêtres flottantes `ModulePopup` (150ms `Easing.OutCubic`).
 - Ajustement de l'espace alloué aux modules CPU, RAM et Réseau à 3% de l'écran (`widthPercent: 0.03`) et activation de l'ouverture automatique au survol de la souris (`autoHover`) avec temporisations anti-scintillement sur l'ensemble des popups.
@@ -52,6 +55,7 @@ et ce projet adhère au versionnage sémantique.
 - Ajout et configuration du module `python` dans `.config/starship.toml` pour afficher la version Python et l'environnement virtuel (venv) actif (`$virtualenv`).
 
 ### Supprimé
+- Suppression définitive de l'utilitaire externe et de la configuration Wlogout (`.config/wlogout/`) et retrait de sa dépendance obligatoire.
 - Suppression définitive du démon et de la configuration SwayNC (`.config/swaync/`) et retrait des dépendances `swaync` et `swaync-client`.
 - Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 

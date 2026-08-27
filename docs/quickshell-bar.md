@@ -34,8 +34,12 @@ L'ensemble de la configuration réside dans `.config/quickshell/` :
 ├── notifications/               # Serveur de notifications natif & Centre de Contrôle
 │   ├── NotificationService.qml  # Singleton D-Bus (NotificationServer), état DND, historique, IPC
 │   ├── NotificationToastWindow.qml # Fenêtre de toasts flottants OSD avec compte à rebours
-│   ├── NotificationCenter.qml   # Centre de Contrôle Glassmorphism (toggles Apple, sliders, historique)
+│   ├── NotificationCenter.qml   # Centre de Contrôle Glassmorphism (toggles Apple, sliders, historique, bloc-notes)
 │   └── qmldir                   # Déclaration du module Notifications
+├── session/                     # Menu de session plein écran natif (Power Menu)
+│   ├── SessionService.qml       # Singleton d'état, helper d'actions et IpcHandler
+│   ├── SessionWindow.qml        # Fenêtre plein écran Obsidian Glass avec raccourcis directs
+│   └── qmldir                   # Déclaration du module Session
 └── bar/                         # Barre d'état
     ├── BarWindow.qml            # Fenêtre PanelWindow WlrLayershell (Top)
     ├── BarContent.qml           # Disposition des 3 sections (Gauche, Centre, Droite)
@@ -152,7 +156,7 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
   - Popup épuré : Heure avec secondes, date en français, calendrier compact du mois avec jour courant en surbrillance et Uptime système.
 - **⏻ Menu Énergie (`PowerButton` + `PowerPopup`) :**
   - Clic gauche : Menu rapide compact (Verrouiller, Veille, Déconnexion, Redémarrer, Éteindre).
-  - Clic droit : Ouvre l'interface plein écran `wlogout`.
+  - Clic droit : Ouvre le Menu de Session plein écran natif (`SessionService.toggleSession()`).
 
 ---
 
@@ -205,6 +209,36 @@ Le sous-système de notifications réside dans `.config/quickshell/notifications
 - **Design épuré style Apple Control Center :**
   - **Toggles rapides sans texte :** Pavés tactiles à grandes icônes centrées (Wi-Fi, Bluetooth, Micro, Audio).
   - **Curseurs en capsule :** Curseurs horizontaux de volume et luminosité avec icône intégrée et pourcentage dynamique.
-  - **Actions système :** Boutons compacts Verrouiller (`hyprlock`) et Session (`wlogout`).
+  - **Actions système :** Boutons compacts Verrouiller (`hyprlock`) et Session (`SessionService.openSession()`).
+  - **Mini Bloc-Notes persistant (Scratchpad) :** Zone d'édition défilante avec persistance synchrone débouncée dans `scratchpad.txt` et boutons Copier / Purger.
   - **Historique & Actions :** Liste défilante des notifications avec suppression unitaire ou globale (`󰃢`).
 - **100% Dimensionnement Relatif :** Largeur fixée à 12.5% de l'écran (`Theme.relWidth(0.125, screen)`), hauteur dynamique adaptée au contenu.
+
+---
+
+## 🚪 8. Architecture du Menu de Session Plein Écran Natif
+
+Le module de session réside dans `.config/quickshell/session/` et remplace intégralement `wlogout` :
+
+### 1. `SessionService.qml` (Singleton d'État & IPC)
+- Maintient la visibilité du menu de session (`sessionVisible`).
+- Expose l'API de contrôle système (`lock()`, `suspend()`, `logout()`, `hibernate()`, `reboot()`, `shutdown()`).
+- Handler IPC (`target: "session"`) pour le contrôle Hyprland (`SUPER + M`) :
+  ```bash
+  quickshell ipc call session toggle
+  quickshell ipc call session open
+  quickshell ipc call session close
+  ```
+
+### 2. `SessionWindow.qml` (Fenêtre Plein Écran Glassmorphism)
+- **Calque Overlay avec Focus Exclusif :** `WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive` capture immédiatement toutes les touches dès l'ouverture.
+- **Raccourcis Clavier Directs :**
+  - <kbd>L</kbd> : Verrouiller (`hyprlock`)
+  - <kbd>U</kbd> : Veille (`loginctl lock-session && systemctl suspend`)
+  - <kbd>E</kbd> : Déconnexion (`uwsm stop`)
+  - <kbd>H</kbd> : Hiberner (`systemctl hibernate`)
+  - <kbd>R</kbd> : Redémarrer (`systemctl reboot`)
+  - <kbd>S</kbd> : Éteindre (`systemctl poweroff`)
+  - <kbd>Échap</kbd> ou **Clic extérieur** : Fermeture instantanée du menu.
+- **Cartes Obsidian Glass :** 6 grandes cartes tactiles animées au survol avec halo de couleur et micro-scale responsive.
+

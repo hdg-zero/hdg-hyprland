@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import "../../theme"
 import "../../components"
+import "../../session"
 import "../popups"
 
 PillButton {
@@ -24,6 +25,6 @@ PillButton {
     }
 
     onRightClicked: {
-        Quickshell.execDetached(["wlogout", "--protocol", "layer-shell"]);
+        SessionService.toggleSession();
     }
 }
