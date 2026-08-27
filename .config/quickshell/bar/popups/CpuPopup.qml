@@ -12,7 +12,7 @@ ModulePopup {
     property string cpuTemp: ""
     property string loadAvg: ""
 
-    cardWidth: 190
+    widthPercent: Theme.popupWidthPercentCompact
     cardHeight: mainCol.implicitHeight + Theme.spacingMd * 2
 
     Process {
@@ -90,14 +90,14 @@ ModulePopup {
         // Barre d'utilisation
         Rectangle {
             Layout.fillWidth: true
-            height: 4
-            radius: 2
+            height: Theme.spacingXs
+            radius: Theme.radiusSmall / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: parent.width * (Math.min(100, Math.max(0, root.cpuPercent)) / 100.0)
                 height: parent.height
-                radius: 2
+                radius: Theme.radiusSmall / 2
                 color: root.cpuPercent > 80 ? Theme.destructive : (root.cpuPercent > 50 ? Theme.warning : Theme.accent)
 
                 Behavior on width {
@@ -109,13 +109,12 @@ ModulePopup {
         // Métriques discrètes
         RowLayout {
             Layout.fillWidth: true
-            Layout.topMargin: 2
             spacing: Theme.spacingSm
 
             Text {
                 visible: root.cpuTemp !== ""
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textSecondary
                 text: " " + root.cpuTemp
             }
@@ -125,7 +124,7 @@ ModulePopup {
             Text {
                 visible: root.loadAvg !== ""
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textSecondary
                 text: " " + root.loadAvg
             }

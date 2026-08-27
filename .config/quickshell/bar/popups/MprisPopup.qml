@@ -8,7 +8,7 @@ import "../../components"
 ModulePopup {
     id: root
 
-    cardWidth: 240
+    widthPercent: Theme.popupWidthPercentWide
     cardHeight: mprisCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var player: (Mpris.players && Mpris.players.values && Mpris.players.values.length > 0) ? Mpris.players.values[0] : null
@@ -30,8 +30,8 @@ ModulePopup {
 
             // Pochette d'album
             Rectangle {
-                width: 48
-                height: 48
+                width: Theme.spacingXl * 2
+                height: Theme.spacingXl * 2
                 radius: Theme.radiusSmall
                 color: Qt.rgba(1, 1, 1, 0.05)
                 clip: true
@@ -42,7 +42,7 @@ ModulePopup {
                     id: albumArt
                     anchors.fill: parent
                     source: (root.visible && root.player) ? (root.player.trackArtUrl || root.player.artUrl || "") : ""
-                    sourceSize: Qt.size(96, 96)
+                    sourceSize: Qt.size(Theme.spacingXl * 4, Theme.spacingXl * 4)
                     fillMode: Image.PreserveAspectCrop
                     visible: source !== "" && status === Image.Ready
                     smooth: true
@@ -54,7 +54,7 @@ ModulePopup {
                     anchors.centerIn: parent
                     visible: !albumArt.visible
                     font.family: Theme.fontFamily
-                    font.pixelSize: 20
+                    font.pixelSize: Theme.fontSizeTitle
                     color: Theme.textDisabled
                     text: "󰝚"
                 }
@@ -78,7 +78,7 @@ ModulePopup {
                 Text {
                     Layout.fillWidth: true
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: Theme.fontSizeSmall
                     color: Theme.accent
                     text: root.player ? (root.player.trackArtist || "") : ""
                     elide: Text.ElideRight
@@ -95,9 +95,9 @@ ModulePopup {
 
             // Précédent
             Rectangle {
-                width: 28
-                height: 28
-                radius: 14
+                width: Theme.spacingLg * 1.8
+                height: Theme.spacingLg * 1.8
+                radius: width / 2
                 color: prevMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
 
                 Text {
@@ -121,9 +121,9 @@ ModulePopup {
 
             // Lecture / Pause
             Rectangle {
-                width: 32
-                height: 32
-                radius: 16
+                width: Theme.spacingLg * 2
+                height: Theme.spacingLg * 2
+                radius: width / 2
                 color: playMouse.containsMouse ? Qt.lighter(Theme.accent, 1.1) : Theme.accent
 
                 Behavior on color {
@@ -133,7 +133,7 @@ ModulePopup {
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: 15
+                    font.pixelSize: Theme.fontSizeLarge
                     color: Theme.background
                     text: root.isPlaying ? "󰏤" : "󰐊"
                 }
@@ -157,9 +157,9 @@ ModulePopup {
 
             // Suivant
             Rectangle {
-                width: 28
-                height: 28
-                radius: 14
+                width: Theme.spacingLg * 1.8
+                height: Theme.spacingLg * 1.8
+                radius: width / 2
                 color: nextMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
 
                 Text {

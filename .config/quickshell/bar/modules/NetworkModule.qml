@@ -122,7 +122,7 @@ PillButton {
     text: isConnected ? totalSpeedFormatted : "Déconnecté"
     customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
-    widthPercent: 0.03
+    widthPercent: Theme.moduleWidthPercentMetrics
 
     onClicked: {
         netPopup.toggle();

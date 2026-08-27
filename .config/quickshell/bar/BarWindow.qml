@@ -16,12 +16,12 @@ PanelWindow {
     }
 
     margins {
-        top: 6
-        left: 8
-        right: 8
+        top: Math.max(4, Theme.relHeight(Theme.barMarginTopRatio, root.screen))
+        left: Math.max(6, Theme.relWidth(Theme.barMarginSideRatio, root.screen))
+        right: Math.max(6, Theme.relWidth(Theme.barMarginSideRatio, root.screen))
     }
 
-    implicitHeight: 38
+    implicitHeight: Math.max(34, Theme.relHeight(Theme.barHeightRatio, root.screen))
     color: "transparent"
     exclusionMode: ExclusionMode.Normal
     WlrLayershell.layer: WlrLayer.Top

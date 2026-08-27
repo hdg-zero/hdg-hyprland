@@ -11,22 +11,30 @@ PopupWindow {
     property bool autoHover: true
     property bool isOpen: false
     
+    property real widthPercent: 0
     property alias cardWidth: card.implicitWidth
     property alias cardHeight: card.implicitHeight
     default property alias content: innerContainer.data
 
     readonly property bool isHovered: (anchorItem && anchorItem.isHovered) || cardHoverHandler.hovered
 
+    readonly property real effectiveWidth: {
+        if (widthPercent > 0) {
+            return Theme.relWidth(widthPercent, parentWindow ? parentWindow.screen : null);
+        }
+        return card.implicitWidth > 0 ? card.implicitWidth : Theme.relWidth(Theme.popupWidthPercentCompact, parentWindow ? parentWindow.screen : null);
+    }
+
     anchor.window: parentWindow
     anchor.item: anchorItem
     anchor.edges: Edges.Bottom
     anchor.gravity: Edges.Bottom
-    anchor.margins.top: 6
+    anchor.margins.top: Math.max(4, Theme.relHeight(Theme.barMarginTopRatio, parentWindow ? parentWindow.screen : null))
 
     color: "transparent"
     visible: false
 
-    implicitWidth: card.implicitWidth
+    implicitWidth: effectiveWidth
     implicitHeight: card.implicitHeight
 
     function toggle() {

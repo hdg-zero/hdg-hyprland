@@ -18,7 +18,7 @@ PillButton {
     text: cpuUsage + "% CPU"
     customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
-    widthPercent: 0.03
+    widthPercent: Theme.moduleWidthPercentMetrics
 
     CpuPopup {
         id: cpuPopup

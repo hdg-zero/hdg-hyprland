@@ -39,8 +39,8 @@ RowLayout {
             readonly property var wsObj: Hyprland.workspaces ? Hyprland.workspaces.values.find(function(w) { return w.id === wsId; }) : null
             readonly property bool hasWindows: wsObj !== null && wsObj !== undefined && (wsObj.windows > 0 || (wsObj.toplevels && wsObj.toplevels.length > 0))
 
-            implicitWidth: 28
-            implicitHeight: 28
+            implicitWidth: Theme.spacingLg * 1.75
+            implicitHeight: Theme.spacingLg * 1.75
             radius: Theme.radiusMedium
 
             color: isFocused ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : (wsMouse.containsMouse ? Theme.cardBackgroundHover : "transparent")
@@ -58,7 +58,7 @@ RowLayout {
                 anchors.centerIn: parent
                 text: isFocused ? "" : (hasWindows ? "" : wsId.toString())
                 font.family: Theme.fontFamily
-                font.pixelSize: isFocused || hasWindows ? 11 : Theme.fontSizeSmall
+                font.pixelSize: isFocused || hasWindows ? Theme.fontSizeSmall : Theme.fontSizeTiny
                 font.bold: isFocused
                 color: isFocused ? Theme.accent : (hasWindows ? Theme.textPrimary : Theme.textDisabled)
 

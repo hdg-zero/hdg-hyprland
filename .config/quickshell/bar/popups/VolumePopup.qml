@@ -11,7 +11,7 @@ ModulePopup {
     property bool isMuted: false
     property bool isBluetooth: false
 
-    cardWidth: 190
+    widthPercent: Theme.popupWidthPercentCompact
     cardHeight: volCol.implicitHeight + Theme.spacingMd * 2
 
     function setVolume(pct) {
@@ -66,14 +66,14 @@ ModulePopup {
         Rectangle {
             id: sliderTrack
             Layout.fillWidth: true
-            height: 6
-            radius: 3
+            height: Theme.spacingXs
+            radius: Theme.radiusSmall / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: Math.min(parent.width, parent.width * (root.volumePercent / 150.0))
                 height: parent.height
-                radius: 3
+                radius: Theme.radiusSmall / 2
                 color: root.isMuted ? Theme.destructive : (root.volumePercent > 100 ? Theme.warning : Theme.accent)
             }
 
@@ -98,9 +98,10 @@ ModulePopup {
                 }
 
                 onWheel: function(wheel) {
-                    if (wheel.angleDelta.y > 0) {
+                    var dy = wheel.angleDelta.y !== 0 ? wheel.angleDelta.y : (wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : 0);
+                    if (dy > 0) {
                         root.setVolume(Math.min(150, root.volumePercent + 5));
-                    } else if (wheel.angleDelta.y < 0) {
+                    } else if (dy < 0) {
                         root.setVolume(Math.max(0, root.volumePercent - 5));
                     }
                 }
@@ -115,7 +116,7 @@ ModulePopup {
             // Bouton Mute
             Rectangle {
                 Layout.fillWidth: true
-                height: 24
+                height: Theme.spacingLg * 1.5
                 radius: Theme.radiusSmall
                 color: muteMouse.containsMouse ? Theme.cardBackgroundHover : (root.isMuted ? Qt.rgba(0.95, 0.54, 0.66, 0.2) : Qt.rgba(1, 1, 1, 0.05))
                 border.color: root.isMuted ? Theme.destructive : Theme.glassBorder
@@ -124,7 +125,7 @@ ModulePopup {
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: Theme.fontSizeSmall
                     color: root.isMuted ? Theme.destructive : Theme.textPrimary
                     text: root.isMuted ? "󰝟 Muet" : "󰕾 Mute"
                 }
@@ -140,8 +141,8 @@ ModulePopup {
 
             // Bouton Pavucontrol
             Rectangle {
-                width: 28
-                height: 24
+                width: Theme.spacingLg * 1.8
+                height: Theme.spacingLg * 1.5
                 radius: Theme.radiusSmall
                 color: pavuMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
                 border.color: Theme.glassBorder

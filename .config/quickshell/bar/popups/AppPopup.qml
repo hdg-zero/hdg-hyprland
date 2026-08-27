@@ -39,7 +39,7 @@ ModulePopup {
         return "";
     }
 
-    cardWidth: 220
+    widthPercent: Theme.popupWidthPercentStandard
     cardHeight: contentLayout.implicitHeight + (Theme.spacingMd * 2)
 
     ColumnLayout {
@@ -54,10 +54,10 @@ ModulePopup {
 
             Image {
                 id: popupIcon
-                width: 20
-                height: 20
+                width: Theme.spacingLg * 1.3
+                height: Theme.spacingLg * 1.3
                 source: root.iconSource
-                sourceSize: Qt.size(48, 48)
+                sourceSize: Qt.size(Theme.spacingXl * 2, Theme.spacingXl * 2)
                 smooth: true
                 mipmap: true
                 visible: root.iconSource !== "" && status === Image.Ready
@@ -85,16 +85,16 @@ ModulePopup {
             // Badge Workspace
             Rectangle {
                 visible: root.workspaceName !== ""
-                height: 16
-                width: wsLabel.implicitWidth + 8
-                radius: 4
+                height: Theme.spacingLg
+                width: wsLabel.implicitWidth + Theme.spacingSm
+                radius: Theme.radiusSmall / 2
                 color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
 
                 Text {
                     id: wsLabel
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: 10
+                    font.pixelSize: Theme.fontSizeTiny
                     font.bold: true
                     color: Theme.accent
                     text: "WS " + root.workspaceName
@@ -106,7 +106,7 @@ ModulePopup {
         Text {
             Layout.fillWidth: true
             font.family: Theme.fontFamily
-            font.pixelSize: 11
+            font.pixelSize: Theme.fontSizeSmall
             color: Theme.textSecondary
             text: root.winTitle
             elide: Text.ElideRight
@@ -121,7 +121,7 @@ ModulePopup {
             // Bouton Basculer
             Rectangle {
                 Layout.fillWidth: true
-                height: 24
+                height: Theme.spacingLg * 1.5
                 radius: Theme.radiusSmall
                 color: focusMouse.containsMouse ? Theme.accentHover : Qt.rgba(0.365, 0.678, 0.886, 0.2)
                 border.color: Theme.accent
@@ -130,7 +130,7 @@ ModulePopup {
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: Theme.fontSizeSmall
                     font.bold: true
                     color: Theme.textPrimary
                     text: "󰘳 Basculer"
@@ -154,8 +154,8 @@ ModulePopup {
 
             // Bouton Fermer
             Rectangle {
-                width: 55
-                height: 24
+                width: Theme.spacingXl * 2.3
+                height: Theme.spacingLg * 1.5
                 radius: Theme.radiusSmall
                 color: closeBtnMouse.containsMouse ? Qt.rgba(0.906, 0.298, 0.235, 0.3) : Qt.rgba(1, 1, 1, 0.05)
                 border.color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.glassBorder
@@ -164,7 +164,7 @@ ModulePopup {
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: Theme.fontSizeSmall
                     color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
                     text: "󰅖 Fermer"
                 }

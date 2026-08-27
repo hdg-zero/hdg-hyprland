@@ -18,7 +18,7 @@ PillButton {
     text: memPercent + "% RAM"
     customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
-    widthPercent: 0.03
+    widthPercent: Theme.moduleWidthPercentMetrics
 
     MemoryPopup {
         id: memPopup

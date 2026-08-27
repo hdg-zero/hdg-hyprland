@@ -28,8 +28,8 @@ RowLayout {
             readonly property bool isNet: root.isNetworkItem(item)
 
             visible: !isNet
-            implicitWidth: isNet ? 0 : 30
-            implicitHeight: isNet ? 0 : 30
+            implicitWidth: isNet ? 0 : Theme.spacingLg * 1.8
+            implicitHeight: isNet ? 0 : Theme.spacingLg * 1.8
             radius: Theme.radiusSmall
             color: trayMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
             border.color: trayMouse.containsMouse ? Theme.glassBorder : "transparent"
@@ -41,8 +41,8 @@ RowLayout {
 
             IconImage {
                 anchors.centerIn: parent
-                width: 22
-                height: 22
+                width: Theme.spacingLg * 1.375
+                height: Theme.spacingLg * 1.375
                 source: trayItem.item ? trayItem.item.icon : ""
             }
 

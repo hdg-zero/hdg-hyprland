@@ -77,7 +77,7 @@ Item {
         customPaddingH: Theme.spacingMd
         customPaddingV: Theme.spacingSm
         parentWindow: root.parentWindow
-        widthPercent: 0.10
+        widthPercent: Theme.moduleWidthPercentMpris
 
         onClicked: {
             if (root.activePlayer) {

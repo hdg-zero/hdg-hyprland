@@ -17,7 +17,7 @@ ModulePopup {
     readonly property int currentMonth: now.getMonth()
     readonly property int currentDay: now.getDate()
 
-    cardWidth: 220
+    widthPercent: Theme.popupWidthPercentStandard
     cardHeight: clockCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var monthNames: [
@@ -113,7 +113,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textSecondary
                 text: root.fullDate
             }
@@ -145,11 +145,11 @@ ModulePopup {
                 model: ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"]
                 delegate: Item {
                     Layout.fillWidth: true
-                    height: 16
+                    height: Theme.spacingLg
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: 10
+                        font.pixelSize: Theme.fontSizeTiny
                         font.bold: true
                         color: Theme.accentSecondary
                         text: modelData
@@ -170,19 +170,19 @@ ModulePopup {
 
                 delegate: Item {
                     Layout.fillWidth: true
-                    height: 20
+                    height: Theme.spacingLg * 1.3
 
                     Rectangle {
                         anchors.centerIn: parent
-                        width: 18
-                        height: 18
-                        radius: 9
+                        width: Theme.spacingLg * 1.15
+                        height: Theme.spacingLg * 1.15
+                        radius: width / 2
                         color: modelData.isToday ? Theme.accent : "transparent"
 
                         Text {
                             anchors.centerIn: parent
                             font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.pixelSize: Theme.fontSizeTiny
                             font.bold: modelData.isToday
                             color: modelData.isToday ? Theme.background : (modelData.day > 0 ? Theme.textPrimary : "transparent")
                             text: modelData.day > 0 ? modelData.day : ""
@@ -200,7 +200,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: 10
+                font.pixelSize: Theme.fontSizeTiny
                 color: Theme.textDisabled
                 text: "󱘖 Uptime " + root.uptimeStr
             }

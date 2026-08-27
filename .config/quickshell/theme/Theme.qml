@@ -30,6 +30,8 @@ QtObject {
 
     // --- Typographie & Polices ---
     readonly property string fontFamily: "JetBrainsMono Nerd Font"
+    readonly property int fontSizeMicro: 9
+    readonly property int fontSizeTiny: 10
     readonly property int fontSizeSmall: 11
     readonly property int fontSizeRegular: 13
     readonly property int fontSizeMedium: 14
@@ -37,19 +39,45 @@ QtObject {
     readonly property int fontSizeHeader: 18
     readonly property int fontSizeTitle: 22
 
-    // --- Espacements & Paddings ---
+    // --- Espacements & Marges Relatifs ---
     readonly property int spacingXs: 4
     readonly property int spacingSm: 8
     readonly property int spacingMd: 12
     readonly property int spacingLg: 16
     readonly property int spacingXl: 24
 
-    // --- Rayons de bordure (Border Radius) ---
-    readonly property real radiusSmall: 8
-    readonly property real radiusMedium: 12
-    readonly property real radiusLarge: 16
-    readonly property real radiusXLarge: 20
+    // --- Rayons de bordure Relatifs (Border Radius) ---
+    readonly property real radiusSmall: 6
+    readonly property real radiusMedium: 10
+    readonly property real radiusLarge: 14
+    readonly property real radiusXLarge: 18
     readonly property real radiusPill: 9999
+
+    // --- Ratios & Dimensions Relatifs d'Écran ---
+    readonly property real barHeightRatio: 0.035       // ~38px sur 1080p, ~50px sur 1440p
+    readonly property real barMarginTopRatio: 0.005    // ~5-6px sur 1080p, ~7px sur 1440p
+    readonly property real barMarginSideRatio: 0.004   // ~8px sur 1080p, ~10px sur 1440p
+
+    // Pourcentages de largeur pour modules de la barre
+    readonly property real moduleWidthPercentMetrics: 0.03   // CPU, RAM, Réseau
+    readonly property real moduleWidthPercentMpris: 0.10     // Musique
+
+    // Pourcentages de largeur pour popups
+    readonly property real popupWidthPercentNarrow: 0.09     // Power, Backlight (~170px sur 1080p)
+    readonly property real popupWidthPercentCompact: 0.10    // CPU, RAM, Volume, Battery (~190px sur 1080p)
+    readonly property real popupWidthPercentStandard: 0.115  // Network, Clock, App (~220px sur 1080p)
+    readonly property real popupWidthPercentWide: 0.13       // MPRIS (~250px sur 1080p)
+
+    // Fonctions d'aide au dimensionnement relatif
+    function relWidth(ratio, screen) {
+        var w = (screen && screen.width > 0) ? screen.width : 1920;
+        return Math.round(w * ratio);
+    }
+
+    function relHeight(ratio, screen) {
+        var h = (screen && screen.height > 0) ? screen.height : 1080;
+        return Math.round(h * ratio);
+    }
 
     // --- Animations & Transitions ---
     readonly property int animDurationFast: 150

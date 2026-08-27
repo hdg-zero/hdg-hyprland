@@ -16,7 +16,7 @@ ModulePopup {
     property string swapUsedFormatted: "0 Go"
     property string swapTotalFormatted: "0 Go"
 
-    cardWidth: 190
+    widthPercent: Theme.popupWidthPercentCompact
     cardHeight: memCol.implicitHeight + Theme.spacingMd * 2
 
     Process {
@@ -127,14 +127,14 @@ ModulePopup {
         // Barre d'utilisation RAM
         Rectangle {
             Layout.fillWidth: true
-            height: 4
-            radius: 2
+            height: Theme.spacingXs
+            radius: Theme.radiusSmall / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: parent.width * (Math.min(100, Math.max(0, root.ramPercent)) / 100.0)
                 height: parent.height
-                radius: 2
+                radius: Theme.radiusSmall / 2
                 color: root.ramPercent > 85 ? Theme.destructive : (root.ramPercent > 70 ? Theme.warning : Theme.accent)
 
                 Behavior on width {
@@ -146,11 +146,10 @@ ModulePopup {
         // Métriques discrètes
         RowLayout {
             Layout.fillWidth: true
-            Layout.topMargin: 2
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textSecondary
                 text: root.ramUsedFormatted + " / " + root.ramTotalFormatted
             }
@@ -160,7 +159,7 @@ ModulePopup {
             Text {
                 visible: root.swapPercent > 0
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textDisabled
                 text: "Swap: " + root.swapPercent + "%"
             }

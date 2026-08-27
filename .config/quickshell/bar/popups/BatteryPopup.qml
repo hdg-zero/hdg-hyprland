@@ -24,7 +24,7 @@ ModulePopup {
         return mins + "m";
     }
 
-    cardWidth: 200
+    widthPercent: Theme.popupWidthPercentCompact
     cardHeight: batCol.implicitHeight + Theme.spacingMd * 2
 
     function setProfile(profile) {
@@ -73,14 +73,14 @@ ModulePopup {
         // Barre de charge
         Rectangle {
             Layout.fillWidth: true
-            height: 4
-            radius: 2
+            height: Theme.spacingXs
+            radius: Theme.radiusSmall / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: parent.width * (Math.min(100, Math.max(0, root.chargePercent)) / 100.0)
                 height: parent.height
-                radius: 2
+                radius: Theme.radiusSmall / 2
                 color: root.isCharging ? Theme.success : (root.chargePercent <= 20 ? Theme.destructive : Theme.accent)
 
                 Behavior on width {
@@ -97,7 +97,7 @@ ModulePopup {
             Text {
                 visible: root.timeRemainingFormatted !== ""
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textSecondary
                 text: " " + root.timeRemainingFormatted
             }
@@ -107,7 +107,7 @@ ModulePopup {
             Text {
                 visible: root.energyRateFormatted !== ""
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textDisabled
                 text: root.energyRateFormatted
             }
@@ -116,7 +116,6 @@ ModulePopup {
         // Profils d'énergie compacts
         RowLayout {
             Layout.fillWidth: true
-            Layout.topMargin: 2
             spacing: Theme.spacingXs
 
             Repeater {
@@ -129,7 +128,7 @@ ModulePopup {
                 delegate: Rectangle {
                     required property var modelData
                     Layout.fillWidth: true
-                    height: 22
+                    height: Theme.spacingLg * 1.4
                     radius: Theme.radiusSmall
                     color: profMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
                     border.color: Theme.glassBorder
@@ -138,7 +137,7 @@ ModulePopup {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: 10
+                        font.pixelSize: Theme.fontSizeTiny
                         font.bold: true
                         color: Theme.textPrimary
                         text: modelData.label

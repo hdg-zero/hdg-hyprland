@@ -9,7 +9,7 @@ ModulePopup {
 
     property int brightnessPercent: 100
 
-    cardWidth: 180
+    widthPercent: Theme.popupWidthPercentNarrow
     cardHeight: lightCol.implicitHeight + Theme.spacingMd * 2
 
     function setBrightness(pct) {
@@ -61,14 +61,14 @@ ModulePopup {
         Rectangle {
             id: lightSliderTrack
             Layout.fillWidth: true
-            height: 6
-            radius: 3
+            height: Theme.spacingXs
+            radius: Theme.radiusSmall / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: Math.min(parent.width, parent.width * (root.brightnessPercent / 100.0))
                 height: parent.height
-                radius: 3
+                radius: Theme.radiusSmall / 2
                 color: Theme.accent
             }
 
@@ -93,9 +93,10 @@ ModulePopup {
                 }
 
                 onWheel: function(wheel) {
-                    if (wheel.angleDelta.y > 0) {
+                    var dy = wheel.angleDelta.y !== 0 ? wheel.angleDelta.y : (wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : 0);
+                    if (dy > 0) {
                         root.setBrightness(Math.min(100, root.brightnessPercent + 5));
-                    } else if (wheel.angleDelta.y < 0) {
+                    } else if (dy < 0) {
                         root.setBrightness(Math.max(1, root.brightnessPercent - 5));
                     }
                 }
@@ -113,7 +114,7 @@ ModulePopup {
                 delegate: Rectangle {
                     required property int modelData
                     Layout.fillWidth: true
-                    height: 22
+                    height: Theme.spacingLg * 1.4
                     radius: Theme.radiusSmall
                     color: bPresetMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
                     border.color: Theme.glassBorder
@@ -122,7 +123,7 @@ ModulePopup {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: 10
+                        font.pixelSize: Theme.fontSizeTiny
                         font.bold: true
                         color: Theme.textPrimary
                         text: modelData + "%"

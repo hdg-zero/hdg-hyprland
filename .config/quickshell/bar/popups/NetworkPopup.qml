@@ -13,7 +13,7 @@ ModulePopup {
     property string rxRate: "0 o/s"
     property string txRate: "0 o/s"
 
-    cardWidth: 210
+    widthPercent: Theme.popupWidthPercentStandard
     cardHeight: netCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var activeDevice: {
@@ -154,7 +154,7 @@ ModulePopup {
             Text {
                 visible: root.isWifi && root.isConnected
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textSecondary
                 text: root.signal + "%"
             }
@@ -173,7 +173,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textSecondary
                 text: "IP " + root.ipAddress
             }
@@ -182,7 +182,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.accent
                 text: "↓" + root.rxRate + "  ↑" + root.txRate
             }

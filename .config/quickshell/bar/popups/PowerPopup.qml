@@ -7,7 +7,7 @@ import "../../components"
 ModulePopup {
     id: root
 
-    cardWidth: 160
+    widthPercent: Theme.popupWidthPercentNarrow
     cardHeight: pwrCol.implicitHeight + Theme.spacingMd * 2
 
     ColumnLayout {
@@ -31,7 +31,7 @@ ModulePopup {
             delegate: Rectangle {
                 required property var modelData
                 Layout.fillWidth: true
-                height: 26
+                height: Theme.spacingLg * 1.6
                 radius: Theme.radiusSmall
                 color: actMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
                 border.color: actMouse.containsMouse ? Theme.glassBorder : "transparent"
