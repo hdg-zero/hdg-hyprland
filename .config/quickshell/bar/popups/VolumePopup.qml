@@ -1,8 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.Pipewire
-import Quickshell.Hyprland
 import "../../theme"
 import "../../components"
 
@@ -13,7 +11,7 @@ ModulePopup {
     property bool isMuted: false
     property bool isBluetooth: false
 
-    cardWidth: 280
+    cardWidth: 190
     cardHeight: volCol.implicitHeight + Theme.spacingMd * 2
 
     function setVolume(pct) {
@@ -32,16 +30,16 @@ ModulePopup {
             right: parent.right
             top: parent.top
         }
-        spacing: Theme.spacingMd
+        spacing: Theme.spacingSm
 
         // En-tête
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingSm
+            spacing: Theme.spacingXs
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeMedium
                 color: root.isMuted ? Theme.destructive : Theme.accent
                 text: root.isMuted ? (root.isBluetooth ? "󰂲" : "󰝟") : (root.isBluetooth ? "󰂯" : "󰕾")
             }
@@ -49,15 +47,15 @@ ModulePopup {
             Text {
                 Layout.fillWidth: true
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
                 color: Theme.textPrimary
-                text: root.isBluetooth ? "Audio Bluetooth" : "Sortie Audio"
+                text: root.isBluetooth ? "Bluetooth" : "Volume"
             }
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
                 color: root.isMuted ? Theme.destructive : (root.volumePercent > 100 ? Theme.warning : Theme.accent)
                 text: root.isMuted ? "Muet" : root.volumePercent + "%"
@@ -68,14 +66,14 @@ ModulePopup {
         Rectangle {
             id: sliderTrack
             Layout.fillWidth: true
-            height: 12
-            radius: 6
+            height: 6
+            radius: 3
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: Math.min(parent.width, parent.width * (root.volumePercent / 150.0))
                 height: parent.height
-                radius: 6
+                radius: 3
                 color: root.isMuted ? Theme.destructive : (root.volumePercent > 100 ? Theme.warning : Theme.accent)
             }
 
@@ -109,88 +107,26 @@ ModulePopup {
             }
         }
 
-        // Paliers rapides
+        // Actions rapides compactes
         RowLayout {
             Layout.fillWidth: true
             spacing: Theme.spacingXs
 
-            Repeater {
-                model: [
-                    { label: "0%", pct: 0 },
-                    { label: "25%", pct: 25 },
-                    { label: "50%", pct: 50 },
-                    { label: "75%", pct: 75 },
-                    { label: "100%", pct: 100 },
-                    { label: "150%", pct: 150 }
-                ]
-
-                delegate: Rectangle {
-                    required property var modelData
-                    Layout.fillWidth: true
-                    height: 24
-                    radius: Theme.radiusSmall
-                    color: presetMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
-                    border.color: Theme.glassBorder
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
-                        font.bold: true
-                        color: Theme.textPrimary
-                        text: modelData.label
-                    }
-
-                    MouseArea {
-                        id: presetMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.setVolume(modelData.pct);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Séparateur
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorder
-        }
-
-        // Boutons Muet + Pavucontrol
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: Theme.spacingSm
-
             // Bouton Mute
             Rectangle {
                 Layout.fillWidth: true
-                height: 28
-                radius: Theme.radiusMedium
+                height: 24
+                radius: Theme.radiusSmall
                 color: muteMouse.containsMouse ? Theme.cardBackgroundHover : (root.isMuted ? Qt.rgba(0.95, 0.54, 0.66, 0.2) : Qt.rgba(1, 1, 1, 0.05))
                 border.color: root.isMuted ? Theme.destructive : Theme.glassBorder
                 border.width: 1
 
-                RowLayout {
+                Text {
                     anchors.centerIn: parent
-                    spacing: Theme.spacingXs
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: root.isMuted ? Theme.destructive : Theme.textPrimary
-                        text: root.isMuted ? "󰝟" : "󰕾"
-                    }
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: root.isMuted ? Theme.destructive : Theme.textPrimary
-                        text: root.isMuted ? "Rétablir" : "Couper"
-                    }
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    color: root.isMuted ? Theme.destructive : Theme.textPrimary
+                    text: root.isMuted ? "󰝟 Muet" : "󰕾 Mute"
                 }
 
                 MouseArea {
@@ -198,36 +134,25 @@ ModulePopup {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        root.toggleMute();
-                    }
+                    onClicked: root.toggleMute()
                 }
             }
 
             // Bouton Pavucontrol
             Rectangle {
-                Layout.fillWidth: true
-                height: 28
-                radius: Theme.radiusMedium
+                width: 28
+                height: 24
+                radius: Theme.radiusSmall
                 color: pavuMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
                 border.color: Theme.glassBorder
                 border.width: 1
 
-                RowLayout {
+                Text {
                     anchors.centerIn: parent
-                    spacing: Theme.spacingXs
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.accent
-                        text: "󰓃"
-                    }
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textPrimary
-                        text: "Mixeur Audio"
-                    }
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.accent
+                    text: "󰓃"
                 }
 
                 MouseArea {

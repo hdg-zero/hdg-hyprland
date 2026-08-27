@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.UPower
-import Quickshell.Hyprland
 import "../../theme"
 import "../../components"
 
@@ -13,19 +12,19 @@ ModulePopup {
     readonly property int chargePercent: bat ? Math.round(bat.percentage * 100) : 100
     readonly property bool isCharging: bat ? (bat.state === UPowerDeviceState.Charging) : false
     readonly property bool isFull: bat ? (bat.state === UPowerDeviceState.FullyCharged) : false
-    readonly property string energyRateFormatted: bat && bat.energyRate > 0 ? (bat.energyRate.toFixed(1) + " W") : "N/A"
+    readonly property string energyRateFormatted: bat && bat.energyRate > 0 ? (bat.energyRate.toFixed(1) + " W") : ""
 
     readonly property string timeRemainingFormatted: {
-        if (!bat) return "N/A";
+        if (!bat) return "";
         var secs = isCharging ? bat.timeToFull : bat.timeToEmpty;
-        if (!secs || secs <= 0) return isFull ? "Pleine charge" : "Calcul en cours...";
+        if (!secs || secs <= 0) return isFull ? "Pleine" : (isCharging ? "En charge" : "");
         var hrs = Math.floor(secs / 3600);
         var mins = Math.floor((secs % 3600) / 60);
-        if (hrs > 0) return hrs + " h " + mins + " min";
-        return mins + " min";
+        if (hrs > 0) return hrs + "h" + (mins > 0 ? (mins + "m") : "");
+        return mins + "m";
     }
 
-    cardWidth: 280
+    cardWidth: 200
     cardHeight: batCol.implicitHeight + Theme.spacingMd * 2
 
     function setProfile(profile) {
@@ -44,38 +43,27 @@ ModulePopup {
         // En-tête
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingSm
+            spacing: Theme.spacingXs
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeMedium
                 color: root.isCharging ? Theme.success : (root.chargePercent <= 20 ? Theme.destructive : Theme.accent)
                 text: root.isCharging ? "󰂄" : (root.chargePercent >= 90 ? "󰁹" : (root.chargePercent >= 50 ? "󰁿" : (root.chargePercent >= 20 ? "󰁼" : "󰁺")))
             }
 
-            ColumnLayout {
+            Text {
                 Layout.fillWidth: true
-                spacing: 2
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
-                    font.bold: true
-                    color: Theme.textPrimary
-                    text: "Batterie"
-                }
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: root.isCharging ? Theme.success : Theme.textSecondary
-                    text: root.isFull ? "Pleine charge" : (root.isCharging ? "En charge sur secteur" : "Sur batterie")
-                }
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSizeSmall
+                font.bold: true
+                color: Theme.textPrimary
+                text: "Batterie"
             }
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
                 color: root.isCharging ? Theme.success : (root.chargePercent <= 20 ? Theme.destructive : Theme.accent)
                 text: root.chargePercent + "%"
@@ -85,14 +73,14 @@ ModulePopup {
         // Barre de charge
         Rectangle {
             Layout.fillWidth: true
-            height: 6
-            radius: 3
+            height: 4
+            radius: 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: parent.width * (Math.min(100, Math.max(0, root.chargePercent)) / 100.0)
                 height: parent.height
-                radius: 3
+                radius: 2
                 color: root.isCharging ? Theme.success : (root.chargePercent <= 20 ? Theme.destructive : Theme.accent)
 
                 Behavior on width {
@@ -101,102 +89,59 @@ ModulePopup {
             }
         }
 
-        // Métriques (Temps restant + Puissance)
+        // Temps restant & Puissance
         RowLayout {
+            visible: root.timeRemainingFormatted !== "" || root.energyRateFormatted !== ""
             Layout.fillWidth: true
-            Layout.topMargin: Theme.spacingXs
 
-            RowLayout {
-                spacing: Theme.spacingXs
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: Theme.textSecondary
-                    text: " Restant :"
-                }
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    font.bold: true
-                    color: Theme.textPrimary
-                    text: root.timeRemainingFormatted
-                }
+            Text {
+                visible: root.timeRemainingFormatted !== ""
+                font.family: Theme.fontFamily
+                font.pixelSize: 11
+                color: Theme.textSecondary
+                text: " " + root.timeRemainingFormatted
             }
 
             Item { Layout.fillWidth: true }
 
-            RowLayout {
-                spacing: Theme.spacingXs
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: Theme.textSecondary
-                    text: "󱐋 Débit :"
-                }
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    font.bold: true
-                    color: Theme.textPrimary
-                    text: root.energyRateFormatted
-                }
+            Text {
+                visible: root.energyRateFormatted !== ""
+                font.family: Theme.fontFamily
+                font.pixelSize: 11
+                color: Theme.textDisabled
+                text: root.energyRateFormatted
             }
         }
 
-        // Séparateur
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorder
-            Layout.topMargin: Theme.spacingXs
-            Layout.bottomMargin: Theme.spacingXs
-        }
-
-        // Profils d'énergie UPower
-        Text {
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSmall
-            font.bold: true
-            color: Theme.textSecondary
-            text: "Profil d'Alimentation"
-        }
-
+        // Profils d'énergie compacts
         RowLayout {
             Layout.fillWidth: true
+            Layout.topMargin: 2
             spacing: Theme.spacingXs
 
             Repeater {
                 model: [
-                    { id: "power-saver", label: "Éco", icon: "󰌪" },
-                    { id: "balanced", label: "Équilibré", icon: "󰗑" },
-                    { id: "performance", label: "Max", icon: "󰓅" }
+                    { id: "power-saver", label: "Éco" },
+                    { id: "balanced", label: "Équilibré" },
+                    { id: "performance", label: "Max" }
                 ]
 
                 delegate: Rectangle {
                     required property var modelData
                     Layout.fillWidth: true
-                    height: 28
+                    height: 22
                     radius: Theme.radiusSmall
                     color: profMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
                     border.color: Theme.glassBorder
                     border.width: 1
 
-                    RowLayout {
+                    Text {
                         anchors.centerIn: parent
-                        spacing: Theme.spacingXs
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: Theme.accent
-                            text: modelData.icon
-                        }
-                        Text {
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 11
-                            font.bold: true
-                            color: Theme.textPrimary
-                            text: modelData.label
-                        }
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 10
+                        font.bold: true
+                        color: Theme.textPrimary
+                        text: modelData.label
                     }
 
                     MouseArea {
@@ -204,9 +149,7 @@ ModulePopup {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.setProfile(modelData.id);
-                        }
+                        onClicked: root.setProfile(modelData.id)
                     }
                 }
             }

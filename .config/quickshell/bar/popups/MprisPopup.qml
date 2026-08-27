@@ -8,7 +8,7 @@ import "../../components"
 ModulePopup {
     id: root
 
-    cardWidth: 320
+    cardWidth: 240
     cardHeight: mprisCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var player: (Mpris.players && Mpris.players.values && Mpris.players.values.length > 0) ? Mpris.players.values[0] : null
@@ -21,18 +21,18 @@ ModulePopup {
             right: parent.right
             top: parent.top
         }
-        spacing: Theme.spacingMd
+        spacing: Theme.spacingSm
 
-        // Pochette et Infos
+        // Pochette et Titre
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingMd
+            spacing: Theme.spacingSm
 
             // Pochette d'album
             Rectangle {
-                width: 72
-                height: 72
-                radius: Theme.radiusMedium
+                width: 48
+                height: 48
+                radius: Theme.radiusSmall
                 color: Qt.rgba(1, 1, 1, 0.05)
                 clip: true
                 border.color: Theme.glassBorder
@@ -42,7 +42,7 @@ ModulePopup {
                     id: albumArt
                     anchors.fill: parent
                     source: (root.visible && root.player) ? (root.player.trackArtUrl || root.player.artUrl || "") : ""
-                    sourceSize: Qt.size(144, 144)
+                    sourceSize: Qt.size(96, 96)
                     fillMode: Image.PreserveAspectCrop
                     visible: source !== "" && status === Image.Ready
                     smooth: true
@@ -54,21 +54,21 @@ ModulePopup {
                     anchors.centerIn: parent
                     visible: !albumArt.visible
                     font.family: Theme.fontFamily
-                    font.pixelSize: 28
+                    font.pixelSize: 20
                     color: Theme.textDisabled
                     text: "󰝚"
                 }
             }
 
-            // Textes : Titre, Artiste, Album
+            // Titre & Artiste
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 3
+                spacing: 1
 
                 Text {
                     Layout.fillWidth: true
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
+                    font.pixelSize: Theme.fontSizeSmall
                     font.bold: true
                     color: Theme.textPrimary
                     text: root.player ? (root.player.trackTitle || "Aucune lecture") : "Aucun lecteur"
@@ -78,49 +78,32 @@ ModulePopup {
                 Text {
                     Layout.fillWidth: true
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: Theme.accent
-                    text: root.player ? (root.player.trackArtist || "Artiste inconnu") : ""
-                    elide: Text.ElideRight
-                    visible: text !== ""
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    font.family: Theme.fontFamily
                     font.pixelSize: 11
-                    color: Theme.textSecondary
-                    text: root.player ? (root.player.trackAlbum || (root.player.identity || "")) : ""
+                    color: Theme.accent
+                    text: root.player ? (root.player.trackArtist || "") : ""
                     elide: Text.ElideRight
                     visible: text !== ""
                 }
             }
         }
 
-        // Séparateur
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorder
-        }
-
-        // Contrôles multimédia
+        // Contrôles multimédia compacts
         RowLayout {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
-            spacing: Theme.spacingMd
+            spacing: Theme.spacingSm
 
             // Précédent
             Rectangle {
-                width: 32
-                height: 32
-                radius: 16
+                width: 28
+                height: 28
+                radius: 14
                 color: prevMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
 
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    font.pixelSize: Theme.fontSizeMedium
                     color: root.player ? Theme.textPrimary : Theme.textDisabled
                     text: "󰒮"
                 }
@@ -136,11 +119,11 @@ ModulePopup {
                 }
             }
 
-            // Lecture / Pause (Grand bouton rond)
+            // Lecture / Pause
             Rectangle {
-                width: 42
-                height: 42
-                radius: 21
+                width: 32
+                height: 32
+                radius: 16
                 color: playMouse.containsMouse ? Qt.lighter(Theme.accent, 1.1) : Theme.accent
 
                 Behavior on color {
@@ -150,7 +133,7 @@ ModulePopup {
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: 20
+                    font.pixelSize: 15
                     color: Theme.background
                     text: root.isPlaying ? "󰏤" : "󰐊"
                 }
@@ -174,15 +157,15 @@ ModulePopup {
 
             // Suivant
             Rectangle {
-                width: 32
-                height: 32
-                radius: 16
+                width: 28
+                height: 28
+                radius: 14
                 color: nextMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
 
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    font.pixelSize: Theme.fontSizeMedium
                     color: root.player ? Theme.textPrimary : Theme.textDisabled
                     text: "󰒭"
                 }

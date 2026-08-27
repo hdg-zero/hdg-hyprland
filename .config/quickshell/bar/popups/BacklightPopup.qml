@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Hyprland
 import "../../theme"
 import "../../components"
 
@@ -10,7 +9,7 @@ ModulePopup {
 
     property int brightnessPercent: 100
 
-    cardWidth: 260
+    cardWidth: 180
     cardHeight: lightCol.implicitHeight + Theme.spacingMd * 2
 
     function setBrightness(pct) {
@@ -26,16 +25,16 @@ ModulePopup {
             right: parent.right
             top: parent.top
         }
-        spacing: Theme.spacingMd
+        spacing: Theme.spacingSm
 
         // En-tête
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingSm
+            spacing: Theme.spacingXs
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeMedium
                 color: Theme.accent
                 text: "󰃠"
             }
@@ -43,7 +42,7 @@ ModulePopup {
             Text {
                 Layout.fillWidth: true
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
                 color: Theme.textPrimary
                 text: "Luminosité"
@@ -51,7 +50,7 @@ ModulePopup {
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
                 color: Theme.accent
                 text: root.brightnessPercent + "%"
@@ -62,14 +61,14 @@ ModulePopup {
         Rectangle {
             id: lightSliderTrack
             Layout.fillWidth: true
-            height: 12
-            radius: 6
+            height: 6
+            radius: 3
             color: Qt.rgba(1, 1, 1, 0.1)
 
             Rectangle {
                 width: Math.min(parent.width, parent.width * (root.brightnessPercent / 100.0))
                 height: parent.height
-                radius: 6
+                radius: 3
                 color: Theme.accent
             }
 
@@ -109,18 +108,12 @@ ModulePopup {
             spacing: Theme.spacingXs
 
             Repeater {
-                model: [
-                    { label: "10%", pct: 10 },
-                    { label: "25%", pct: 25 },
-                    { label: "50%", pct: 50 },
-                    { label: "75%", pct: 75 },
-                    { label: "100%", pct: 100 }
-                ]
+                model: [25, 50, 75, 100]
 
                 delegate: Rectangle {
-                    required property var modelData
+                    required property int modelData
                     Layout.fillWidth: true
-                    height: 24
+                    height: 22
                     radius: Theme.radiusSmall
                     color: bPresetMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
                     border.color: Theme.glassBorder
@@ -132,7 +125,7 @@ ModulePopup {
                         font.pixelSize: 10
                         font.bold: true
                         color: Theme.textPrimary
-                        text: modelData.label
+                        text: modelData + "%"
                     }
 
                     MouseArea {
@@ -140,9 +133,7 @@ ModulePopup {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.setBrightness(modelData.pct);
-                        }
+                        onClicked: root.setBrightness(modelData)
                     }
                 }
             }

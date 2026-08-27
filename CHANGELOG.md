@@ -25,6 +25,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Épuration complète et minimaliste de l'ensemble des fenêtres flottantes (`bar/popups/*.qml`) : suppression des textes verbeux et listes surchargées, réduction des dimensions et concentration exclusive sur les métriques et actions essentielles.
 - Mise à jour du `README.md` (architecture, documentation de la top barre Quickshell, dépendances et procédure d'installation).
 - Remplacement de la dépendance `waybar` par `quickshell` dans `.config/hypr/scripts/check-dependencies.sh`.
 - Optimisation globale et unification de tous les modules et popups sous l'API native Quickshell v0.3.1 (`Quickshell.execDetached`, `Quickshell.Services.Mpris.trackArtUrl`, `Quickshell.Services.UPower`, `Quickshell.Services.SystemTray`), éliminant tout blocage du thread d'interface et garantissant une exécution asynchrone déterministe.

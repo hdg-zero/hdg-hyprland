@@ -17,7 +17,7 @@ ModulePopup {
         if (toplevel.title) return toplevel.title;
         if (toplevel.wayland && toplevel.wayland.title) return toplevel.wayland.title;
         if (toplevel.lastIpcObject && toplevel.lastIpcObject.title) return toplevel.lastIpcObject.title;
-        return appClass || "Fenêtre d'application";
+        return appClass || "Application";
     }
 
     readonly property string appName: {
@@ -39,90 +39,62 @@ ModulePopup {
         return "";
     }
 
-    readonly property bool isFloating: (toplevel && toplevel.lastIpcObject && toplevel.lastIpcObject.floating) ? true : false
-    readonly property bool isFullscreen: (toplevel && toplevel.lastIpcObject && toplevel.lastIpcObject.fullscreen) ? true : false
-
-    cardWidth: 280
+    cardWidth: 220
     cardHeight: contentLayout.implicitHeight + (Theme.spacingMd * 2)
 
     ColumnLayout {
         id: contentLayout
         anchors.fill: parent
-        spacing: Theme.spacingMd
+        spacing: Theme.spacingSm
 
         // Header : Icône + Nom App + Badge Workspace
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingSm
+            spacing: Theme.spacingXs
 
             Image {
                 id: popupIcon
-                width: 28
-                height: 28
+                width: 20
+                height: 20
                 source: root.iconSource
-                sourceSize: Qt.size(64, 64)
+                sourceSize: Qt.size(48, 48)
                 smooth: true
                 mipmap: true
                 visible: root.iconSource !== "" && status === Image.Ready
                 fillMode: Image.PreserveAspectFit
             }
 
-            Rectangle {
-                width: 28
-                height: 28
-                radius: Theme.radiusSmall
-                color: Qt.rgba(1, 1, 1, 0.05)
+            Text {
                 visible: !popupIcon.visible
-
-                Text {
-                    anchors.centerIn: parent
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    color: Theme.accent
-                    text: "󰣆"
-                }
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSizeMedium
+                color: Theme.accent
+                text: "󰣆"
             }
 
-            ColumnLayout {
+            Text {
                 Layout.fillWidth: true
-                spacing: 2
-
-                Text {
-                    Layout.fillWidth: true
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
-                    font.bold: true
-                    color: Theme.textPrimary
-                    text: root.appName
-                    elide: Text.ElideRight
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: Theme.textSecondary
-                    text: root.appClass
-                    elide: Text.ElideRight
-                    visible: root.appClass !== "" && root.appClass !== root.appName
-                }
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSizeSmall
+                font.bold: true
+                color: Theme.textPrimary
+                text: root.appName
+                elide: Text.ElideRight
             }
 
             // Badge Workspace
             Rectangle {
                 visible: root.workspaceName !== ""
-                height: 20
-                width: wsLabel.implicitWidth + 12
-                radius: 10
+                height: 16
+                width: wsLabel.implicitWidth + 8
+                radius: 4
                 color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
-                border.color: Qt.rgba(0.365, 0.678, 0.886, 0.3)
-                border.width: 1
 
                 Text {
                     id: wsLabel
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
+                    font.pixelSize: 10
                     font.bold: true
                     color: Theme.accent
                     text: "WS " + root.workspaceName
@@ -130,111 +102,38 @@ ModulePopup {
             }
         }
 
-        // Ligne de séparation
-        Rectangle {
+        // Titre de la fenêtre (1 ligne nette)
+        Text {
             Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorder
+            font.family: Theme.fontFamily
+            font.pixelSize: 11
+            color: Theme.textSecondary
+            text: root.winTitle
+            elide: Text.ElideRight
+            maximumLineCount: 1
         }
 
-        // Titre complet de la fenêtre
-        Rectangle {
-            Layout.fillWidth: true
-            implicitHeight: winTitleText.implicitHeight + (Theme.spacingSm * 2)
-            radius: Theme.radiusSmall
-            color: Qt.rgba(0, 0, 0, 0.25)
-            border.color: Theme.glassBorderSubtle
-            border.width: 1
-
-            Text {
-                id: winTitleText
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    top: parent.top
-                    margins: Theme.spacingSm
-                }
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeRegular
-                color: Theme.textPrimary
-                text: root.winTitle
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                maximumLineCount: 3
-                elide: Text.ElideRight
-            }
-        }
-
-        // Badges d'état (Flottante, Plein écran)
-        RowLayout {
-            visible: root.isFloating || root.isFullscreen
-            spacing: Theme.spacingSm
-
-            Rectangle {
-                visible: root.isFloating
-                height: 18
-                width: floatLabel.implicitWidth + 10
-                radius: 4
-                color: Qt.rgba(1, 1, 1, 0.08)
-
-                Text {
-                    id: floatLabel
-                    anchors.centerIn: parent
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 10
-                    color: Theme.textSecondary
-                    text: "󰉈 Flottante"
-                }
-            }
-
-            Rectangle {
-                visible: root.isFullscreen
-                height: 18
-                width: fsLabel.implicitWidth + 10
-                radius: 4
-                color: Qt.rgba(0.95, 0.77, 0.06, 0.15)
-
-                Text {
-                    id: fsLabel
-                    anchors.centerIn: parent
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 10
-                    color: Theme.warning
-                    text: "󰊓 Plein écran"
-                }
-            }
-        }
-
-        // Actions rapides (Focus & Fermer)
+        // Actions compactes (Basculer & Fermer)
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingSm
+            spacing: Theme.spacingXs
 
-            // Bouton Focus
+            // Bouton Basculer
             Rectangle {
                 Layout.fillWidth: true
-                height: 30
+                height: 24
                 radius: Theme.radiusSmall
                 color: focusMouse.containsMouse ? Theme.accentHover : Qt.rgba(0.365, 0.678, 0.886, 0.2)
                 border.color: Theme.accent
                 border.width: 1
 
-                RowLayout {
+                Text {
                     anchors.centerIn: parent
-                    spacing: Theme.spacingXs
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textPrimary
-                        text: "󰘳"
-                    }
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                        color: Theme.textPrimary
-                        text: "Basculer"
-                    }
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    font.bold: true
+                    color: Theme.textPrimary
+                    text: "󰘳 Basculer"
                 }
 
                 MouseArea {
@@ -255,29 +154,19 @@ ModulePopup {
 
             // Bouton Fermer
             Rectangle {
-                width: 70
-                height: 30
+                width: 55
+                height: 24
                 radius: Theme.radiusSmall
                 color: closeBtnMouse.containsMouse ? Qt.rgba(0.906, 0.298, 0.235, 0.3) : Qt.rgba(1, 1, 1, 0.05)
                 border.color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.glassBorder
                 border.width: 1
 
-                RowLayout {
+                Text {
                     anchors.centerIn: parent
-                    spacing: 4
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
-                        text: "󰅖"
-                    }
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
-                        text: "Fermer"
-                    }
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
+                    text: "󰅖 Fermer"
                 }
 
                 MouseArea {

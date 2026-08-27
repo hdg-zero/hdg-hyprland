@@ -97,22 +97,22 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
   - Molette souris : Navigation séquentielle `e-1` / `e+1`.
 - **󰻠 CPU (`CpuModule` + `CpuPopup`) :**
   - Barre : Largeur fixée à 3% de l'écran (`widthPercent: 0.03`).
-  - Popup au survol : Charge globale, température matérielle, charge moyenne (`/proc/loadavg`), Top 5 des processus les plus gourmands en CPU et bouton d'ouverture rapide de `btop`.
+  - Popup épuré : Jauge fine, pourcentage, température matérielle (``) et load average (``).
 - **󰍛 Mémoire (`MemoryModule` + `MemoryPopup`) :**
   - Barre : Largeur fixée à 3% de l'écran (`widthPercent: 0.03`).
-  - Popup au survol : Utilisation RAM précise (Go utilisés / Go totaux), utilisation de la Swap, Top 5 des processus en mémoire et accès à `btop`.
+  - Popup épuré : Jauge fine, pourcentage, RAM utilisée / totale et pourcentage Swap.
 - **󰤨 Réseau (`NetworkModule` + `NetworkPopup`) :**
   - Barre : Largeur fixée à 3% de l'écran (`widthPercent: 0.03`).
-  - Popup au survol : Nom du réseau WiFi (SSID) / Filaire, adresse IP IPv4, passerelle par défaut, débits instantanés de téléchargement (↓) et téléversement (↑), volume de données total de la session et raccourcis vers `nm-connection-editor` et `nmtui`.
+  - Popup épuré : Nom du WiFi / Filaire + signal, adresse IP locale et débits instantanés (↓/↑).
 - **󰝚 Lecteur Multimédia (`MprisModule` + `MprisPopup`) :**
   - Barre : Largeur fixée à 10% de l'écran (`widthPercent: 0.10`) avec défilement/troncature propre.
   - Clic gauche : Lecture / Pause immédiate (`togglePlaying()`).
   - Clic droit : Ouvre la popup détaillée.
   - Clic milieu & Molette : Piste suivante / précédente.
-  - Popup : Pochette d'album HD, titre, artiste, album et contrôles multimédias.
+  - Popup épuré : Pochette d'album compacte, titre, artiste et boutons Précédent / Play-Pause / Suivant.
 
 ### 📌 4.2 Section Centre
-- **Fenêtre Active (`ActiveWindow`) :** Titre tronqué de l'application en cours de focus.
+- **Fenêtre Active (`ActiveWindow`) :** Titre épuré de l'application en cours de focus.
 
 ### 📌 4.3 Section Droite (Tâches & Contrôle Matériel)
 - **Barre des Tâches (`TaskbarModule` + `AppPopup`) :**
@@ -120,30 +120,27 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
   - Clic gauche : Focus et passage au premier plan de l'application.
   - Clic milieu : Fermeture de la fenêtre.
   - **Popup d'Aperçu au survol (`AppPopup`) :**
-    - Nom humain de l'application, classe Wayland et badge du workspace assigné.
-    - Titre complet de la fenêtre (onglet actif, document, projet).
-    - Badges dynamiques `󰉈 Flottante` ou `󰊓 Plein écran`.
-    - Boutons d'action rapide : **󰘳 Basculer** (focus) et **󰅖 Fermer**.
+    - Nom de l'application, badge de workspace assigné, titre de fenêtre sur une ligne et boutons compacts **󰘳 Basculer** (focus) et **󰅖 Fermer**.
 - **System Tray (`SystemTrayModule`) :** Zone de notification SNI native Wayland avec support clic gauche, clic droit et molette.
 - **󰃠 Luminosité (`BacklightModule` + `BacklightPopup`) :**
   - Molette sur la barre : Ajustement par pas de 3%.
-  - Popup au survol : Curseur interactif 1-100% et boutons de préselection rapide (10%, 25%, 50%, 75%, 100%).
+  - Popup épuré : Curseur interactif 1-100% et presets rapides (25%, 50%, 75%, 100%).
 - **󰕾 Volume Audio (`VolumeModule` + `VolumePopup`) :**
   - Molette sur la barre : Ajustement par pas de 5%.
   - Clic droit : Ouvre le mixeur `pavucontrol`.
-  - Popup au survol : Curseur interactif 0-150% PipeWire, statut Bluetooth, bouton Muet et paliers rapides.
+  - Popup épuré : Curseur interactif 0-150% PipeWire, bouton Muet et raccourci mixeur `󰓃`.
 - **󰁹 Batterie (`BatteryModule` + `BatteryPopup`) :**
   - Détection automatique (masqué sur PC fixe).
-  - Popup au survol : Estimation du temps restant, puissance instantanée en Watts (débit énergétique) et sélecteur de profils UPower (**Éco**, **Équilibré**, **Max**).
+  - Popup épuré : Jauge fine, pourcentage, temps restant estimé, débit en Watts et sélecteur de profils UPower (**Éco**, **Équilibré**, **Max**).
 - **󰂚 Centre de Notifications (`NotificationButton`) :**
   - Clic gauche : Ouvre/Ferme le panneau SwayNC.
   - Clic droit : Bascule le mode Ne Pas Déranger (DND).
   - Badge avec compteur de notifications non lues.
 - **󰥔 Horloge (`ClockModule` + `ClockPopup`) :**
   - Barre : Heure au format `HH:mm` cadencée à la minute.
-  - Popup au survol : Heure précise avec secondes, date complète en français, calendrier dynamique du mois avec jour courant en surbrillance, et temps d'activité système (**Uptime**).
+  - Popup épuré : Heure avec secondes, date en français, calendrier compact du mois avec jour courant en surbrillance et Uptime système.
 - **⏻ Menu Énergie (`PowerButton` + `PowerPopup`) :**
-  - Clic gauche : Menu rapide (Verrouiller, Veille, Déconnexion, Redémarrer, Éteindre).
+  - Clic gauche : Menu rapide compact (Verrouiller, Veille, Déconnexion, Redémarrer, Éteindre).
   - Clic droit : Ouvre l'interface plein écran `wlogout`.
 
 ---

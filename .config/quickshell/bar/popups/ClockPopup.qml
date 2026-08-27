@@ -10,17 +10,16 @@ ModulePopup {
 
     property string fullTime: "00:00:00"
     property string fullDate: ""
-    property string uptimeStr: "N/A"
+    property string uptimeStr: ""
 
     readonly property date now: new Date()
     readonly property int currentYear: now.getFullYear()
-    readonly property int currentMonth: now.getMonth() // 0-indexed
+    readonly property int currentMonth: now.getMonth()
     readonly property int currentDay: now.getDate()
 
-    cardWidth: 300
+    cardWidth: 220
     cardHeight: clockCol.implicitHeight + Theme.spacingMd * 2
 
-    // Mois en français
     readonly property var monthNames: [
         "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
         "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
@@ -38,26 +37,21 @@ ModulePopup {
 
         var dayName = root.dayNames[d.getDay()];
         var monthName = root.monthNames[d.getMonth()];
-        root.fullDate = dayName + " " + d.getDate() + " " + monthName + " " + d.getFullYear();
+        root.fullDate = dayName + " " + d.getDate() + " " + monthName;
     }
 
-    // Calcul de la grille du calendrier
     readonly property var calendarModel: {
-        var firstDayOfWeek = new Date(currentYear, currentMonth, 1).getDay(); // 0 = Dimanche
-        // Décalage pour commencer le Lundi (0 = Lundi, 6 = Dimanche)
+        var firstDayOfWeek = new Date(currentYear, currentMonth, 1).getDay();
         var offset = (firstDayOfWeek + 6) % 7;
         var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
         var cells = [];
-        // Cases vides avant le 1er du mois
         for (var i = 0; i < offset; i++) {
-            cells.push({ day: 0, isCurrentMonth: false, isToday: false });
+            cells.push({ day: 0, isToday: false });
         }
-        // Jours du mois
         for (var d = 1; d <= daysInMonth; d++) {
             cells.push({
                 day: d,
-                isCurrentMonth: true,
                 isToday: (d === root.currentDay)
             });
         }
@@ -72,21 +66,25 @@ ModulePopup {
 
     Timer {
         interval: 1000
-        running: true
+        running: root.visible
         repeat: true
         triggeredOnStart: true
         onTriggered: {
             root.updateDateTime();
-            if (root.visible) {
-                uptimeFile.reload();
-                var txt = uptimeFile.text();
-                if (txt) {
-                    var secs = parseFloat(txt.split(" ")[0]) || 0;
-                    var hrs = Math.floor(secs / 3600);
-                    var mins = Math.floor((secs % 3600) / 60);
-                    root.uptimeStr = hrs + "h " + mins + "m";
-                }
+            uptimeFile.reload();
+            var txt = uptimeFile.text();
+            if (txt) {
+                var secs = parseFloat(txt.split(" ")[0]) || 0;
+                var hrs = Math.floor(secs / 3600);
+                var mins = Math.floor((secs % 3600) / 60);
+                root.uptimeStr = hrs + "h" + (mins > 0 ? (mins + "m") : "");
             }
+        }
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            root.updateDateTime();
         }
     }
 
@@ -97,46 +95,42 @@ ModulePopup {
             right: parent.right
             top: parent.top
         }
-        spacing: Theme.spacingSm
+        spacing: Theme.spacingXs
 
-        // En-tête : Heure grand format & Date
-        ColumnLayout {
+        // Heure & Date
+        RowLayout {
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 2
 
             Text {
-                Layout.alignment: Qt.AlignHCenter
                 font.family: Theme.fontFamily
-                font.pixelSize: 26
+                font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
                 color: Theme.accent
                 text: root.fullTime
             }
 
+            Item { Layout.fillWidth: true }
+
             Text {
-                Layout.alignment: Qt.AlignHCenter
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: 11
                 color: Theme.textSecondary
                 text: root.fullDate
             }
         }
 
-        // Séparateur
+        // Séparateur fin
         Rectangle {
             Layout.fillWidth: true
             height: 1
             color: Theme.glassBorder
-            Layout.topMargin: Theme.spacingXs
-            Layout.bottomMargin: Theme.spacingXs
         }
 
-        // En-tête mois calendrier
+        // Mois et Année
         Text {
             Layout.alignment: Qt.AlignHCenter
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeMedium
+            font.pixelSize: Theme.fontSizeSmall
             font.bold: true
             color: Theme.textPrimary
             text: root.monthNames[root.currentMonth] + " " + root.currentYear
@@ -151,11 +145,11 @@ ModulePopup {
                 model: ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"]
                 delegate: Item {
                     Layout.fillWidth: true
-                    height: 20
+                    height: 16
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: 11
+                        font.pixelSize: 10
                         font.bold: true
                         color: Theme.accentSecondary
                         text: modelData
@@ -168,7 +162,7 @@ ModulePopup {
         GridLayout {
             Layout.fillWidth: true
             columns: 7
-            rowSpacing: 4
+            rowSpacing: 2
             columnSpacing: 0
 
             Repeater {
@@ -176,19 +170,19 @@ ModulePopup {
 
                 delegate: Item {
                     Layout.fillWidth: true
-                    height: 24
+                    height: 20
 
                     Rectangle {
                         anchors.centerIn: parent
-                        width: 24
-                        height: 24
-                        radius: 12
+                        width: 18
+                        height: 18
+                        radius: 9
                         color: modelData.isToday ? Theme.accent : "transparent"
 
                         Text {
                             anchors.centerIn: parent
                             font.family: Theme.fontFamily
-                            font.pixelSize: 11
+                            font.pixelSize: 10
                             font.bold: modelData.isToday
                             color: modelData.isToday ? Theme.background : (modelData.day > 0 ? Theme.textPrimary : "transparent")
                             text: modelData.day > 0 ? modelData.day : ""
@@ -198,35 +192,17 @@ ModulePopup {
             }
         }
 
-        // Séparateur
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorder
-            Layout.topMargin: Theme.spacingXs
-            Layout.bottomMargin: Theme.spacingXs
-        }
-
-        // Uptime système
+        // Uptime en bas
         RowLayout {
+            visible: root.uptimeStr !== ""
             Layout.fillWidth: true
-            spacing: Theme.spacingXs
+            Layout.topMargin: 2
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: 11
-                color: Theme.textSecondary
-                text: "󱘖 Uptime :"
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-                font.bold: true
-                color: Theme.textPrimary
-                text: root.uptimeStr
+                font.pixelSize: 10
+                color: Theme.textDisabled
+                text: "󱘖 Uptime " + root.uptimeStr
             }
         }
     }

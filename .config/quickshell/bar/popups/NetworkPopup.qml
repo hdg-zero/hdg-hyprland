@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Networking
 import Quickshell.Io
-import Quickshell.Hyprland
 import "../../theme"
 import "../../components"
 
@@ -11,14 +10,10 @@ ModulePopup {
     id: root
 
     property string ipAddress: "127.0.0.1"
-    property string defaultGateway: "N/A"
-    property string activeIface: "lo"
     property string rxRate: "0 o/s"
     property string txRate: "0 o/s"
-    property string rxTotal: "0 Go"
-    property string txTotal: "0 Go"
 
-    cardWidth: 300
+    cardWidth: 210
     cardHeight: netCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var activeDevice: {
@@ -49,27 +44,15 @@ ModulePopup {
         return (bytesPerSec / 1073741824).toFixed(2) + " Go/s";
     }
 
-    function formatTotal(bytes) {
-        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " Ko";
-        if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " Mo";
-        return (bytes / 1073741824).toFixed(2) + " Go";
-    }
-
     Process {
         id: getNetDetails
-        command: ["sh", "-c", "ip route get 1.1.1.1 2>/dev/null | awk '{print $5, $7, $3}' || echo 'lo 127.0.0.1 127.0.0.1'"]
+        command: ["sh", "-c", "ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' || echo '127.0.0.1'"]
         stdout: StdioCollector {
             id: netIpOut
         }
         onExited: function(exitCode, exitStatus) {
             var str = netIpOut.text.trim();
-            if (!str) return;
-            var parts = str.split(/\s+/);
-            if (parts.length >= 2) {
-                root.activeIface = parts[0];
-                root.ipAddress = parts[1];
-                if (parts.length >= 3) root.defaultGateway = parts[2];
-            }
+            if (str) root.ipAddress = str;
         }
     }
 
@@ -125,9 +108,6 @@ ModulePopup {
                 root.txRate = root.formatSpeed(txDelta / deltaSec);
             }
 
-            root.rxTotal = root.formatTotal(totalRx);
-            root.txTotal = root.formatTotal(totalTx);
-
             root.lastRx = totalRx;
             root.lastTx = totalTx;
             root.lastTime = now;
@@ -152,244 +132,59 @@ ModulePopup {
         // En-tête
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingSm
+            spacing: Theme.spacingXs
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeMedium
                 color: root.isConnected ? Theme.accent : Theme.textDisabled
                 text: root.isWifi ? "󰤨" : (root.isWired ? "󰌘" : "󰌙")
             }
 
-            ColumnLayout {
+            Text {
                 Layout.fillWidth: true
-                spacing: 2
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
-                    font.bold: true
-                    color: Theme.textPrimary
-                    text: root.isConnected ? (root.isWifi ? root.ssid : "Connexion Filaire") : "Déconnecté"
-                    elide: Text.ElideRight
-                }
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: root.isConnected ? Theme.success : Theme.textDisabled
-                    text: root.isConnected ? ("Interface : " + root.activeIface + (root.isWifi ? (" (" + root.signal + "%)") : "")) : "Aucune connexion"
-                }
-            }
-        }
-
-        // Séparateur
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorder
-            Layout.topMargin: Theme.spacingXs
-            Layout.bottomMargin: Theme.spacingXs
-        }
-
-        // Adresses IP
-        RowLayout {
-            Layout.fillWidth: true
-            Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.textSecondary
-                text: "Adresse IPv4 :"
-            }
-            Item { Layout.fillWidth: true }
-            Text {
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
                 color: Theme.textPrimary
-                text: root.ipAddress
+                text: root.isConnected ? (root.isWifi ? root.ssid : "Filaire") : "Déconnecté"
+                elide: Text.ElideRight
             }
-        }
 
-        RowLayout {
-            Layout.fillWidth: true
             Text {
+                visible: root.isWifi && root.isConnected
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: 11
                 color: Theme.textSecondary
-                text: "Passerelle :"
-            }
-            Item { Layout.fillWidth: true }
-            Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
-                font.bold: true
-                color: Theme.textPrimary
-                text: root.defaultGateway
+                text: root.signal + "%"
             }
         }
 
-        // Séparateur
+        // Séparateur fin
         Rectangle {
             Layout.fillWidth: true
             height: 1
             color: Theme.glassBorder
-            Layout.topMargin: Theme.spacingXs
-            Layout.bottomMargin: Theme.spacingXs
         }
 
-        // Débits temps réel séparés
+        // IP & Débits
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingMd
 
-            // Download
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: Theme.spacingXs
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
-                    color: Theme.success
-                    text: "󰁝"
-                }
-                ColumnLayout {
-                    spacing: 0
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
-                        color: Theme.textSecondary
-                        text: "Téléchargement"
-                    }
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                        color: Theme.textPrimary
-                        text: root.rxRate
-                    }
-                }
-            }
-
-            // Upload
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: Theme.spacingXs
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
-                    color: Theme.accent
-                    text: "󰁪"
-                }
-                ColumnLayout {
-                    spacing: 0
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
-                        color: Theme.textSecondary
-                        text: "Téléversement"
-                    }
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                        color: Theme.textPrimary
-                        text: root.txRate
-                    }
-                }
-            }
-        }
-
-        // Totaux session
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.topMargin: 2
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: 10
-                color: Theme.textDisabled
-                text: "Total : ↓ " + root.rxTotal + "  ↑ " + root.txTotal
-            }
-        }
-
-        // Boutons Réseau
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.topMargin: Theme.spacingSm
-            spacing: Theme.spacingSm
-
-            Rectangle {
-                Layout.fillWidth: true
-                height: 28
-                radius: Theme.radiusMedium
-                color: nmMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
-                border.color: Theme.glassBorder
-                border.width: 1
-
-                RowLayout {
-                    anchors.centerIn: parent
-                    spacing: Theme.spacingXs
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.accent
-                        text: "󰛳"
-                    }
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textPrimary
-                        text: "Gestionnaire"
-                    }
-                }
-
-                MouseArea {
-                    id: nmMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        Quickshell.execDetached(["nm-connection-editor"]);
-                        root.close();
-                    }
-                }
+                font.pixelSize: 11
+                color: Theme.textSecondary
+                text: "IP " + root.ipAddress
             }
 
-            Rectangle {
-                Layout.fillWidth: true
-                height: 28
-                radius: Theme.radiusMedium
-                color: nmtuiMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
-                border.color: Theme.glassBorder
-                border.width: 1
+            Item { Layout.fillWidth: true }
 
-                RowLayout {
-                    anchors.centerIn: parent
-                    spacing: Theme.spacingXs
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.accent
-                        text: "󰆍"
-                    }
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textPrimary
-                        text: "nmtui"
-                    }
-                }
-
-                MouseArea {
-                    id: nmtuiMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        Quickshell.execDetached(["kitty", "-e", "nmtui"]);
-                        root.close();
-                    }
-                }
+            Text {
+                font.family: Theme.fontFamily
+                font.pixelSize: 11
+                color: Theme.accent
+                text: "↓" + root.rxRate + "  ↑" + root.txRate
             }
         }
     }
