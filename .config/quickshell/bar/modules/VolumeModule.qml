@@ -100,8 +100,8 @@ PillButton {
     iconColor: isMuted ? Theme.destructive : (volumePercent > 100 ? Theme.warning : Theme.accent)
     text: isMuted ? "Muet" : volumePercent + "%"
     textColor: isMuted ? Theme.textDisabled : Theme.textPrimary
-    customPaddingH: Theme.spacingMd
-    customPaddingV: Theme.spacingSm
+    customPaddingH: Theme.spacingSm
+    customPaddingV: 1
 
     onClicked: {
         volPopup.toggle();

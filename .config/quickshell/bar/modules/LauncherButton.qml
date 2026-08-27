@@ -9,8 +9,8 @@ PillButton {
 
     icon: "󰣇"
     iconColor: Theme.accent
-    customPaddingH: Theme.spacingMd
-    customPaddingV: Theme.spacingSm
+    customPaddingH: Theme.spacingSm
+    customPaddingV: 1
     
     onClicked: {
         Quickshell.execDetached(["rofi", "-show", "drun"]);

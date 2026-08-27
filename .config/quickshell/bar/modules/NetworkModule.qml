@@ -121,7 +121,7 @@ PillButton {
     iconColor: isConnected ? Theme.accent : Theme.textDisabled
     text: isConnected ? totalSpeedFormatted : "Déconnecté"
     customPaddingH: Theme.spacingSm
-    customPaddingV: Theme.spacingSm
+    customPaddingV: 1
     widthPercent: Theme.moduleWidthPercentMetrics
 
     onClicked: {

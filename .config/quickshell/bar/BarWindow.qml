@@ -15,7 +15,7 @@ PanelWindow {
         right: true
     }
 
-    implicitHeight: Math.max(28, Theme.relHeight(Theme.barHeightRatio, root.screen))
+    implicitHeight: Math.max(24, Theme.relHeight(Theme.barHeightRatio, root.screen))
 
     color: "transparent"
     exclusionMode: ExclusionMode.Normal

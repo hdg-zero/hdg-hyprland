@@ -17,7 +17,7 @@ PillButton {
     iconColor: memPercent > 85 ? Theme.destructive : (memPercent > 70 ? Theme.warning : Theme.accent)
     text: memPercent + "% RAM"
     customPaddingH: Theme.spacingSm
-    customPaddingV: Theme.spacingSm
+    customPaddingV: 1
     widthPercent: Theme.moduleWidthPercentMetrics
 
     MemoryPopup {

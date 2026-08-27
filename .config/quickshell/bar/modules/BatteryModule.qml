@@ -52,8 +52,8 @@ Item {
         iconColor: root.isCharging ? Theme.success : (root.isCritical ? Theme.destructive : (root.isWarning ? Theme.warning : Theme.accent))
         text: root.rawPercentage + "%"
         textColor: root.isCritical ? Theme.destructive : Theme.textPrimary
-        customPaddingH: Theme.spacingMd
-        customPaddingV: Theme.spacingSm
+        customPaddingH: Theme.spacingSm
+        customPaddingV: 1
 
         onClicked: {
             batPopup.toggle();

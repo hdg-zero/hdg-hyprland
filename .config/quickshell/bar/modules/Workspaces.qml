@@ -39,9 +39,9 @@ RowLayout {
             readonly property var wsObj: Hyprland.workspaces ? Hyprland.workspaces.values.find(function(w) { return w.id === wsId; }) : null
             readonly property bool hasWindows: wsObj !== null && wsObj !== undefined && (wsObj.windows > 0 || (wsObj.toplevels && wsObj.toplevels.length > 0))
 
-            implicitWidth: Theme.spacingLg * 1.75
-            implicitHeight: Theme.spacingLg * 1.75
-            radius: Theme.radiusMedium
+            implicitWidth: 20
+            implicitHeight: 20
+            radius: Theme.radiusSmall
 
             color: isFocused ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : (wsMouse.containsMouse ? Theme.cardBackgroundHover : "transparent")
             border.color: isFocused ? Theme.accent : (wsMouse.containsMouse ? Theme.glassBorder : "transparent")

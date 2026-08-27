@@ -15,8 +15,8 @@ PillButton {
     iconColor: dnd ? Theme.warning : (unreadCount > 0 ? Theme.accent : Theme.textSecondary)
     text: unreadCount > 0 ? unreadCount.toString() : ""
     textColor: Theme.textPrimary
-    customPaddingH: Theme.spacingMd
-    customPaddingV: Theme.spacingSm
+    customPaddingH: Theme.spacingSm
+    customPaddingV: 1
 
     Process {
         id: swayncStatus

@@ -25,6 +25,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Réduction drastique des marges et espacements verticaux (`customPaddingV: 1px`, `barHeightRatio: 0.024`, ~25px) autour des textes et icônes sur l'ensemble des modules de la top barre pour éliminer tout vide inutile.
 - Augmentation globale de l'échelle typographique de l'environnement (`Theme.fontSize*` rehaussé de 2px à 4px) et épaississement des barres de progression et curseurs de réglage (`progressBarHeight: 8px`, `progressBarMiniHeight: 6px`) pour une lisibilité accrue sur la barre et les popups.
 - Refonte et ajustements des fenêtres popups : affichage du détail par cœur CPU et température dans `CpuPopup`, restauration de la vue multimédia riche MPRIS (`MprisPopup`), restauration de la vue calendrier/horloge complète (`ClockPopup`), passage aux boutons d'actions en icônes pures dans `AppPopup`, et égalisation de la taille des boutons Mute / Panneau dans `VolumePopup`.
 - Optimisation compacte de la barre d'état : suppression des marges extérieures pour coller la barre aux bords de l'écran, réduction de la hauteur relative (`barHeightRatio: 0.028`, ~30px) et conservation exclusive de la fine bordure inférieure façon verre (`glassBorder`).

@@ -75,7 +75,7 @@ Item {
         text: trackText
         textColor: Theme.textSecondary
         customPaddingH: Theme.spacingMd
-        customPaddingV: Theme.spacingSm
+        customPaddingV: 1
         parentWindow: root.parentWindow
         widthPercent: Theme.moduleWidthPercentMpris
 

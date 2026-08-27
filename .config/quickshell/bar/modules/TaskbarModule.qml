@@ -60,9 +60,9 @@ RowLayout {
             // Ignorer les applications invisibles ou spécifiques (ex: rofi)
             visible: appClass.toLowerCase() !== "rofi" && appClass !== ""
 
-            implicitWidth: Theme.spacingLg * 2
-            implicitHeight: Theme.spacingLg * 2
-            radius: Theme.radiusMedium
+            implicitWidth: 22
+            implicitHeight: 22
+            radius: Theme.radiusSmall
 
             color: isFocused ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : (taskMouse.containsMouse ? Theme.cardBackgroundHover : "transparent")
             border.color: isFocused ? Theme.accent : (taskMouse.containsMouse ? Theme.glassBorder : "transparent")
@@ -88,8 +88,8 @@ RowLayout {
             Image {
                 id: appIcon
                 anchors.centerIn: parent
-                width: Theme.spacingLg * 1.375
-                height: Theme.spacingLg * 1.375
+                width: 16
+                height: 16
                 source: taskItem.iconSource
                 sourceSize: Qt.size(Theme.spacingXl * 2, Theme.spacingXl * 2)
                 smooth: true

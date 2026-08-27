@@ -22,8 +22,8 @@ PillButton {
     iconColor: Theme.accent
     text: brightnessPercent + "%"
     textColor: Theme.textPrimary
-    customPaddingH: Theme.spacingMd
-    customPaddingV: Theme.spacingSm
+    customPaddingH: Theme.spacingSm
+    customPaddingV: 1
 
     BacklightPopup {
         id: lightPopup

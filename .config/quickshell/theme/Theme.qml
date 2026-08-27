@@ -58,7 +58,7 @@ QtObject {
     readonly property int progressBarMiniHeight: 6
 
     // --- Ratios & Dimensions Relatifs d'Écran ---
-    readonly property real barHeightRatio: 0.033       // ~35px sur 1080p, ~47px sur 1440p
+    readonly property real barHeightRatio: 0.024       // ~25-26px sur 1080p, ~34px sur 1440p
 
     // Pourcentages de largeur pour modules de la barre
     readonly property real moduleWidthPercentMetrics: 0.038   // CPU, RAM, Réseau

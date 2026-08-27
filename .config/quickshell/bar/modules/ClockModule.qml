@@ -22,8 +22,8 @@ PillButton {
     iconColor: Theme.accent
     text: Qt.formatDateTime(sysClock.date, "HH:mm")
     textColor: Theme.textPrimary
-    customPaddingH: Theme.spacingMd
-    customPaddingV: Theme.spacingSm
+    customPaddingH: Theme.spacingSm
+    customPaddingV: 1
 
     onClicked: {
         clockPopup.toggle();

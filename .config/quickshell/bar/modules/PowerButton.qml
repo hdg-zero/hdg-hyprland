@@ -16,8 +16,8 @@ PillButton {
 
     icon: "⏻"
     iconColor: Theme.destructive
-    customPaddingH: Theme.spacingMd
-    customPaddingV: Theme.spacingSm
+    customPaddingH: Theme.spacingSm
+    customPaddingV: 1
 
     onClicked: {
         pwrPopup.toggle();

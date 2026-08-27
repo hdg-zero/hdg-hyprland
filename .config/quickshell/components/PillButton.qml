@@ -15,7 +15,7 @@ Rectangle {
     property bool active: false
     property real customRadius: Theme.radiusPill
     property int customPaddingH: Theme.spacingSm
-    property int customPaddingV: Theme.spacingXs
+    property int customPaddingV: 1
     
     property var parentWindow: null
     property real widthPercent: 0
