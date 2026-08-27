@@ -14,8 +14,8 @@ Rectangle {
     property color activeColor: Theme.cardBackground
     property bool active: false
     property real customRadius: Theme.radiusPill
-    property int customPaddingH: Theme.spacingMd
-    property int customPaddingV: Theme.spacingSm
+    property int customPaddingH: Theme.spacingSm
+    property int customPaddingV: Theme.spacingXs
     
     property var parentWindow: null
     property real widthPercent: 0
@@ -68,7 +68,7 @@ Rectangle {
             visible: root.icon !== ""
             text: root.icon
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeLarge
+            font.pixelSize: Theme.fontSizeMedium
             color: mouseArea.containsMouse ? Theme.accent : root.iconColor
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -82,7 +82,7 @@ Rectangle {
             visible: root.text !== ""
             text: root.text
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeRegular
+            font.pixelSize: Theme.fontSizeSmall
             font.bold: root.active
             color: mouseArea.containsMouse ? Theme.textPrimary : root.textColor
             verticalAlignment: Text.AlignVCenter

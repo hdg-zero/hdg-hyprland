@@ -84,7 +84,7 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
 | `warning` | `#f5b041` | Orange pour seuils de charge / alerte batterie |
 | `destructive` | `#ec7063` | Rouge pour charge critique / bouton fermer / extinction |
 | `fontFamily` | `"FiraCode Nerd Font", "JetBrainsMono Nerd Font", monospace` | Police d'icônes et de texte |
-| `barHeightRatio` | `0.035` | Hauteur relative de la top barre (~38px en 1080p, ~50px en 1440p) |
+| `barHeightRatio` | `0.028` | Hauteur relative compacte de la top barre (~30px en 1080p, ~40px en 1440p) |
 | `moduleWidthPercentMetrics` | `0.03` | Largeur relative des modules CPU / RAM / Réseau (3% de l'écran) |
 | `moduleWidthPercentMpris` | `0.10` | Largeur relative du module Musique (10% de l'écran) |
 | `popupWidthPercent*` | `0.09 ➔ 0.13` | Largeurs relatives des fenêtres flottantes (9% à 13% de l'écran) |

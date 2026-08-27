@@ -10,58 +10,68 @@ Item {
 
     property var parentWindow: null
 
-    GlassCard {
+    // Fond de la barre collée aux bords de l'écran
+    Rectangle {
         anchors.fill: parent
-        customColor: Theme.background
-        customBorderColor: Theme.glassBorder
-        customRadius: Theme.radiusMedium
+        color: Theme.background
 
-        // Section GAUCHE : Lanceur + Workspaces + CPU + RAM + Network + Lecteur MPRIS
-        RowLayout {
+        // Ligne de bordure inférieure subtile uniquement
+        Rectangle {
             anchors {
                 left: parent.left
-                leftMargin: Theme.spacingSm
-                verticalCenter: parent.verticalCenter
-            }
-            spacing: Theme.spacingSm
-
-            LauncherButton {}
-            Workspaces {}
-            CpuModule { parentWindow: root.parentWindow }
-            MemoryModule { parentWindow: root.parentWindow }
-            NetworkModule { parentWindow: root.parentWindow }
-            MprisModule { parentWindow: root.parentWindow }
-        }
-
-        // Section CENTRE : Titre de la fenêtre active
-        Item {
-            anchors.centerIn: parent
-            implicitWidth: activeWin.implicitWidth
-            implicitHeight: activeWin.implicitHeight
-
-            ActiveWindow {
-                id: activeWin
-                anchors.centerIn: parent
-            }
-        }
-
-        // Section DROITE : Taskbar + SystemTray + Backlight + Audio + Batterie + Notifications + Horloge + Power
-        RowLayout {
-            anchors {
                 right: parent.right
-                rightMargin: Theme.spacingSm
-                verticalCenter: parent.verticalCenter
+                bottom: parent.bottom
             }
-            spacing: Theme.spacingSm
-
-            TaskbarModule { parentWindow: root.parentWindow }
-            SystemTrayModule {}
-            BacklightModule { parentWindow: root.parentWindow }
-            VolumeModule { parentWindow: root.parentWindow }
-            BatteryModule { parentWindow: root.parentWindow }
-            NotificationButton {}
-            ClockModule { parentWindow: root.parentWindow }
-            PowerButton { parentWindow: root.parentWindow }
+            height: 1
+            color: Theme.glassBorder
         }
+    }
+
+    // Section GAUCHE : Lanceur + Workspaces + CPU + RAM + Network + Lecteur MPRIS
+    RowLayout {
+        anchors {
+            left: parent.left
+            leftMargin: Theme.spacingSm
+            verticalCenter: parent.verticalCenter
+        }
+        spacing: Theme.spacingXs
+
+        LauncherButton {}
+        Workspaces {}
+        CpuModule { parentWindow: root.parentWindow }
+        MemoryModule { parentWindow: root.parentWindow }
+        NetworkModule { parentWindow: root.parentWindow }
+        MprisModule { parentWindow: root.parentWindow }
+    }
+
+    // Section CENTRE : Titre de la fenêtre active
+    Item {
+        anchors.centerIn: parent
+        implicitWidth: activeWin.implicitWidth
+        implicitHeight: activeWin.implicitHeight
+
+        ActiveWindow {
+            id: activeWin
+            anchors.centerIn: parent
+        }
+    }
+
+    // Section DROITE : Taskbar + SystemTray + Backlight + Audio + Batterie + Notifications + Horloge + Power
+    RowLayout {
+        anchors {
+            right: parent.right
+            rightMargin: Theme.spacingSm
+            verticalCenter: parent.verticalCenter
+        }
+        spacing: Theme.spacingXs
+
+        TaskbarModule { parentWindow: root.parentWindow }
+        SystemTrayModule {}
+        BacklightModule { parentWindow: root.parentWindow }
+        VolumeModule { parentWindow: root.parentWindow }
+        BatteryModule { parentWindow: root.parentWindow }
+        NotificationButton {}
+        ClockModule { parentWindow: root.parentWindow }
+        PowerButton { parentWindow: root.parentWindow }
     }
 }

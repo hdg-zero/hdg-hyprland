@@ -25,6 +25,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Optimisation compacte de la barre d'état : suppression des marges extérieures pour coller la barre aux bords de l'écran, réduction de la hauteur relative (`barHeightRatio: 0.028`, ~30px) et conservation exclusive de la fine bordure inférieure façon verre (`glassBorder`).
 - Remplacement intégral de toutes les valeurs de pixels fixes par un système de dimensionnement relatif et proportionnel à l'écran (`Theme.relWidth`, `Theme.relHeight`, `Theme.moduleWidthPercent*`, `Theme.popupWidthPercent*`, tokens d'espacement et de typographie) assurant une adaptabilité parfaite sur toutes les résolutions (FHD, QHD, 4K, écrans haute densité).
 - Transformation de la barre d'état en îlot flottant avec marges natives Wayland layer-shell (`top: 6px`, `left: 8px`, `right: 8px`), coins arrondis (`12px`) et zone d'exclusion dynamique pour les fenêtres Hyprland.
 - Épuration complète et minimaliste de l'ensemble des fenêtres flottantes (`bar/popups/*.qml`) : suppression des textes verbeux et listes surchargées, réduction des dimensions et concentration exclusive sur les métriques et actions essentielles.
