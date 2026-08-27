@@ -62,17 +62,22 @@ La configuration est organisée comme suit :
 
 L'ensemble de la configuration a été audité et mis à niveau pour **Hyprland 0.56+** et **Quickshell 0.3.1+**.
 
-### 1. Barre d'État Quickshell Nouvelle Génération 🟢
+### 1. Barre d'État & Centre de Contrôle Quickshell Nouvelle Génération 🟢
 *(Voir la [Documentation technique détaillée](docs/quickshell-bar.md))*
-* **Design "Obsidian Glass & Glacier Blue"** : Effet de verre fumé translucide sombre avec bordures subtiles et accents bleu glacier.
+* **Design "Obsidian Glass & Glacier Blue"** : Effet de verre fumé translucide sombre avec reflets glassmorphic, bordures subtiles et accents bleu glacier.
+* **100% Dimensionnement Relatif & Proportionnel** : Zéro pixel codé en dur, chaque élément (modules, barres, curseurs, popups, panneau de notifications) s'adapte automatiquement à toutes les résolutions (FHD, QHD, 4K, multi-écrans).
 * **Fenêtres flottantes interactives (Popups)** : Chaque module dispose d'une fenêtre détaillée ouverte au survol intelligent (avec temporisation anti-scintillement) ou au clic :
-  - **CPU & RAM** : Charge en direct, température, load average, répartition RAM/Swap, Top 5 des processus les plus gourmands et raccourci `btop`.
+  - **CPU & RAM** : Charge en direct, détail par cœur, température, load average, répartition RAM/Swap, Top 5 des processus les plus gourmands et raccourci `btop`.
   - **Réseau** : SSID/Filaire, IPv4, passerelle, débits temps réel (↓/↑), totaux session et accès rapide à `nm-connection-editor` / `nmtui`.
-  - **Musique MPRIS** : Pochette HD, titre, artiste, album et contrôles multimédias.
+  - **Musique MPRIS** : Pochette grand format HD centrée, métadonnées épurées et contrôles multimédias 100% relatifs.
   - **Barre des tâches & AppPopup** : Aperçu riche au survol de chaque icône d'application (titre de la fenêtre, workspace, statut plein écran/flottant, bouton focus et fermeture rapide).
   - **Contrôles matériel** : Sliders interactifs pour le volume audio PipeWire (0-150%), luminosité écran et profils d'alimentation UPower (**Éco**, **Équilibré**, **Max**).
   - **Horloge & Calendrier** : Vue calendaire complète du mois en français avec jour actif surligné et uptime système.
-* **Sobriété énergétique & performances** : Empreinte RAM minimale (< 25 Mo), lazy-loading des processus système (0% CPU au repos) et exécutions asynchrones non-bloquantes via `Quickshell.execDetached`.
+* **Serveur de Notifications D-Bus & Centre de Contrôle Natif** :
+  - **Démon natif D-Bus** : Implémente la spécification standard `org.freedesktop.Notifications` sous Quickshell sans nécessiter de démon tiers (SwayNC supprimé).
+  - **Centre de Contrôle inspiré d'Apple macOS/iOS** : Toggles tactiles compacts sans texte superflu (Wi-Fi, Bluetooth, Mute Micro, Mute Audio), curseurs de volume et luminosité en capsules de verre, raccourcis de session (`hyprlock`, `wlogout`), mode Ne Pas Déranger (DND) et historique complet.
+  - **Toasts OSD éphémères** : Alertes flottantes animées avec barre de compte à rebours d'expiration et pause au survol.
+* **Sobriété énergétique & performances** : Empreinte RAM minimale (< 25 Mo), lazy-loading des processus système (0% CPU au repos), zéro polling et exécutions asynchrones non-bloquantes via `Quickshell.execDetached`.
 
 ### 2. Gestion des Écrans (Monitors 0.56) 🟢
 * **Inventaire matériel complet** : Utilisation de `hl.get_monitors({ all = true })` pour inclure toutes les sorties (y compris désactivées).

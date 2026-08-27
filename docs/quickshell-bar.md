@@ -31,6 +31,11 @@ L'ensemble de la configuration réside dans `.config/quickshell/` :
 │   ├── IconLabel.qml            # Label combiné icône/texte avec animation de couleur
 │   ├── ModulePopup.qml          # Fenêtre flottante PopupWindow (survol intelligent, fondu)
 │   └── qmldir                   # Déclaration du module Components
+├── notifications/               # Serveur de notifications natif & Centre de Contrôle
+│   ├── NotificationService.qml  # Singleton D-Bus (NotificationServer), état DND, historique, IPC
+│   ├── NotificationToastWindow.qml # Fenêtre de toasts flottants OSD avec compte à rebours
+│   ├── NotificationCenter.qml   # Centre de Contrôle Glassmorphism (toggles Apple, sliders, historique)
+│   └── qmldir                   # Déclaration du module Notifications
 └── bar/                         # Barre d'état
     ├── BarWindow.qml            # Fenêtre PanelWindow WlrLayershell (Top)
     ├── BarContent.qml           # Disposition des 3 sections (Gauche, Centre, Droite)
@@ -38,17 +43,17 @@ L'ensemble de la configuration réside dans `.config/quickshell/` :
     ├── modules/                 # Modules visibles dans la barre
     │   ├── LauncherButton.qml   # Lanceur d'applications Rofi
     │   ├── Workspaces.qml       # Sélecteur de workspaces Hyprland
-    │   ├── CpuModule.qml        # Jauge et charge CPU (3% écran)
-    │   ├── MemoryModule.qml     # Jauge et utilisation RAM (3% écran)
-    │   ├── NetworkModule.qml    # État connexion et débits (3% écran)
-    │   ├── MprisModule.qml      # Lecteur musical MPRIS (10% écran)
+    │   ├── CpuModule.qml        # Jauge et charge CPU (3.8% écran)
+    │   ├── MemoryModule.qml     # Jauge et utilisation RAM (3.8% écran)
+    │   ├── NetworkModule.qml    # État connexion et débits (3.8% écran)
+    │   ├── MprisModule.qml      # Lecteur musical MPRIS (12% écran)
     │   ├── ActiveWindow.qml     # Titre de la fenêtre active
     │   ├── TaskbarModule.qml    # Barre de tâches avec icônes d'applications ouvertes
     │   ├── SystemTrayModule.qml # Zone de notification système (System Tray)
     │   ├── BacklightModule.qml  # Jauge de rétroéclairage
     │   ├── VolumeModule.qml     # Jauge de volume audio PipeWire/WirePlumber
     │   ├── BatteryModule.qml    # Jauge de batterie UPower
-    │   ├── NotificationButton.qml # Centre de notifications SwayNC & DND
+    │   ├── NotificationButton.qml # Centre de notifications & badge réactif DND
     │   ├── ClockModule.qml      # Horloge à la minute (SystemClock)
     │   ├── PowerButton.qml      # Menu de session et énergie
     │   └── qmldir               # Déclaration du module Modules
@@ -57,9 +62,9 @@ L'ensemble de la configuration réside dans `.config/quickshell/` :
         ├── BacklightPopup.qml   # Curseur de luminosité et presets rapides
         ├── BatteryPopup.qml     # Taux de décharge/charge, temps restant et profils UPower
         ├── ClockPopup.qml       # Horloge précise, calendrier dynamique du mois et uptime
-        ├── CpuPopup.qml         # Température, load average et Top 5 processus CPU
+        ├── CpuPopup.qml         # Température, détail par cœur, load average et Top 5 processus
         ├── MemoryPopup.qml      # RAM, Swap détaillé et Top 5 processus RAM
-        ├── MprisPopup.qml       # Pochette d'album HD, métadonnées et contrôles complets
+        ├── MprisPopup.qml       # Pochette d'album HD centrée, métadonnées et contrôles complets
         ├── NetworkPopup.qml     # IP locale, passerelle, débits UP/DOWN et totaux session
         ├── PowerPopup.qml       # Verrouiller, Veille, Redémarrer, Éteindre, Déconnexion
         ├── VolumePopup.qml      # Curseur 0-150%, presets rapides, mute et mixeur Pavucontrol
@@ -74,21 +79,21 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
 
 | Token | Valeur | Rôle |
 | :--- | :--- | :--- |
-| `background` | `#e60f0f14` | Fond principal de la barre (90% opacité) |
-| `cardBackground` | `#cc181825` | Fond des cartes flottantes et popups (80% opacité) |
-| `cardBackgroundHover` | `#3385c1e9` | Fond des éléments au survol (20% opacité) |
-| `glassBorder` | `#26ffffff` | Bordure subtile façon verre (15% opacité blanche) |
+| `background` | `#e00b0f14` | Fond principal de la barre (Obsidian Glass 88% opacité) |
+| `cardBackground` | `#f0121920` | Fond des cartes flottantes et popups (94% opacité) |
+| `cardBackgroundHover` | `#fa232f3c` | Fond des éléments au survol (98% opacité) |
+| `glassBorder` | `#405dade2` | Bordure subtile façon verre (Glacier Blue 25% opacité) |
 | `accent` | `#5dade2` | Couleur d'accent principale (Glacier Blue) |
-| `accentSecondary` | `#85c1e9` | Couleur d'accent secondaire (Bleu ciel doux) |
-| `success` | `#58d68d` | Vert pour statut connecté / batterie en charge |
-| `warning` | `#f5b041` | Orange pour seuils de charge / alerte batterie |
-| `destructive` | `#ec7063` | Rouge pour charge critique / bouton fermer / extinction |
-| `fontFamily` | `"FiraCode Nerd Font", "JetBrainsMono Nerd Font", monospace` | Police d'icônes et de texte |
-| `barHeightRatio` | `0.033` | Hauteur relative de la top barre (~35px en 1080p, ~47px en 1440p) |
-| `progressBarHeight` | `8px` | Épaisseur des jauges et curseurs de progression (CPU, RAM, Volume, Luminosité, Batterie) |
+| `accentSecondary` | `#85c1e9` | Couleur d'accent secondaire (Glacier Light Blue) |
+| `success` | `#2ecc71` | Vert pour statut connecté / validation |
+| `warning` | `#ffb86c` | Orange ambre pour le mode DND / alertes |
+| `destructive` | `#ff6b6b` | Rouge pour mute micro/audio, fermeture, extinction |
+| `fontFamily` | `"JetBrainsMono Nerd Font", monospace` | Police principale pour l'interface et les icônes |
+| `barHeightRatio` | `0.024` | Hauteur relative fine de la top barre (~25px en 1080p, ~34px en 1440p) |
+| `progressBarHeight` | `8px` | Épaisseur des jauges et curseurs de progression |
 | `moduleWidthPercentMetrics` | `0.038` | Largeur relative des modules CPU / RAM / Réseau (3.8% de l'écran) |
 | `moduleWidthPercentMpris` | `0.12` | Largeur relative du module Musique (12% de l'écran) |
-| `popupWidthPercent*` | `0.11 ➔ 0.16` | Largeurs relatives des fenêtres flottantes (11% à 16% de l'écran) |
+| `popupWidthPercent*` | `0.11 ➔ 0.16` | Largeurs relatives des fenêtres popups (11% à 16% de l'écran) |
 
 ---
 
@@ -101,27 +106,27 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
   - Clic gauche : Bascule sur le bureau sélectionné.
   - Molette souris : Navigation séquentielle `e-1` / `e+1`.
 - **󰻠 CPU (`CpuModule` + `CpuPopup`) :**
-  - Barre : Largeur fixée à 3% de l'écran (`widthPercent: 0.03`).
-  - Popup épuré : Jauge fine, pourcentage, température matérielle (``) et load average (``).
+  - Barre : Largeur fixée à 3.8% de l'écran (`widthPercent: 0.038`).
+  - Popup épuré : Jauge fine, pourcentage, température matérielle (``), détail par cœur et load average (``).
 - **󰍛 Mémoire (`MemoryModule` + `MemoryPopup`) :**
-  - Barre : Largeur fixée à 3% de l'écran (`widthPercent: 0.03`).
+  - Barre : Largeur fixée à 3.8% de l'écran (`widthPercent: 0.038`).
   - Popup épuré : Jauge fine, pourcentage, RAM utilisée / totale et pourcentage Swap.
 - **󰤨 Réseau (`NetworkModule` + `NetworkPopup`) :**
-  - Barre : Largeur fixée à 3% de l'écran (`widthPercent: 0.03`).
+  - Barre : Largeur fixée à 3.8% de l'écran (`widthPercent: 0.038`).
   - Popup épuré : Nom du WiFi / Filaire + signal, adresse IP locale et débits instantanés (↓/↑).
 - **󰝚 Lecteur Multimédia (`MprisModule` + `MprisPopup`) :**
-  - Barre : Largeur fixée à 10% de l'écran (`widthPercent: 0.10`) avec défilement/troncature propre.
+  - Barre : Largeur fixée à 12% de l'écran (`widthPercent: 0.12`) avec défilement/troncature propre.
   - Clic gauche : Lecture / Pause immédiate (`togglePlaying()`).
   - Clic droit : Ouvre la popup détaillée.
   - Clic milieu & Molette : Piste suivante / précédente.
-  - Popup épuré : Pochette d'album compacte, titre, artiste et boutons Précédent / Play-Pause / Suivant.
+  - Popup épuré : Pochette d'album HD grand format centrée, titre, artiste, album et contrôles multimédias 100% relatifs.
 
 ### 📌 4.2 Section Centre
 - **Fenêtre Active (`ActiveWindow`) :** Titre épuré de l'application en cours de focus.
 
 ### 📌 4.3 Section Droite (Tâches & Contrôle Matériel)
 - **Barre des Tâches (`TaskbarModule` + `AppPopup`) :**
-  - Affiche les icônes haute résolution des fenêtres ouvertes sous Hyprland.
+  - Affiche les icônes haute résolution des fenêtres ouvertes sous Hyprland avec espacement respirant (`spacing: 10px`).
   - Clic gauche : Focus et passage au premier plan de l'application.
   - Clic milieu : Fermeture de la fenêtre.
   - **Popup d'Aperçu au survol (`AppPopup`) :**
@@ -174,3 +179,32 @@ Toutes les transitions d'ouverture et de fermeture utilisent des courbes cubique
    Utilisation de `SystemClock` avec `precision: SystemClock.Minutes` sur la barre principale pour éliminer les réveils de timers chaque seconde.
 3. **Exécution Asynchrone `Quickshell.execDetached` :**
    Toutes les interactions et lancements de commandes externes (`hyprctl`, `wpctl`, `brightnessctl`, `powerprofilesctl`, `rofi`) sont exécutés de façon asynchrone et détachée, prévenant tout blocage du thread graphique de rendu.
+
+---
+
+## 🔔 7. Architecture du Serveur de Notifications & Centre de Contrôle Natif
+
+Le sous-système de notifications réside dans `.config/quickshell/notifications/` et remplace intégralement SwayNC :
+
+### 1. `NotificationService.qml` (Singleton D-Bus)
+- **Serveur D-Bus natif :** Instancie `Quickshell.Services.Notifications.NotificationServer` qui revendique le nom de bus standard `org.freedesktop.Notifications`.
+- **Gestionnaire DND (Ne Pas Déranger) :** Filtre l'affichage des alertes visuelles tout en conservant l'historique complet dans `trackedNotifications`.
+- **Handler IPC & Raccourcis :** Enregistre une cible IPC (`target: "notifications"`) permettant le contrôle par scripts et binds Hyprland :
+  ```bash
+  quickshell ipc call notifications toggle
+  quickshell ipc call notifications toggleDnd
+  quickshell ipc call notifications clear
+  ```
+
+### 2. `NotificationToastWindow.qml` (Toasts Flottants OSD)
+- Fenêtre en calque `Overlay` affichant les notifications entrantes dans le coin supérieur droit.
+- Barre de progression d'expiration visuelle (5s normale, 3.5s basse priorité, infinie pour les alertes critiques).
+- Mise en pause automatique du compte à rebours au survol de la souris.
+
+### 3. `NotificationCenter.qml` (Centre de Contrôle Glassmorphism)
+- **Design épuré style Apple Control Center :**
+  - **Toggles rapides sans texte :** Pavés tactiles à grandes icônes centrées (Wi-Fi, Bluetooth, Micro, Audio).
+  - **Curseurs en capsule :** Curseurs horizontaux de volume et luminosité avec icône intégrée et pourcentage dynamique.
+  - **Actions système :** Boutons compacts Verrouiller (`hyprlock`) et Session (`wlogout`).
+  - **Historique & Actions :** Liste défilante des notifications avec suppression unitaire ou globale (`󰃢`).
+- **100% Dimensionnement Relatif :** Largeur fixée à 12.5% de l'écran (`Theme.relWidth(0.125, screen)`), hauteur dynamique adaptée au contenu.
