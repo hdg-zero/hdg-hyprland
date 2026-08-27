@@ -50,30 +50,44 @@ Scope {
         Quickshell.execDetached(["systemctl", "poweroff"]);
     }
 
-    // Gestionnaire IPC pour contrôle externe (scripts & raccourcis Hyprland)
+    // Gestionnaire IPC pour contrôle externe (scripts & raccourcis Hyprland) : quickshell ipc call session toggle
     IpcHandler {
         target: "session"
 
-        handler: function(cmd) {
-            if (cmd === "toggle") {
-                root.toggleSession();
-            } else if (cmd === "open") {
-                root.openSession();
-            } else if (cmd === "close") {
-                root.closeSession();
-            } else if (cmd === "lock") {
-                root.lock();
-            } else if (cmd === "suspend") {
-                root.suspend();
-            } else if (cmd === "logout") {
-                root.logout();
-            } else if (cmd === "hibernate") {
-                root.hibernate();
-            } else if (cmd === "reboot") {
-                root.reboot();
-            } else if (cmd === "shutdown") {
-                root.shutdown();
-            }
+        function toggle(): void {
+            root.toggleSession();
+        }
+
+        function open(): void {
+            root.openSession();
+        }
+
+        function close(): void {
+            root.closeSession();
+        }
+
+        function lock(): void {
+            root.lock();
+        }
+
+        function suspend(): void {
+            root.suspend();
+        }
+
+        function logout(): void {
+            root.logout();
+        }
+
+        function hibernate(): void {
+            root.hibernate();
+        }
+
+        function reboot(): void {
+            root.reboot();
+        }
+
+        function shutdown(): void {
+            root.shutdown();
         }
     }
 }
