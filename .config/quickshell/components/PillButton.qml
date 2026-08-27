@@ -19,6 +19,7 @@ Rectangle {
 
     signal clicked()
     signal rightClicked()
+    signal scrolled(var wheel)
 
     implicitWidth: layout.implicitWidth + (customPaddingH * 2)
     implicitHeight: layout.implicitHeight + (customPaddingV * 2)
@@ -82,6 +83,10 @@ Rectangle {
             } else if (mouse.button === Qt.RightButton) {
                 root.rightClicked();
             }
+        }
+
+        onWheel: function(wheel) {
+            root.scrolled(wheel);
         }
     }
 }

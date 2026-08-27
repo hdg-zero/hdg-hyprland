@@ -1,0 +1,9 @@
+CpuPopup 1.0 CpuPopup.qml
+MemoryPopup 1.0 MemoryPopup.qml
+NetworkPopup 1.0 NetworkPopup.qml
+MprisPopup 1.0 MprisPopup.qml
+VolumePopup 1.0 VolumePopup.qml
+BacklightPopup 1.0 BacklightPopup.qml
+BatteryPopup 1.0 BatteryPopup.qml
+ClockPopup 1.0 ClockPopup.qml
+PowerPopup 1.0 PowerPopup.qml

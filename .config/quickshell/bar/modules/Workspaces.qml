@@ -1,0 +1,100 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell.Hyprland
+import "../../theme"
+
+RowLayout {
+    id: root
+
+    spacing: Theme.spacingXs
+
+    // Liste dynamique des identifiants d'espaces de travail (1-4 fixes + workspaces actifs supplémentaires)
+    property var workspaceIds: {
+        var base = [1, 2, 3, 4];
+        if (!Hyprland.workspaces) return base;
+        
+        var values = Hyprland.workspaces.values;
+        if (!values) return base;
+
+        for (var i = 0; i < values.length; i++) {
+            var id = values[i].id;
+            if (id > 0 && base.indexOf(id) === -1) {
+                base.push(id);
+            }
+        }
+        base.sort(function(a, b) { return a - b; });
+        return base;
+    }
+
+    Repeater {
+        model: root.workspaceIds
+
+        delegate: Rectangle {
+            id: wsButton
+            required property int modelData
+
+            readonly property int wsId: modelData
+            readonly property bool isFocused: Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id === wsId
+            readonly property var wsObj: Hyprland.workspaces ? Hyprland.workspaces.values.find(function(w) { return w.id === wsId; }) : null
+            readonly property bool hasWindows: wsObj !== null && wsObj !== undefined && (wsObj.windows > 0 || (wsObj.toplevels && wsObj.toplevels.length > 0))
+
+            implicitWidth: 28
+            implicitHeight: 28
+            radius: Theme.radiusMedium
+
+            color: isFocused ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : (wsMouse.containsMouse ? Theme.cardBackgroundHover : "transparent")
+            border.color: isFocused ? Theme.accent : (wsMouse.containsMouse ? Theme.glassBorder : "transparent")
+            border.width: 1
+
+            Behavior on color {
+                ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
+            }
+            Behavior on border.color {
+                ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: isFocused ? "" : (hasWindows ? "" : wsId.toString())
+                font.family: Theme.fontFamily
+                font.pixelSize: isFocused || hasWindows ? 11 : Theme.fontSizeSmall
+                font.bold: isFocused
+                color: isFocused ? Theme.accent : (hasWindows ? Theme.textPrimary : Theme.textDisabled)
+
+                Behavior on color {
+                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
+                }
+            }
+
+            MouseArea {
+                id: wsMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+
+                onClicked: {
+                    Hyprland.dispatch("hl.dsp.focus({ workspace = " + wsId + " })");
+                }
+
+                onWheel: function(wheel) {
+                    if (wheel.angleDelta.y > 0) {
+                        Hyprland.dispatch("hl.dsp.focus({ workspace = 'e-1' })");
+                    } else if (wheel.angleDelta.y < 0) {
+                        Hyprland.dispatch("hl.dsp.focus({ workspace = 'e+1' })");
+                    }
+                }
+            }
+        }
+    }
+
+    // Gestion du changement de workspace à la molette
+    WheelHandler {
+        onWheel: function(event) {
+            if (event.angleDelta.y > 0) {
+                Hyprland.dispatch("hl.dsp.focus({ workspace = 'e-1' })");
+            } else if (event.angleDelta.y < 0) {
+                Hyprland.dispatch("hl.dsp.focus({ workspace = 'e+1' })");
+            }
+        }
+    }
+}
