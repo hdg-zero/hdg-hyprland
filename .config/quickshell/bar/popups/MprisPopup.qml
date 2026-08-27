@@ -159,7 +159,13 @@ ModulePopup {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        if (root.player) root.player.playPause();
+                        if (root.player) {
+                            if (typeof root.player.togglePlaying === "function") {
+                                root.player.togglePlaying();
+                            } else if (root.player.isPlaying !== undefined) {
+                                root.player.isPlaying = !root.player.isPlaying;
+                            }
+                        }
                     }
                 }
             }

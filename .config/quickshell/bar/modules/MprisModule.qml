@@ -77,8 +77,12 @@ Item {
         customPaddingV: Theme.spacingSm
 
         onClicked: {
-            if (root.activePlayer && root.activePlayer.canControl) {
-                root.activePlayer.playPause();
+            if (root.activePlayer) {
+                if (typeof root.activePlayer.togglePlaying === "function") {
+                    root.activePlayer.togglePlaying();
+                } else if (root.activePlayer.isPlaying !== undefined) {
+                    root.activePlayer.isPlaying = !root.activePlayer.isPlaying;
+                }
             }
         }
 
