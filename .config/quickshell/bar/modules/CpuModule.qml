@@ -16,10 +16,10 @@ PillButton {
     icon: "󰻠"
     iconColor: cpuUsage > 80 ? Theme.destructive : (cpuUsage > 50 ? Theme.warning : Theme.accent)
     text: cpuUsage + "% CPU"
-    textColor: cpuUsage > 80 ? Theme.destructive : Theme.textPrimary
-    customPaddingH: Theme.spacingMd
+    parentWindow: root.parentWindow
+    customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
-    widthPercent: 0.05
+    widthPercent: 0.03
 
     CpuPopup {
         id: cpuPopup

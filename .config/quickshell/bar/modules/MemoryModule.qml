@@ -16,10 +16,10 @@ PillButton {
     icon: "󰍛"
     iconColor: memPercent > 85 ? Theme.destructive : (memPercent > 70 ? Theme.warning : Theme.accent)
     text: memPercent + "% RAM"
-    textColor: memPercent > 85 ? Theme.destructive : Theme.textPrimary
-    customPaddingH: Theme.spacingMd
+    parentWindow: root.parentWindow
+    customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
-    widthPercent: 0.05
+    widthPercent: 0.03
 
     MemoryPopup {
         id: memPopup

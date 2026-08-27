@@ -23,7 +23,8 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
-- Adoption d'un dimensionnement responsive en pourcentage relatif d'écran (`widthPercent`) sur les modules CPU (5%), RAM (5%), Réseau (6.5%) et Musique (10% avec elide) dans `PillButton.qml`, assurant une échelle visuelle fluide et sans décalage quelle que soit la résolution de l'écran (FHD, QHD, 4K).
+- Ajustement de l'espace alloué aux modules CPU, RAM et Réseau à 3% de l'écran (`widthPercent: 0.03`) et activation de l'ouverture automatique au survol de la souris (`autoHover`) avec temporisations anti-scintillement sur l'ensemble des popups.
+- Adoption d'un dimensionnement responsive en pourcentage relatif d'écran (`widthPercent`) dans `PillButton.qml`, assurant une échelle visuelle fluide et sans décalage quelle que soit la résolution de l'écran (FHD, QHD, 4K).
 - Configuration du clic gauche sur le module musique MPRIS pour basculer directement lecture/pause (`playPause()`), clic droit pour afficher le popup multimédia détaillé, clic milieu et molette pour passer aux pistes suivantes/précédentes.
 - Ajout et configuration du module `python` dans `.config/starship.toml` pour afficher la version Python et l'environnement virtuel (venv) actif (`$virtualenv`).
 - Configuration explicite du contrôleur de rétroéclairage (`amdgpu_bl1`) dans SwayNC (`.config/swaync/config.json`).

@@ -13,7 +13,7 @@ Item {
     MprisPopup {
         id: mprisPopup
         parentWindow: root.parentWindow
-        anchorItem: root
+        anchorItem: pill
     }
 
     readonly property var activePlayer: {

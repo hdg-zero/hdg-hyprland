@@ -120,10 +120,10 @@ PillButton {
     icon: netIcon
     iconColor: isConnected ? Theme.accent : Theme.textDisabled
     text: isConnected ? totalSpeedFormatted : "Déconnecté"
-    textColor: isConnected ? Theme.textPrimary : Theme.textDisabled
-    customPaddingH: Theme.spacingMd
+    parentWindow: root.parentWindow
+    customPaddingH: Theme.spacingSm
     customPaddingV: Theme.spacingSm
-    widthPercent: 0.065
+    widthPercent: 0.03
 
     onClicked: {
         netPopup.toggle();

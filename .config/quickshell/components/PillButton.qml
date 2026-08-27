@@ -21,6 +21,8 @@ Rectangle {
     property real widthPercent: 0
     property real customWidth: 0
 
+    readonly property bool isHovered: mouseArea.containsMouse
+
     readonly property real effectiveWidth: {
         if (widthPercent > 0) {
             var screenW = (parentWindow && parentWindow.width > 0) 
@@ -38,6 +40,8 @@ Rectangle {
     signal rightClicked()
     signal middleClicked()
     signal scrolled(var wheel)
+    signal entered()
+    signal exited()
 
     implicitWidth: effectiveWidth
     implicitHeight: layout.implicitHeight + (customPaddingV * 2)
@@ -58,7 +62,7 @@ Rectangle {
         id: layout
         anchors.centerIn: parent
         width: (root.widthPercent > 0 || root.customWidth > 0) ? Math.max(0, root.effectiveWidth - (root.customPaddingH * 2)) : implicitWidth
-        spacing: Theme.spacingSm
+        spacing: Theme.spacingXs
 
         Text {
             visible: root.icon !== ""
@@ -97,6 +101,14 @@ Rectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+
+        onEntered: {
+            root.entered();
+        }
+
+        onExited: {
+            root.exited();
+        }
 
         onClicked: function(mouse) {
             if (mouse.button === Qt.LeftButton) {
