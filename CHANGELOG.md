@@ -20,6 +20,7 @@ et ce projet adhère au versionnage sémantique.
   - `BatteryPopup` : État de charge, estimation d'autonomie, puissance en Watts et sélecteur de profils énergétiques UPower.
   - `ClockPopup` : Horloge détaillée avec secondes, date en français, calendrier du mois dynamique avec jour actif surligné et uptime.
   - `PowerPopup` : Menu rapide de session (Verrouiller, Veille, Redémarrer, Éteindre, Déconnexion).
+  - `AppPopup` : Fenêtre flottante interactive d'aperçu d'application au survol des icônes de la barre de tâches (nom de l'app, titre complet de la fenêtre, badge de workspace, état flottant/plein écran, boutons de focus et de fermeture rapide).
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié

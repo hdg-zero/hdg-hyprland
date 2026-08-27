@@ -3,9 +3,12 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import "../../theme"
+import "../popups"
 
 RowLayout {
     id: root
+
+    property var parentWindow: null
 
     spacing: Theme.spacingXs
     visible: Hyprland.toplevels && Hyprland.toplevels.values && Hyprland.toplevels.values.length > 0
@@ -19,7 +22,11 @@ RowLayout {
 
             readonly property var toplevel: modelData
             readonly property bool isFocused: toplevel ? toplevel.activated : false
-            
+            readonly property bool isHovered: taskMouse.containsMouse
+
+            signal entered()
+            signal exited()
+
             readonly property string appClass: {
                 if (!toplevel) return "";
                 if (toplevel.lastIpcObject && toplevel.lastIpcObject.class) {
@@ -68,6 +75,15 @@ RowLayout {
                 ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
             }
 
+            AppPopup {
+                id: appPopup
+                parentWindow: root.parentWindow
+                anchorItem: taskItem
+                toplevel: taskItem.toplevel
+                appClass: taskItem.appClass
+                iconSource: taskItem.iconSource
+            }
+
             // Image vectorielle / haute résolution nette
             Image {
                 id: appIcon
@@ -110,6 +126,14 @@ RowLayout {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+
+                onEntered: {
+                    taskItem.entered();
+                }
+
+                onExited: {
+                    taskItem.exited();
+                }
 
                 onClicked: function(mouse) {
                     if (!taskItem.toplevel) return;

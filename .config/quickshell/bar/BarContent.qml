@@ -65,7 +65,7 @@ Item {
             }
             spacing: Theme.spacingSm
 
-            TaskbarModule {}
+            TaskbarModule { parentWindow: root.parentWindow }
             SystemTrayModule {}
             BacklightModule { parentWindow: root.parentWindow }
             VolumeModule { parentWindow: root.parentWindow }
