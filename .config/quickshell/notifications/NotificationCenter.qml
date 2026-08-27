@@ -939,12 +939,14 @@ PanelWindow {
                     anchors.fill: parent
                     anchors.margins: Theme.spacingSm
                     contentWidth: width
-                    contentHeight: Math.max(height, notesEdit.implicitHeight)
+                    contentHeight: Math.max(height, notesEdit.contentHeight)
+                    interactive: notesEdit.contentHeight > height
                     clip: true
 
                     TextEdit {
                         id: notesEdit
                         width: notesFlickable.width
+                        height: Math.max(notesFlickable.height, contentHeight)
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeTiny
                         color: Theme.textPrimary
