@@ -25,6 +25,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Refonte et ajustements des fenêtres popups : affichage du détail par cœur CPU et température dans `CpuPopup`, restauration de la vue multimédia riche MPRIS (`MprisPopup`), restauration de la vue calendrier/horloge complète (`ClockPopup`), passage aux boutons d'actions en icônes pures dans `AppPopup`, et égalisation de la taille des boutons Mute / Panneau dans `VolumePopup`.
 - Optimisation compacte de la barre d'état : suppression des marges extérieures pour coller la barre aux bords de l'écran, réduction de la hauteur relative (`barHeightRatio: 0.028`, ~30px) et conservation exclusive de la fine bordure inférieure façon verre (`glassBorder`).
 - Remplacement intégral de toutes les valeurs de pixels fixes par un système de dimensionnement relatif et proportionnel à l'écran (`Theme.relWidth`, `Theme.relHeight`, `Theme.moduleWidthPercent*`, `Theme.popupWidthPercent*`, tokens d'espacement et de typographie) assurant une adaptabilité parfaite sur toutes les résolutions (FHD, QHD, 4K, écrans haute densité).
 - Transformation de la barre d'état en îlot flottant avec marges natives Wayland layer-shell (`top: 6px`, `left: 8px`, `right: 8px`), coins arrondis (`12px`) et zone d'exclusion dynamique pour les fenêtres Hyprland.
@@ -43,6 +44,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
+- Correction de l'analyse `/proc/meminfo` dans `MemoryPopup.qml` via lecture directe `FileView` et expressions régulières, résolvant le problème d'affichage `0/0 Go`.
 - Définition explicite de la hauteur de fenêtre `height` et de la zone exclusive Wayland `WlrLayershell.exclusiveZone: height + margins.top + margins.bottom` dans `BarWindow.qml`, garantissant que Hyprland réserve immédiatement l'espace d'affichage nécessaire pour les fenêtres carrelées.
 - Élimination du crash `QEventLoop: Cannot be used without QCoreApplication` par suppression du `WheelHandler` Qt redondant au profit de la gestion native `MouseArea.onWheel` et sécurisation des lectures `FileView`.
 - Correction des actions de molette de souris sur la barre (workspaces, volume, luminosité, musique) via l'ajout systématique de `import Quickshell` dans tous les modules et normalisation des deltas d'angle.

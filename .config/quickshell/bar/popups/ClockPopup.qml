@@ -10,14 +10,14 @@ ModulePopup {
 
     property string fullTime: "00:00:00"
     property string fullDate: ""
-    property string uptimeStr: ""
+    property string uptimeStr: "N/A"
 
     readonly property date now: new Date()
     readonly property int currentYear: now.getFullYear()
     readonly property int currentMonth: now.getMonth()
     readonly property int currentDay: now.getDate()
 
-    widthPercent: Theme.popupWidthPercentStandard
+    cardWidth: Theme.relWidth(0.15, parentWindow ? parentWindow.screen : null)
     cardHeight: clockCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var monthNames: [
@@ -37,7 +37,7 @@ ModulePopup {
 
         var dayName = root.dayNames[d.getDay()];
         var monthName = root.monthNames[d.getMonth()];
-        root.fullDate = dayName + " " + d.getDate() + " " + monthName;
+        root.fullDate = dayName + " " + d.getDate() + " " + monthName + " " + d.getFullYear();
     }
 
     readonly property var calendarModel: {
@@ -66,18 +66,20 @@ ModulePopup {
 
     Timer {
         interval: 1000
-        running: root.visible
+        running: true
         repeat: true
         triggeredOnStart: true
         onTriggered: {
             root.updateDateTime();
-            uptimeFile.reload();
-            var txt = typeof uptimeFile.text === "function" ? uptimeFile.text() : (uptimeFile.text || "");
-            if (txt) {
-                var secs = parseFloat(txt.split(" ")[0]) || 0;
-                var hrs = Math.floor(secs / 3600);
-                var mins = Math.floor((secs % 3600) / 60);
-                root.uptimeStr = hrs + "h" + (mins > 0 ? (mins + "m") : "");
+            if (root.visible) {
+                uptimeFile.reload();
+                var txt = typeof uptimeFile.text === "function" ? uptimeFile.text() : (uptimeFile.text || "");
+                if (txt) {
+                    var secs = parseFloat(txt.split(" ")[0]) || 0;
+                    var hrs = Math.floor(secs / 3600);
+                    var mins = Math.floor((secs % 3600) / 60);
+                    root.uptimeStr = hrs + "h " + (mins > 0 ? (mins + "m") : "");
+                }
             }
         }
     }
@@ -95,23 +97,25 @@ ModulePopup {
             right: parent.right
             top: parent.top
         }
-        spacing: Theme.spacingXs
+        spacing: Theme.spacingSm
 
-        // Heure & Date
-        RowLayout {
+        // En-tête : Heure grand format & Date
+        ColumnLayout {
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 2
 
             Text {
+                Layout.alignment: Qt.AlignHCenter
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeLarge
+                font.pixelSize: Theme.fontSizeTitle + 4
                 font.bold: true
                 color: Theme.accent
                 text: root.fullTime
             }
 
-            Item { Layout.fillWidth: true }
-
             Text {
+                Layout.alignment: Qt.AlignHCenter
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textSecondary
@@ -119,18 +123,20 @@ ModulePopup {
             }
         }
 
-        // Séparateur fin
+        // Séparateur
         Rectangle {
             Layout.fillWidth: true
             height: 1
             color: Theme.glassBorder
+            Layout.topMargin: Theme.spacingXs
+            Layout.bottomMargin: Theme.spacingXs
         }
 
-        // Mois et Année
+        // En-tête mois calendrier
         Text {
             Layout.alignment: Qt.AlignHCenter
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSmall
+            font.pixelSize: Theme.fontSizeMedium
             font.bold: true
             color: Theme.textPrimary
             text: root.monthNames[root.currentMonth] + " " + root.currentYear
@@ -145,7 +151,7 @@ ModulePopup {
                 model: ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"]
                 delegate: Item {
                     Layout.fillWidth: true
-                    height: Theme.spacingLg
+                    height: Theme.spacingLg * 1.2
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
@@ -162,7 +168,7 @@ ModulePopup {
         GridLayout {
             Layout.fillWidth: true
             columns: 7
-            rowSpacing: 2
+            rowSpacing: Theme.spacingXs
             columnSpacing: 0
 
             Repeater {
@@ -170,12 +176,12 @@ ModulePopup {
 
                 delegate: Item {
                     Layout.fillWidth: true
-                    height: Theme.spacingLg * 1.3
+                    height: Theme.spacingLg * 1.4
 
                     Rectangle {
                         anchors.centerIn: parent
-                        width: Theme.spacingLg * 1.15
-                        height: Theme.spacingLg * 1.15
+                        width: Theme.spacingLg * 1.3
+                        height: Theme.spacingLg * 1.3
                         radius: width / 2
                         color: modelData.isToday ? Theme.accent : "transparent"
 
@@ -192,17 +198,35 @@ ModulePopup {
             }
         }
 
-        // Uptime en bas
-        RowLayout {
-            visible: root.uptimeStr !== ""
+        // Séparateur
+        Rectangle {
             Layout.fillWidth: true
-            Layout.topMargin: 2
+            height: 1
+            color: Theme.glassBorder
+            Layout.topMargin: Theme.spacingXs
+            Layout.bottomMargin: Theme.spacingXs
+        }
+
+        // Uptime système
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Theme.spacingXs
 
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeTiny
-                color: Theme.textDisabled
-                text: "󱘖 Uptime " + root.uptimeStr
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.textSecondary
+                text: "󱘖 Uptime :"
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Text {
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSizeSmall
+                font.bold: true
+                color: Theme.textPrimary
+                text: root.uptimeStr
             }
         }
     }

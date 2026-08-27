@@ -8,7 +8,7 @@ import "../../components"
 ModulePopup {
     id: root
 
-    widthPercent: Theme.popupWidthPercentWide
+    cardWidth: Theme.relWidth(0.16, parentWindow ? parentWindow.screen : null)
     cardHeight: mprisCol.implicitHeight + Theme.spacingMd * 2
 
     readonly property var player: (Mpris.players && Mpris.players.values && Mpris.players.values.length > 0) ? Mpris.players.values[0] : null
@@ -21,18 +21,18 @@ ModulePopup {
             right: parent.right
             top: parent.top
         }
-        spacing: Theme.spacingSm
+        spacing: Theme.spacingMd
 
-        // Pochette et Titre
+        // Pochette et Infos complètes
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingSm
+            spacing: Theme.spacingMd
 
             // Pochette d'album
             Rectangle {
-                width: Theme.spacingXl * 2
-                height: Theme.spacingXl * 2
-                radius: Theme.radiusSmall
+                width: 72
+                height: 72
+                radius: Theme.radiusMedium
                 color: Qt.rgba(1, 1, 1, 0.05)
                 clip: true
                 border.color: Theme.glassBorder
@@ -42,7 +42,7 @@ ModulePopup {
                     id: albumArt
                     anchors.fill: parent
                     source: (root.visible && root.player) ? (root.player.trackArtUrl || root.player.artUrl || "") : ""
-                    sourceSize: Qt.size(Theme.spacingXl * 4, Theme.spacingXl * 4)
+                    sourceSize: Qt.size(144, 144)
                     fillMode: Image.PreserveAspectCrop
                     visible: source !== "" && status === Image.Ready
                     smooth: true
@@ -54,21 +54,21 @@ ModulePopup {
                     anchors.centerIn: parent
                     visible: !albumArt.visible
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeTitle
+                    font.pixelSize: Theme.fontSizeTitle + 4
                     color: Theme.textDisabled
                     text: "󰝚"
                 }
             }
 
-            // Titre & Artiste
+            // Textes : Titre, Artiste, Album
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 1
+                spacing: 3
 
                 Text {
                     Layout.fillWidth: true
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
+                    font.pixelSize: Theme.fontSizeMedium
                     font.bold: true
                     color: Theme.textPrimary
                     text: root.player ? (root.player.trackTitle || "Aucune lecture") : "Aucun lecteur"
@@ -80,30 +80,47 @@ ModulePopup {
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.accent
-                    text: root.player ? (root.player.trackArtist || "") : ""
+                    text: root.player ? (root.player.trackArtist || "Artiste inconnu") : ""
+                    elide: Text.ElideRight
+                    visible: text !== ""
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.textSecondary
+                    text: root.player ? (root.player.trackAlbum || (root.player.identity || "")) : ""
                     elide: Text.ElideRight
                     visible: text !== ""
                 }
             }
         }
 
-        // Contrôles multimédia compacts
+        // Séparateur
+        Rectangle {
+            Layout.fillWidth: true
+            height: 1
+            color: Theme.glassBorder
+        }
+
+        // Contrôles multimédia
         RowLayout {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
-            spacing: Theme.spacingSm
+            spacing: Theme.spacingMd
 
             // Précédent
             Rectangle {
-                width: Theme.spacingLg * 1.8
-                height: Theme.spacingLg * 1.8
+                width: 32
+                height: 32
                 radius: width / 2
                 color: prevMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
 
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
+                    font.pixelSize: Theme.fontSizeLarge
                     color: root.player ? Theme.textPrimary : Theme.textDisabled
                     text: "󰒮"
                 }
@@ -119,10 +136,10 @@ ModulePopup {
                 }
             }
 
-            // Lecture / Pause
+            // Lecture / Pause (Grand bouton rond)
             Rectangle {
-                width: Theme.spacingLg * 2
-                height: Theme.spacingLg * 2
+                width: 42
+                height: 42
                 radius: width / 2
                 color: playMouse.containsMouse ? Qt.lighter(Theme.accent, 1.1) : Theme.accent
 
@@ -133,7 +150,7 @@ ModulePopup {
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    font.pixelSize: Theme.fontSizeTitle
                     color: Theme.background
                     text: root.isPlaying ? "󰏤" : "󰐊"
                 }
@@ -157,15 +174,15 @@ ModulePopup {
 
             // Suivant
             Rectangle {
-                width: Theme.spacingLg * 1.8
-                height: Theme.spacingLg * 1.8
+                width: 32
+                height: 32
                 radius: width / 2
                 color: nextMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
 
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
+                    font.pixelSize: Theme.fontSizeLarge
                     color: root.player ? Theme.textPrimary : Theme.textDisabled
                     text: "󰒭"
                 }

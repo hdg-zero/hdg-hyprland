@@ -19,69 +19,70 @@ ModulePopup {
     widthPercent: Theme.popupWidthPercentCompact
     cardHeight: memCol.implicitHeight + Theme.spacingMd * 2
 
-    Process {
-        id: getMemDetails
-        command: ["sh", "-c", "cat /proc/meminfo | awk '{print $1\":\"$2}'"]
-        stdout: StdioCollector {
-            id: memOut
+    FileView {
+        id: meminfoFile
+        path: "/proc/meminfo"
+        watchChanges: false
+    }
+
+    function updateMemoryStats() {
+        meminfoFile.reload();
+        var txt = typeof meminfoFile.text === "function" ? meminfoFile.text() : (meminfoFile.text || "");
+        if (!txt) return;
+
+        var lines = txt.split("\n");
+        var memTotal = 0;
+        var memAvail = 0;
+        var swapTotal = 0;
+        var swapFree = 0;
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line) continue;
+
+            var match = line.match(/^(\w+):\s*(\d+)/);
+            if (match) {
+                var key = match[1];
+                var val = parseInt(match[2]) || 0; // in kB
+                if (key === "MemTotal") memTotal = val;
+                else if (key === "MemAvailable") memAvail = val;
+                else if (key === "SwapTotal") swapTotal = val;
+                else if (key === "SwapFree") swapFree = val;
+            }
         }
-        onExited: function(exitCode, exitStatus) {
-            var str = memOut.text.trim();
-            if (!str) return;
 
-            var lines = str.split("\n");
-            var memTotal = 0;
-            var memAvail = 0;
-            var swapTotal = 0;
-            var swapFree = 0;
+        if (memTotal > 0) {
+            var memUsed = memTotal - memAvail;
+            root.ramPercent = Math.round((memUsed / memTotal) * 100);
+            root.ramUsedFormatted = (memUsed / (1024 * 1024)).toFixed(1) + " Go";
+            root.ramTotalFormatted = (memTotal / (1024 * 1024)).toFixed(1) + " Go";
+        }
 
-            for (var i = 0; i < lines.length; i++) {
-                var parts = lines[i].split(":");
-                if (parts.length >= 2) {
-                    var k = parts[0].trim();
-                    var v = parseInt(parts[1].trim()) || 0;
-                    if (k === "MemTotal") memTotal = v;
-                    else if (k === "MemAvailable") memAvail = v;
-                    else if (k === "SwapTotal") swapTotal = v;
-                    else if (k === "SwapFree") swapFree = v;
-                }
-            }
-
-            if (memTotal > 0) {
-                var memUsed = memTotal - memAvail;
-                root.ramPercent = Math.round((memUsed / memTotal) * 100);
-                root.ramUsedFormatted = (memUsed / (1024 * 1024)).toFixed(1) + " Go";
-                root.ramTotalFormatted = (memTotal / (1024 * 1024)).toFixed(1) + " Go";
-            }
-
-            if (swapTotal > 0) {
-                var swapUsed = swapTotal - swapFree;
-                root.swapPercent = Math.round((swapUsed / swapTotal) * 100);
-                root.swapUsedFormatted = (swapUsed / (1024 * 1024)).toFixed(1) + " Go";
-                root.swapTotalFormatted = (swapTotal / (1024 * 1024)).toFixed(1) + " Go";
-            } else {
-                root.swapPercent = 0;
-                root.swapUsedFormatted = "0 Go";
-                root.swapTotalFormatted = "0 Go";
-            }
+        if (swapTotal > 0) {
+            var swapUsed = swapTotal - swapFree;
+            root.swapPercent = Math.round((swapUsed / swapTotal) * 100);
+            root.swapUsedFormatted = (swapUsed / (1024 * 1024)).toFixed(1) + " Go";
+            root.swapTotalFormatted = (swapTotal / (1024 * 1024)).toFixed(1) + " Go";
+        } else {
+            root.swapPercent = 0;
+            root.swapUsedFormatted = "0 Go";
+            root.swapTotalFormatted = "0 Go";
         }
     }
 
     Timer {
-        interval: 2000
+        interval: 1500
         running: root.visible
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            if (!getMemDetails.running) {
-                getMemDetails.running = true;
-            }
+            root.updateMemoryStats();
         }
     }
 
     onVisibleChanged: {
-        if (visible && !getMemDetails.running) {
-            getMemDetails.running = true;
+        if (visible) {
+            root.updateMemoryStats();
         }
     }
 
@@ -143,7 +144,7 @@ ModulePopup {
             }
         }
 
-        // Métriques discrètes
+        // Métriques RAM & Swap
         RowLayout {
             Layout.fillWidth: true
 

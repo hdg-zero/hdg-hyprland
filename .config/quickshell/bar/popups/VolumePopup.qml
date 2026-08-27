@@ -66,7 +66,7 @@ ModulePopup {
         Rectangle {
             id: sliderTrack
             Layout.fillWidth: true
-            height: Theme.spacingXs
+            height: Theme.spacingXs + 1
             radius: Theme.radiusSmall / 2
             color: Qt.rgba(1, 1, 1, 0.1)
 
@@ -108,26 +108,37 @@ ModulePopup {
             }
         }
 
-        // Actions rapides compactes
+        // Actions rapides (Boutons Mute et Panneau de taille égale)
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingXs
+            spacing: Theme.spacingSm
 
-            // Bouton Mute
+            // Bouton Mute (50% largeur)
             Rectangle {
                 Layout.fillWidth: true
-                height: Theme.spacingLg * 1.5
+                height: Theme.spacingLg * 1.6
                 radius: Theme.radiusSmall
                 color: muteMouse.containsMouse ? Theme.cardBackgroundHover : (root.isMuted ? Qt.rgba(0.95, 0.54, 0.66, 0.2) : Qt.rgba(1, 1, 1, 0.05))
                 border.color: root.isMuted ? Theme.destructive : Theme.glassBorder
                 border.width: 1
 
-                Text {
+                RowLayout {
                     anchors.centerIn: parent
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: root.isMuted ? Theme.destructive : Theme.textPrimary
-                    text: root.isMuted ? "󰝟 Muet" : "󰕾 Mute"
+                    spacing: Theme.spacingXs
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: root.isMuted ? Theme.destructive : Theme.textPrimary
+                        text: root.isMuted ? "󰝟" : "󰕾"
+                    }
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: root.isMuted ? Theme.destructive : Theme.textPrimary
+                        text: root.isMuted ? "Muet" : "Mute"
+                    }
                 }
 
                 MouseArea {
@@ -139,21 +150,32 @@ ModulePopup {
                 }
             }
 
-            // Bouton Pavucontrol
+            // Bouton Panneau Pavucontrol (50% largeur)
             Rectangle {
-                width: Theme.spacingLg * 1.8
-                height: Theme.spacingLg * 1.5
+                Layout.fillWidth: true
+                height: Theme.spacingLg * 1.6
                 radius: Theme.radiusSmall
                 color: pavuMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
-                border.color: Theme.glassBorder
+                border.color: pavuMouse.containsMouse ? Theme.glassBorder : Theme.glassBorder
                 border.width: 1
 
-                Text {
+                RowLayout {
                     anchors.centerIn: parent
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: Theme.accent
-                    text: "󰓃"
+                    spacing: Theme.spacingXs
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.accent
+                        text: "󰓃"
+                    }
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.textPrimary
+                        text: "Panneau"
+                    }
                 }
 
                 MouseArea {

@@ -102,7 +102,7 @@ ModulePopup {
             }
         }
 
-        // Titre de la fenêtre (1 ligne nette)
+        // Titre de la fenêtre
         Text {
             Layout.fillWidth: true
             font.family: Theme.fontFamily
@@ -113,27 +113,31 @@ ModulePopup {
             maximumLineCount: 1
         }
 
-        // Actions compactes (Basculer & Fermer)
+        // Boutons d'actions compacts (Uniquement les icônes)
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingXs
+            spacing: Theme.spacingSm
 
-            // Bouton Basculer
+            // Bouton Basculer (Icône 󰘳)
             Rectangle {
                 Layout.fillWidth: true
-                height: Theme.spacingLg * 1.5
+                height: Theme.spacingLg * 1.6
                 radius: Theme.radiusSmall
                 color: focusMouse.containsMouse ? Theme.accentHover : Qt.rgba(0.365, 0.678, 0.886, 0.2)
                 border.color: Theme.accent
                 border.width: 1
 
+                Behavior on color {
+                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
+                }
+
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
+                    font.pixelSize: Theme.fontSizeLarge
                     font.bold: true
                     color: Theme.textPrimary
-                    text: "󰘳 Basculer"
+                    text: "󰘳"
                 }
 
                 MouseArea {
@@ -152,21 +156,25 @@ ModulePopup {
                 }
             }
 
-            // Bouton Fermer
+            // Bouton Fermer (Icône 󰅖)
             Rectangle {
-                width: Theme.spacingXl * 2.3
-                height: Theme.spacingLg * 1.5
+                Layout.fillWidth: true
+                height: Theme.spacingLg * 1.6
                 radius: Theme.radiusSmall
-                color: closeBtnMouse.containsMouse ? Qt.rgba(0.906, 0.298, 0.235, 0.3) : Qt.rgba(1, 1, 1, 0.05)
+                color: closeBtnMouse.containsMouse ? Qt.rgba(0.906, 0.298, 0.235, 0.4) : Qt.rgba(1, 1, 1, 0.05)
                 border.color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.glassBorder
                 border.width: 1
+
+                Behavior on color {
+                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
+                }
 
                 Text {
                     anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
+                    font.pixelSize: Theme.fontSizeLarge
                     color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
-                    text: "󰅖 Fermer"
+                    text: "󰅖"
                 }
 
                 MouseArea {
