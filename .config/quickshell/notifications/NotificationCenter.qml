@@ -25,7 +25,7 @@ PanelWindow {
     }
 
     implicitWidth: Math.round(Theme.relWidth(0.125, root.screen))
-    implicitHeight: Math.min(Math.round(Theme.relHeight(0.70, root.screen)), panelCard.implicitHeight)
+    implicitHeight: Math.min(Math.round(Theme.relHeight(0.85, root.screen)), panelCard.implicitHeight)
 
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -41,6 +41,9 @@ PanelWindow {
     property bool audioMuted: false
     property int currentVolume: 50
     property int currentBrightness: 100
+
+    // États du Bloc-Notes
+    property bool notesLoaded: false
 
     Process {
         id: getWifiStatus
@@ -90,6 +93,30 @@ PanelWindow {
         }
     }
 
+    // Chargement persistant des notes
+    Process {
+        id: loadNotesProc
+        command: ["sh", "-c", "mkdir -p \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell\" && cat \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/scratchpad.txt\" 2>/dev/null || echo ''"]
+        stdout: StdioCollector { id: notesOut }
+        onExited: {
+            if (!root.notesLoaded) {
+                notesEdit.text = notesOut.text;
+                root.notesLoaded = true;
+            }
+        }
+    }
+
+    // Sauvegarde automatique temporisée des notes
+    Timer {
+        id: saveNotesTimer
+        interval: 400
+        repeat: false
+        onTriggered: {
+            var txt = notesEdit.text;
+            Quickshell.execDetached(["sh", "-c", "mkdir -p \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell\" && printf '%s' \"$1\" > \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/scratchpad.txt\"", "--", txt]);
+        }
+    }
+
     function refreshStatus() {
         if (!getWifiStatus.running) getWifiStatus.running = true;
         if (!getBtStatus.running) getBtStatus.running = true;
@@ -102,6 +129,9 @@ PanelWindow {
     onVisibleChanged: {
         if (visible) {
             refreshStatus();
+            if (!root.notesLoaded && !loadNotesProc.running) {
+                loadNotesProc.running = true;
+            }
         }
     }
 
@@ -245,7 +275,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle
+                        font.pixelSize: Theme.fontSizeLarge
                         color: root.wifiEnabled ? Theme.backgroundSolid : Theme.textDisabled
                         text: root.wifiEnabled ? "󰖩" : "󰖪"
                     }
@@ -277,7 +307,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle
+                        font.pixelSize: Theme.fontSizeLarge
                         color: root.btEnabled ? Theme.backgroundSolid : Theme.textDisabled
                         text: root.btEnabled ? "󰂯" : "󰂲"
                     }
@@ -309,7 +339,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle
+                        font.pixelSize: Theme.fontSizeLarge
                         color: !root.micMuted ? Theme.backgroundSolid : Theme.destructive
                         text: !root.micMuted ? "󰍬" : "󰍭"
                     }
@@ -341,7 +371,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeTitle
+                        font.pixelSize: Theme.fontSizeLarge
                         color: !root.audioMuted ? Theme.backgroundSolid : Theme.destructive
                         text: !root.audioMuted ? "󰕾" : "󰝟"
                     }
@@ -527,7 +557,7 @@ PanelWindow {
                         }
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeTiny
                             font.bold: true
                             color: Theme.textPrimary
                             text: "Verrouiller"
@@ -563,7 +593,7 @@ PanelWindow {
                         }
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeTiny
                             font.bold: true
                             color: Theme.textPrimary
                             text: "Session"
@@ -624,7 +654,7 @@ PanelWindow {
             // Liste défilante des notifications
             Item {
                 Layout.fillWidth: true
-                implicitHeight: NotificationService.unreadCount === 0 ? Math.round(Theme.relHeight(0.035, root.screen)) : Math.min(Math.round(Theme.relHeight(0.25, root.screen)), notifList.contentHeight)
+                implicitHeight: NotificationService.unreadCount === 0 ? Math.round(Theme.relHeight(0.030, root.screen)) : Math.min(Math.round(Theme.relHeight(0.20, root.screen)), notifList.contentHeight)
                 clip: true
 
                 // État vide minimaliste
@@ -789,6 +819,130 @@ PanelWindow {
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ==========================================
+            // 6. MINI BLOC-NOTES RAPIDE (Scratchpad Glassmorphic)
+            // ==========================================
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.10)
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Text {
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.bold: true
+                    color: Theme.textSecondary
+                    text: "Bloc-Notes"
+                }
+
+                Item { Layout.fillWidth: true }
+
+                // Bouton Copier dans le presse-papier
+                Rectangle {
+                    width: Math.round(Theme.fontSizeLarge)
+                    height: width
+                    radius: width / 2
+                    color: copyNotesMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.18) : "transparent"
+
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTiny
+                        color: copyNotesMouse.containsMouse ? Theme.accent : Theme.textSecondary
+                        text: "󰆏"
+                    }
+
+                    MouseArea {
+                        id: copyNotesMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            Quickshell.execDetached(["sh", "-c", "printf '%s' \"$1\" | wl-copy", "--", notesEdit.text]);
+                        }
+                    }
+                }
+
+                // Bouton Effacer notes
+                Rectangle {
+                    width: Math.round(Theme.fontSizeLarge)
+                    height: width
+                    radius: width / 2
+                    color: clearNotesMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.3) : "transparent"
+
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTiny
+                        color: clearNotesMouse.containsMouse ? Theme.destructive : Theme.textDisabled
+                        text: "󰃢"
+                    }
+
+                    MouseArea {
+                        id: clearNotesMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            notesEdit.text = "";
+                            saveNotesTimer.restart();
+                        }
+                    }
+                }
+            }
+
+            // Zone d'édition du bloc-notes
+            Rectangle {
+                Layout.fillWidth: true
+                height: Math.round(Theme.relHeight(0.11, root.screen))
+                radius: Theme.radiusMedium
+                color: Qt.rgba(1, 1, 1, 0.05)
+                border.color: notesEdit.activeFocus ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.10)
+                border.width: 1
+
+                Behavior on border.color { ColorAnimation { duration: Theme.animDurationFast } }
+
+                Flickable {
+                    id: notesFlickable
+                    anchors.fill: parent
+                    anchors.margins: Theme.spacingSm
+                    contentWidth: width
+                    contentHeight: notesEdit.implicitHeight
+                    clip: true
+
+                    TextEdit {
+                        id: notesEdit
+                        width: parent.width
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTiny
+                        color: Theme.textPrimary
+                        selectionColor: Theme.accent
+                        selectedTextColor: Theme.backgroundSolid
+                        wrapMode: TextEdit.Wrap
+                        selectByMouse: true
+
+                        Text {
+                            anchors.fill: parent
+                            visible: !notesEdit.text && !notesEdit.activeFocus
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeTiny
+                            color: Theme.textDisabled
+                            text: "Noter rapidement quelque chose..."
+                        }
+
+                        onTextChanged: {
+                            if (root.notesLoaded) {
+                                saveNotesTimer.restart();
                             }
                         }
                     }

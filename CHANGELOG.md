@@ -8,7 +8,8 @@ et ce projet adhère au versionnage sémantique.
 ## [Unreleased]
 
 ### Ajouté
-- Serveur de notifications D-Bus natif et Centre de Contrôle sous Quickshell v0.3.1 (`notifications/NotificationService.qml`, `notifications/NotificationToastWindow.qml`, `notifications/NotificationCenter.qml`) avec gestion DND, alertes OSD éphémères avec timers d'expiration, curseurs rapides (volume/luminosité) et grille de commandes système (WiFi, Bluetooth, Micro, Audio, Lock, Power).
+- Module de bloc-notes rapide persistant (`scratchpad`) intégré dans le Centre de Contrôle (`NotificationCenter.qml`) : zone d'édition en verre dépoli, sauvegarde automatique temporisée dans `$XDG_STATE_HOME/quickshell/scratchpad.txt`, bouton de copie instantanée vers le presse-papier (`wl-copy`) et bouton d'effacement rapide.
+- Système complet de fenêtres popups interactives pour chaque module sous `.config/quickshell/bar/popups/` :
 - Initialisation de la structure de configuration Quickshell v0.3.1 (`.config/quickshell/`) avec `shell.qml`, singleton `Theme.qml` (tokens Obsidian Glass & Glacier Blue) et composants UI réutilisables (`GlassCard`, `PillButton`, `IconLabel`, `ModulePopup`).
 - Barre d'état Quickshell complète multi-écrans (`BarWindow`, `BarContent`) intégrant tous les modules : Workspaces, CPU, Mémoire, Réseau, MPRIS, ActiveWindow, Taskbar, SystemTray, Luminosité, Volume, Batterie, Notifications, Horloge et Power.
 - Fenêtres flottantes et popups interactives riches (`bar/popups/`) avec ancrage dynamique sous chaque module :
