@@ -123,6 +123,7 @@ PillButton {
     textColor: isConnected ? Theme.textPrimary : Theme.textDisabled
     customPaddingH: Theme.spacingMd
     customPaddingV: Theme.spacingSm
+    customWidth: 120
 
     onClicked: {
         netPopup.toggle();

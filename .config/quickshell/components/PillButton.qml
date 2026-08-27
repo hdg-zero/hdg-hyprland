@@ -16,13 +16,14 @@ Rectangle {
     property real customRadius: Theme.radiusPill
     property int customPaddingH: Theme.spacingMd
     property int customPaddingV: Theme.spacingSm
+    property real customWidth: 0
 
     signal clicked()
     signal rightClicked()
     signal middleClicked()
     signal scrolled(var wheel)
 
-    implicitWidth: layout.implicitWidth + (customPaddingH * 2)
+    implicitWidth: customWidth > 0 ? customWidth : (layout.implicitWidth + (customPaddingH * 2))
     implicitHeight: layout.implicitHeight + (customPaddingV * 2)
 
     radius: customRadius
@@ -40,6 +41,7 @@ Rectangle {
     RowLayout {
         id: layout
         anchors.centerIn: parent
+        width: root.customWidth > 0 ? (root.customWidth - (root.customPaddingH * 2)) : implicitWidth
         spacing: Theme.spacingSm
 
         Text {
@@ -64,6 +66,8 @@ Rectangle {
             font.bold: root.active
             color: mouseArea.containsMouse ? Theme.textPrimary : root.textColor
             verticalAlignment: Text.AlignVCenter
+            Layout.fillWidth: root.customWidth > 0
+            elide: Text.ElideRight
 
             Behavior on color {
                 ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }

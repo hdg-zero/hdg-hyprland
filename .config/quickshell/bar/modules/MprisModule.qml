@@ -75,6 +75,7 @@ Item {
         textColor: Theme.textSecondary
         customPaddingH: Theme.spacingMd
         customPaddingV: Theme.spacingSm
+        customWidth: 180
 
         onClicked: {
             if (root.activePlayer) {
