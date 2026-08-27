@@ -5,6 +5,15 @@ Toutes les modifications notables apportées à ce projet seront consignées dan
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au versionnage sémantique.
 
+## [Unreleased]
+
+### Ajouté
+- Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
+
+### Modifié
+- Ajout et configuration du module `python` dans `.config/starship.toml` pour afficher la version Python et l'environnement virtuel (venv) actif (`$virtualenv`).
+- Configuration explicite du contrôleur de rétroéclairage (`amdgpu_bl1`) dans SwayNC (`.config/swaync/config.json`).
+
 ## [v0.1.1] - 2026-07-22
 
 ### Modifié

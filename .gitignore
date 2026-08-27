@@ -1,0 +1,18 @@
+# Agent & AI Charters (Local local execution rules)
+.agents/
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary & Log files
+*.log
+*.tmp
+
+# Environment & Secrets
+.env
+.env.*
+local.properties

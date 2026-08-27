@@ -79,7 +79,8 @@
       "collapse-button-label": " "
     },
     "backlight": {
-      "label": "󰃠"
+      "label": "󰃠",
+      "device": "amdgpu_bl1"
     },
     "buttons-grid#toggles": {
       "buttons-per-row": 3,

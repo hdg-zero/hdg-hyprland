@@ -1,5 +1,5 @@
 format = """
-$os$username$directory$git_branch$git_status$c$elixir$elm$golang$gradle$haskell$java$julia$nodejs$nim$rust$scala$docker_context$time
+$os$username$directory$git_branch$git_status$c$elixir$elm$golang$gradle$haskell$java$julia$nodejs$nim$python$rust$scala$docker_context$time
 $character"""
 
 # Disable the blank line at the start of the prompt
@@ -64,6 +64,12 @@ format = "[$symbol($version)]($style) "
 symbol = " "
 style = "bold #64748b"
 format = "[$symbol($version)]($style) "
+
+[python]
+symbol = "🐍 "
+style = "bold #64748b"
+format = "[$symbol($version )(\\($virtualenv\\) )]($style)"
+
 
 [time]
 disabled = false
