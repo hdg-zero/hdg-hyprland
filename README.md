@@ -7,7 +7,7 @@
 ╚═╝  ╚═╝╚═════╝  ╚═════╝       ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝
 ```
 
-Ce dépôt contient mes fichiers de configuration personnels pour **Hyprland** et ses composants associés. La configuration a été auditée et migrée selon les standards **Hyprland 0.56+** (Lua) sous **UWSM**.
+Ce dépôt contient mes fichiers de configuration personnels pour **Hyprland** et ses composants associés. La configuration a été auditée et modernisée selon les standards **Hyprland 0.56+** (Lua) sous **UWSM**, avec une barre d'état interactive nouvelle génération développée sous **Quickshell v0.3.1**.
 
 ---
 
@@ -20,6 +20,8 @@ La configuration est organisée comme suit :
 ├── CHANGELOG.md                    # Journal des modifications (Keep a Changelog)
 ├── LICENSE                         # Licence MIT
 ├── README.md                       # Documentation principale
+├── docs/                           # Documentations techniques
+│   └── quickshell-bar.md           # Architecture & guide complet de la barre Quickshell
 └── .config
     ├── hypr
     │   ├── hyprland.lua            # Configuration principale (Lua)
@@ -36,7 +38,12 @@ La configuration est organisée comme suit :
     │       ├── battery-level.sh    # Notification de batterie faible
     │       └── check-dependencies.sh # Validation automatique des dépendances (exit code)
     ├── kitty
-    │   └── kitty.conf              # Emulateur de terminal Kitty
+    │   └── kitty.conf              # Émulateur de terminal Kitty
+    ├── quickshell                  # Barre d'état réactive & fenêtres flottantes (Quickshell 0.3.1)
+    │   ├── shell.qml               # Point d'entrée ShellRoot (multi-écrans)
+    │   ├── theme/                  # Tokens visuels (Obsidian Glass & Glacier Blue)
+    │   ├── components/             # Composants d'interface (GlassCard, PillButton, ModulePopup)
+    │   └── bar/                    # Modules de la barre et fenêtres flottantes interactives (popups)
     ├── rofi
     │   ├── config.rasi             # Configuration globale de Rofi
     │   └── themes/
@@ -44,10 +51,6 @@ La configuration est organisée comme suit :
     ├── swaync
     │   ├── config.json             # Configuration SwayNC (détection auto backlight & POSIX)
     │   └── style.css               # Style personnalisé SwayNC
-    ├── waybar
-    │   ├── config                  # Structure et inclusion des modules
-    │   ├── style.css               # Feuille de style Waybar
-    │   └── modules/                # Modules JSONC (battery, memory, network, etc.)
     ├── wlogout
     │   ├── layout                  # Disposition (verrouillage sécurisé avant suspend)
     │   ├── style.css               # Feuille de style Wlogout
@@ -57,21 +60,33 @@ La configuration est organisée comme suit :
 
 ---
 
-## 🔍 État de la Configuration & Modernisation (Juillet 2026) 🟢
+## 🔍 État de la Configuration & Modernisation 🟢
 
-L'ensemble de la configuration a été audité et mis à niveau pour la version **Hyprland 0.56**.
+L'ensemble de la configuration a été audité et mis à niveau pour **Hyprland 0.56+** et **Quickshell 0.3.1+**.
 
-### 1. Gestion des Écrans (Monitors 0.56) 🟢
+### 1. Barre d'État Quickshell Nouvelle Génération 🟢
+*(Voir la [Documentation technique détaillée](docs/quickshell-bar.md))*
+* **Design "Obsidian Glass & Glacier Blue"** : Effet de verre fumé translucide sombre avec bordures subtiles et accents bleu glacier.
+* **Fenêtres flottantes interactives (Popups)** : Chaque module dispose d'une fenêtre détaillée ouverte au survol intelligent (avec temporisation anti-scintillement) ou au clic :
+  - **CPU & RAM** : Charge en direct, température, load average, répartition RAM/Swap, Top 5 des processus les plus gourmands et raccourci `btop`.
+  - **Réseau** : SSID/Filaire, IPv4, passerelle, débits temps réel (↓/↑), totaux session et accès rapide à `nm-connection-editor` / `nmtui`.
+  - **Musique MPRIS** : Pochette HD, titre, artiste, album et contrôles multimédias.
+  - **Barre des tâches & AppPopup** : Aperçu riche au survol de chaque icône d'application (titre de la fenêtre, workspace, statut plein écran/flottant, bouton focus et fermeture rapide).
+  - **Contrôles matériel** : Sliders interactifs pour le volume audio PipeWire (0-150%), luminosité écran et profils d'alimentation UPower (**Éco**, **Équilibré**, **Max**).
+  - **Horloge & Calendrier** : Vue calendaire complète du mois en français avec jour actif surligné et uptime système.
+* **Sobriété énergétique & performances** : Empreinte RAM minimale (< 25 Mo), lazy-loading des processus système (0% CPU au repos) et exécutions asynchrones non-bloquantes via `Quickshell.execDetached`.
+
+### 2. Gestion des Écrans (Monitors 0.56) 🟢
 * **Inventaire matériel complet** : Utilisation de `hl.get_monitors({ all = true })` pour inclure toutes les sorties (y compris désactivées).
 * **Écran externe prioritaire** : Lors du branchement d'un écran externe, l'affichage externe est automatiquement activé et priorisé.
 * **Sécurité Capot** : Fallback `SAFETY_FALLBACK` garantissant que l'écran interne reste actif si le capot est fermé sans écran externe connecté.
 
-### 2. Veille et Verrouillage (Lock/Suspend) 🟢
+### 3. Veille et Verrouillage (Lock/Suspend) 🟢
 * **Attente du verrouillage** : Ajout de `inhibit_sleep = true` dans `hypridle.conf` et mise à jour de Wlogout (`loginctl lock-session && systemctl suspend`) pour éliminer tout risque de session visible au réveil.
 
-### 3. Contrôle des Dépendances & Nettoyage 🟢
+### 4. Contrôle des Dépendances & Nettoyage 🟢
 * **Script de vérification** : `check-dependencies.sh` distingue les dépendances obligatoires des optionnelles et retourne un code d'erreur non-nul (`exit 1`) en cas de prérequis manquant.
-* **Suppression des scripts obsolètes** : `monitor.sh` et `gesture.sh` ont été supprimés afin d'assurer que `monitors.lua` reste l'unique source de vérité.
+* **Suppression des composants obsolètes** : Suppression intégrale de `waybar`, `monitor.sh` et `gesture.sh` pour maintenir un environnement propre et sans redondance.
 
 ---
 
@@ -84,8 +99,9 @@ Pour vérifier l'état des dépendances sur votre système :
 
 - **Hyprland** (>= 0.56.0) avec support Lua
 - **UWSM** (Wayland Session Manager)
+- **Quickshell** (>= 0.3.1)
 - **hypridle** & **hyprlock**
-- **Waybar**, **Rofi**, **SwayNC**, **Wlogout**, **kitty**
+- **Rofi**, **SwayNC**, **Wlogout**, **kitty**
 - **brightnessctl**, **playerctl**, **wpctl**
 
 ---
@@ -105,7 +121,7 @@ Pour vérifier l'état des dépendances sur votre système :
    ```bash
    REPO_PATH="$(pwd)"
 
-   for dir in hypr kitty rofi swaync waybar wlogout; do
+   for dir in hypr kitty quickshell rofi swaync wlogout; do
      if [ -e "$HOME/.config/$dir" ] && [ ! -L "$HOME/.config/$dir" ]; then
        mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
      fi

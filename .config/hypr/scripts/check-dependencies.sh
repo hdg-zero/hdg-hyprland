@@ -13,11 +13,11 @@ REQUIRED_DEPS=(
   kitty
   notify-send
   playerctl
+  quickshell
   rofi
   swaync
   swaync-client
   uwsm
-  waybar
   wlogout
   wl-copy
   wl-paste

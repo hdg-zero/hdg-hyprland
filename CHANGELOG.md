@@ -21,9 +21,12 @@ et ce projet adhère au versionnage sémantique.
   - `ClockPopup` : Horloge détaillée avec secondes, date en français, calendrier du mois dynamique avec jour actif surligné et uptime.
   - `PowerPopup` : Menu rapide de session (Verrouiller, Veille, Redémarrer, Éteindre, Déconnexion).
   - `AppPopup` : Fenêtre flottante interactive d'aperçu d'application au survol des icônes de la barre de tâches (nom de l'app, titre complet de la fenêtre, badge de workspace, état flottant/plein écran, boutons de focus et de fermeture rapide).
+- Documentation technique exhaustive de la barre d'état et des popups Quickshell v0.3.1 dans `docs/quickshell-bar.md`.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Mise à jour du `README.md` (architecture, documentation de la top barre Quickshell, dépendances et procédure d'installation).
+- Remplacement de la dépendance `waybar` par `quickshell` dans `.config/hypr/scripts/check-dependencies.sh`.
 - Optimisation globale et unification de tous les modules et popups sous l'API native Quickshell v0.3.1 (`Quickshell.execDetached`, `Quickshell.Services.Mpris.trackArtUrl`, `Quickshell.Services.UPower`, `Quickshell.Services.SystemTray`), éliminant tout blocage du thread d'interface et garantissant une exécution asynchrone déterministe.
 - Ajout d'une animation fluide de fondu (`opacity`) et de micro-zoom (`scale 0.95 -> 1.0`) à l'ouverture et à la fermeture de toutes les fenêtres flottantes `ModulePopup` (150ms `Easing.OutCubic`).
 - Ajustement de l'espace alloué aux modules CPU, RAM et Réseau à 3% de l'écran (`widthPercent: 0.03`) et activation de l'ouverture automatique au survol de la souris (`autoHover`) avec temporisations anti-scintillement sur l'ensemble des popups.
@@ -31,6 +34,9 @@ et ce projet adhère au versionnage sémantique.
 - Configuration du clic gauche sur le module musique MPRIS pour basculer directement lecture/pause (`playPause()`), clic droit pour afficher le popup multimédia détaillé, clic milieu et molette pour passer aux pistes suivantes/précédentes.
 - Ajout et configuration du module `python` dans `.config/starship.toml` pour afficher la version Python et l'environnement virtuel (venv) actif (`$virtualenv`).
 - Configuration explicite du contrôleur de rétroéclairage (`amdgpu_bl1`) dans SwayNC (`.config/swaync/config.json`).
+
+### Supprimé
+- Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
 - Sécurisation des liaisons booléennes `isFloating` et `isFullscreen` dans `AppPopup.qml` pour éliminer l'avertissement QML `Unable to assign [undefined] to bool`.
