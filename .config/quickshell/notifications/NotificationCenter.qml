@@ -40,11 +40,6 @@ PanelWindow {
         }
     }
 
-    Keys.onEscapePressed: function(event) {
-        NotificationService.panelVisible = false;
-        event.accepted = true;
-    }
-
     visible: NotificationService.panelVisible
 
     // États matériels
@@ -168,6 +163,11 @@ PanelWindow {
         border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
         border.width: 1
         clip: true
+
+        Keys.onEscapePressed: function(event) {
+            NotificationService.panelVisible = false;
+            event.accepted = true;
+        }
 
         ColumnLayout {
             id: panelCol
