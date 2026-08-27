@@ -26,7 +26,7 @@ PanelWindow {
         right: Theme.spacingLg
     }
 
-    implicitWidth: Math.max(400, Math.round(Theme.relWidth(0.22, root.screen)))
+    implicitWidth: Math.max(380, Math.round(Theme.relWidth(0.20, root.screen)))
 
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -45,13 +45,9 @@ PanelWindow {
 
     Process {
         id: getWifiStatus
-        command: ["sh", "-c", "if nmcli radio wifi 2>/dev/null | grep -q 'enabled'; then echo 'true|'$(nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^oui\|^yes' | cut -d: -f2 || echo 'Connecté'); else echo 'false|Désactivé'; fi"]
+        command: ["sh", "-c", "nmcli radio wifi 2>/dev/null | grep -q 'enabled' && echo true || echo false"]
         stdout: StdioCollector { id: wifiOut }
-        onExited: {
-            var parts = wifiOut.text.trim().split("|");
-            root.wifiEnabled = (parts[0] === "true");
-            root.wifiSsid = parts.length > 1 && parts[1] !== "" ? parts[1] : (root.wifiEnabled ? "Activé" : "Désactivé");
-        }
+        onExited: { root.wifiEnabled = (wifiOut.text.trim() === "true"); }
     }
 
     Process {
@@ -124,7 +120,7 @@ PanelWindow {
         id: panelCard
         anchors.fill: parent
         radius: Theme.radiusXLarge
-        color: Qt.rgba(0.043, 0.059, 0.078, 0.95)
+        color: Qt.rgba(0.043, 0.059, 0.078, 0.96)
         border.color: Theme.glassBorder
         border.width: 1
         clip: true
@@ -135,7 +131,7 @@ PanelWindow {
             spacing: Theme.spacingMd
 
             // ==========================================
-            // 1. BOUTONS D'ACTION HAUT (DND, Effacer tout, Fermer)
+            // 1. BOUTONS D'ACTION HAUT (DND, Effacer, Fermer)
             // ==========================================
             RowLayout {
                 Layout.fillWidth: true
@@ -155,7 +151,7 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
+                        font.pixelSize: Theme.fontSizeMedium
                         color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
                         text: NotificationService.dnd ? "󰂛" : "󰂚"
                     }
@@ -169,7 +165,7 @@ PanelWindow {
                     }
                 }
 
-                // Bouton Effacer tout (icône seule)
+                // Bouton Effacer tout
                 Rectangle {
                     visible: NotificationService.unreadCount > 0
                     width: 32
@@ -224,64 +220,29 @@ PanelWindow {
             }
 
             // ==========================================
-            // 2. TOGGLES RAPIDES (Cartes Style Control Center)
+            // 2. TOGGLES RAPIDES (Style Apple Control Center - Icônes Grandes & Centrées)
             // ==========================================
-            GridLayout {
+            RowLayout {
                 Layout.fillWidth: true
-                columns: 2
-                rowSpacing: Theme.spacingSm
-                columnSpacing: Theme.spacingSm
+                spacing: Theme.spacingSm
 
                 // Toggle 1 : Wi-Fi
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 52
-                    radius: Theme.radiusMedium
-                    color: root.wifiEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1, 1, 1, 0.04)
+                    height: 54
+                    radius: Theme.radiusLarge
+                    color: root.wifiEnabled ? Theme.accent : Qt.rgba(1, 1, 1, 0.06)
                     border.color: root.wifiEnabled ? Theme.accent : Theme.glassBorderSubtle
                     border.width: 1
 
                     Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Rectangle {
-                            width: 34
-                            height: 34
-                            radius: width / 2
-                            color: root.wifiEnabled ? Theme.accent : Qt.rgba(1, 1, 1, 0.08)
-
-                            Text {
-                                anchors.centerIn: parent
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeMedium
-                                color: root.wifiEnabled ? Theme.backgroundSolid : Theme.textDisabled
-                                text: root.wifiEnabled ? "󰖩" : "󰖪"
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-                            Text {
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                                font.bold: true
-                                color: Theme.textPrimary
-                                text: "Wi-Fi"
-                            }
-                            Text {
-                                Layout.fillWidth: true
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeMicro
-                                color: root.wifiEnabled ? Theme.accent : Theme.textDisabled
-                                text: root.wifiSsid
-                                elide: Text.ElideRight
-                            }
-                        }
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTitle
+                        color: root.wifiEnabled ? Theme.backgroundSolid : Theme.textDisabled
+                        text: root.wifiEnabled ? "󰖩" : "󰖪"
                     }
 
                     MouseArea {
@@ -299,53 +260,20 @@ PanelWindow {
                 // Toggle 2 : Bluetooth
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 52
-                    radius: Theme.radiusMedium
-                    color: root.btEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1, 1, 1, 0.04)
+                    height: 54
+                    radius: Theme.radiusLarge
+                    color: root.btEnabled ? Theme.accent : Qt.rgba(1, 1, 1, 0.06)
                     border.color: root.btEnabled ? Theme.accent : Theme.glassBorderSubtle
                     border.width: 1
 
                     Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Rectangle {
-                            width: 34
-                            height: 34
-                            radius: width / 2
-                            color: root.btEnabled ? Theme.accent : Qt.rgba(1, 1, 1, 0.08)
-
-                            Text {
-                                anchors.centerIn: parent
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeMedium
-                                color: root.btEnabled ? Theme.backgroundSolid : Theme.textDisabled
-                                text: root.btEnabled ? "󰂯" : "󰂲"
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-                            Text {
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                                font.bold: true
-                                color: Theme.textPrimary
-                                text: "Bluetooth"
-                            }
-                            Text {
-                                Layout.fillWidth: true
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeMicro
-                                color: root.btEnabled ? Theme.accent : Theme.textDisabled
-                                text: root.btEnabled ? "Activé" : "Désactivé"
-                                elide: Text.ElideRight
-                            }
-                        }
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTitle
+                        color: root.btEnabled ? Theme.backgroundSolid : Theme.textDisabled
+                        text: root.btEnabled ? "󰂯" : "󰂲"
                     }
 
                     MouseArea {
@@ -363,51 +291,20 @@ PanelWindow {
                 // Toggle 3 : Micro
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 52
-                    radius: Theme.radiusMedium
-                    color: !root.micMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1.0, 0.42, 0.42, 0.15)
-                    border.color: !root.micMuted ? Theme.accent : Qt.rgba(1.0, 0.42, 0.42, 0.4)
+                    height: 54
+                    radius: Theme.radiusLarge
+                    color: !root.micMuted ? Theme.accent : Qt.rgba(1.0, 0.42, 0.42, 0.25)
+                    border.color: !root.micMuted ? Theme.accent : Theme.destructive
                     border.width: 1
 
                     Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Rectangle {
-                            width: 34
-                            height: 34
-                            radius: width / 2
-                            color: !root.micMuted ? Theme.accent : Theme.destructive
-
-                            Text {
-                                anchors.centerIn: parent
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeMedium
-                                color: Theme.backgroundSolid
-                                text: !root.micMuted ? "󰍬" : "󰍭"
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-                            Text {
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                                font.bold: true
-                                color: Theme.textPrimary
-                                text: "Microphone"
-                            }
-                            Text {
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeMicro
-                                color: !root.micMuted ? Theme.accent : Theme.destructive
-                                text: !root.micMuted ? "Actif" : "Muet"
-                            }
-                        }
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTitle
+                        color: !root.micMuted ? Theme.backgroundSolid : Theme.destructive
+                        text: !root.micMuted ? "󰍬" : "󰍭"
                     }
 
                     MouseArea {
@@ -425,51 +322,20 @@ PanelWindow {
                 // Toggle 4 : Mute Audio
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 52
-                    radius: Theme.radiusMedium
-                    color: !root.audioMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1.0, 0.42, 0.42, 0.15)
-                    border.color: !root.audioMuted ? Theme.accent : Qt.rgba(1.0, 0.42, 0.42, 0.4)
+                    height: 54
+                    radius: Theme.radiusLarge
+                    color: !root.audioMuted ? Theme.accent : Qt.rgba(1.0, 0.42, 0.42, 0.25)
+                    border.color: !root.audioMuted ? Theme.accent : Theme.destructive
                     border.width: 1
 
                     Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: Theme.spacingSm
-                        spacing: Theme.spacingSm
-
-                        Rectangle {
-                            width: 34
-                            height: 34
-                            radius: width / 2
-                            color: !root.audioMuted ? Theme.accent : Theme.destructive
-
-                            Text {
-                                anchors.centerIn: parent
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeMedium
-                                color: Theme.backgroundSolid
-                                text: !root.audioMuted ? "󰕾" : "󰝟"
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-                            Text {
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                                font.bold: true
-                                color: Theme.textPrimary
-                                text: "Audio"
-                            }
-                            Text {
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeMicro
-                                color: !root.audioMuted ? Theme.accent : Theme.destructive
-                                text: !root.audioMuted ? "Actif" : "Muet"
-                            }
-                        }
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeTitle
+                        color: !root.audioMuted ? Theme.backgroundSolid : Theme.destructive
+                        text: !root.audioMuted ? "󰕾" : "󰝟"
                     }
 
                     MouseArea {
@@ -486,155 +352,141 @@ PanelWindow {
             }
 
             // ==========================================
-            // 3. CURSEURS RAPIDES (Volume & Luminosité)
+            // 3. CURSEURS EN CAPSULE (Style Apple macOS Control Center)
             // ==========================================
-            Rectangle {
+            ColumnLayout {
                 Layout.fillWidth: true
-                implicitHeight: slidersCol.implicitHeight + Theme.spacingMd * 2
-                radius: Theme.radiusLarge
-                color: Qt.rgba(1, 1, 1, 0.03)
-                border.color: Theme.glassBorderSubtle
-                border.width: 1
+                spacing: Theme.spacingSm
 
-                ColumnLayout {
-                    id: slidersCol
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        top: parent.top
-                        margins: Theme.spacingMd
+                // Capsule Slider 1 : Volume
+                Rectangle {
+                    id: volCapsule
+                    Layout.fillWidth: true
+                    height: 44
+                    radius: 22
+                    color: Qt.rgba(1, 1, 1, 0.06)
+                    border.color: Theme.glassBorderSubtle
+                    border.width: 1
+                    clip: true
+
+                    // Remplissage progressif
+                    Rectangle {
+                        anchors {
+                            left: parent.left
+                            top: parent.top
+                            bottom: parent.bottom
+                        }
+                        width: parent.width * Math.min(1.0, root.currentVolume / 100.0)
+                        radius: 22
+                        color: root.audioMuted ? Qt.rgba(1.0, 0.42, 0.42, 0.7) : Theme.accent
+
+                        Behavior on width { NumberAnimation { duration: 60 } }
                     }
-                    spacing: Theme.spacingMd
 
-                    // Slider Volume
+                    // Éléments superposés (icône + pourcentage)
                     RowLayout {
-                        Layout.fillWidth: true
-                        spacing: Theme.spacingSm
-
-                        Rectangle {
-                            width: 30
-                            height: 30
-                            radius: width / 2
-                            color: root.audioMuted ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : Qt.rgba(0.365, 0.678, 0.886, 0.15)
-
-                            Text {
-                                anchors.centerIn: parent
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                                color: root.audioMuted ? Theme.destructive : Theme.accent
-                                text: root.audioMuted ? "󰝟" : (root.currentVolume > 50 ? "󰕾" : "󰖀")
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]);
-                                    root.audioMuted = !root.audioMuted;
-                                }
-                            }
+                        anchors {
+                            fill: parent
+                            leftMargin: Theme.spacingMd
+                            rightMargin: Theme.spacingMd
                         }
 
-                        Rectangle {
-                            id: volSliderTrack
-                            Layout.fillWidth: true
-                            height: 10
-                            radius: 5
-                            color: Qt.rgba(1, 1, 1, 0.08)
-
-                            Rectangle {
-                                height: parent.height
-                                width: parent.width * Math.min(1.0, root.currentVolume / 100.0)
-                                radius: 5
-                                color: root.audioMuted ? Theme.destructive : Theme.accent
-
-                                Behavior on width { NumberAnimation { duration: 80 } }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                function setVol(mouseX) {
-                                    var pct = Math.max(0, Math.min(100, Math.round((mouseX / width) * 100)));
-                                    root.currentVolume = pct;
-                                    Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", pct + "%"]);
-                                }
-                                onPressed: function(mouse) { setVol(mouse.x); }
-                                onPositionChanged: function(mouse) { if (pressed) setVol(mouse.x); }
-                            }
+                        Text {
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeMedium
+                            font.bold: true
+                            color: root.currentVolume > 20 ? Theme.backgroundSolid : Theme.textPrimary
+                            text: root.audioMuted ? "󰝟" : (root.currentVolume > 50 ? "󰕾" : "󰖀")
                         }
+
+                        Item { Layout.fillWidth: true }
 
                         Text {
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
-                            color: Theme.textPrimary
+                            color: root.currentVolume > 85 ? Theme.backgroundSolid : Theme.textPrimary
                             text: root.currentVolume + "%"
-                            Layout.preferredWidth: 38
-                            horizontalAlignment: Text.AlignRight
                         }
                     }
 
-                    // Slider Luminosité
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        function setVol(mouseX) {
+                            var pct = Math.max(0, Math.min(100, Math.round((mouseX / width) * 100)));
+                            root.currentVolume = pct;
+                            Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", pct + "%"]);
+                        }
+                        onPressed: function(mouse) { setVol(mouse.x); }
+                        onPositionChanged: function(mouse) { if (pressed) setVol(mouse.x); }
+                    }
+                }
+
+                // Capsule Slider 2 : Luminosité
+                Rectangle {
+                    id: brightCapsule
+                    Layout.fillWidth: true
+                    height: 44
+                    radius: 22
+                    color: Qt.rgba(1, 1, 1, 0.06)
+                    border.color: Theme.glassBorderSubtle
+                    border.width: 1
+                    clip: true
+
+                    // Remplissage progressif
+                    Rectangle {
+                        anchors {
+                            left: parent.left
+                            top: parent.top
+                            bottom: parent.bottom
+                        }
+                        width: parent.width * Math.min(1.0, root.currentBrightness / 100.0)
+                        radius: 22
+                        color: Theme.accent
+
+                        Behavior on width { NumberAnimation { duration: 60 } }
+                    }
+
+                    // Éléments superposés (icône + pourcentage)
                     RowLayout {
-                        Layout.fillWidth: true
-                        spacing: Theme.spacingSm
-
-                        Rectangle {
-                            width: 30
-                            height: 30
-                            radius: width / 2
-                            color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
-
-                            Text {
-                                anchors.centerIn: parent
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                                color: Theme.accent
-                                text: "󰃠"
-                            }
+                        anchors {
+                            fill: parent
+                            leftMargin: Theme.spacingMd
+                            rightMargin: Theme.spacingMd
                         }
 
-                        Rectangle {
-                            id: brightSliderTrack
-                            Layout.fillWidth: true
-                            height: 10
-                            radius: 5
-                            color: Qt.rgba(1, 1, 1, 0.08)
-
-                            Rectangle {
-                                height: parent.height
-                                width: parent.width * Math.min(1.0, root.currentBrightness / 100.0)
-                                radius: 5
-                                color: Theme.accent
-
-                                Behavior on width { NumberAnimation { duration: 80 } }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                function setBright(mouseX) {
-                                    var pct = Math.max(5, Math.min(100, Math.round((mouseX / width) * 100)));
-                                    root.currentBrightness = pct;
-                                    Quickshell.execDetached(["brightnessctl", "set", pct + "%"]);
-                                }
-                                onPressed: function(mouse) { setBright(mouse.x); }
-                                onPositionChanged: function(mouse) { if (pressed) setBright(mouse.x); }
-                            }
+                        Text {
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeMedium
+                            font.bold: true
+                            color: root.currentBrightness > 20 ? Theme.backgroundSolid : Theme.textPrimary
+                            text: "󰃠"
                         }
+
+                        Item { Layout.fillWidth: true }
 
                         Text {
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
-                            color: Theme.textPrimary
+                            color: root.currentBrightness > 85 ? Theme.backgroundSolid : Theme.textPrimary
                             text: root.currentBrightness + "%"
-                            Layout.preferredWidth: 38
-                            horizontalAlignment: Text.AlignRight
                         }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        function setBright(mouseX) {
+                            var pct = Math.max(5, Math.min(100, Math.round((mouseX / width) * 100)));
+                            root.currentBrightness = pct;
+                            Quickshell.execDetached(["brightnessctl", "set", pct + "%"]);
+                        }
+                        onPressed: function(mouse) { setBright(mouse.x); }
+                        onPositionChanged: function(mouse) { if (pressed) setBright(mouse.x); }
                     }
                 }
             }
@@ -649,7 +501,7 @@ PanelWindow {
                 // Verrouiller
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 36
+                    height: 38
                     radius: Theme.radiusMedium
                     color: lockMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.04)
                     border.color: Theme.glassBorderSubtle
@@ -660,7 +512,7 @@ PanelWindow {
                         spacing: Theme.spacingSm
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeMedium
                             color: Theme.accent
                             text: "󰌾"
                         }
@@ -685,7 +537,7 @@ PanelWindow {
                 // Éteindre / Menu Wlogout
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 36
+                    height: 38
                     radius: Theme.radiusMedium
                     color: pwrMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.2) : Qt.rgba(1, 1, 1, 0.04)
                     border.color: pwrMouse.containsMouse ? Theme.destructive : Theme.glassBorderSubtle
@@ -696,7 +548,7 @@ PanelWindow {
                         spacing: Theme.spacingSm
                         Text {
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.pixelSize: Theme.fontSizeMedium
                             color: Theme.destructive
                             text: "⏻"
                         }
