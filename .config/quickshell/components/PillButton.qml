@@ -19,6 +19,7 @@ Rectangle {
 
     signal clicked()
     signal rightClicked()
+    signal middleClicked()
     signal scrolled(var wheel)
 
     implicitWidth: layout.implicitWidth + (customPaddingH * 2)
@@ -75,13 +76,15 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
 
         onClicked: function(mouse) {
             if (mouse.button === Qt.LeftButton) {
                 root.clicked();
             } else if (mouse.button === Qt.RightButton) {
                 root.rightClicked();
+            } else if (mouse.button === Qt.MiddleButton) {
+                root.middleClicked();
             }
         }
 

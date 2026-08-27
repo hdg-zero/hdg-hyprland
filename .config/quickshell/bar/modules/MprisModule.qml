@@ -77,12 +77,30 @@ Item {
         customPaddingV: Theme.spacingSm
 
         onClicked: {
-            mprisPopup.toggle();
+            if (root.activePlayer && root.activePlayer.canControl) {
+                root.activePlayer.playPause();
+            }
         }
 
         onRightClicked: {
+            mprisPopup.toggle();
+        }
+
+        onMiddleClicked: {
             if (root.activePlayer && root.activePlayer.canGoNext) {
                 root.activePlayer.next();
+            }
+        }
+
+        onScrolled: function(wheel) {
+            if (wheel.angleDelta.y > 0) {
+                if (root.activePlayer && root.activePlayer.canGoNext) {
+                    root.activePlayer.next();
+                }
+            } else if (wheel.angleDelta.y < 0) {
+                if (root.activePlayer && root.activePlayer.canGoPrevious) {
+                    root.activePlayer.previous();
+                }
             }
         }
     }
