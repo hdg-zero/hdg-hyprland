@@ -28,6 +28,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
 
 ### Modifié
+- Ajout de boutons d'actions rapides en verre dépoli dans la popup réseau (`NetworkPopup.qml`) : bouton **Connexions** (`nm-connection-editor`), bouton **Terminal nmtui** (`kitty -e nmtui`) et bouton **VPN** (`mullvad-gui`).
 - Remplacement du raccourci clavier `SUPER + M` dans `binds.lua` par le déclencheur IPC natif Quickshell (`quickshell ipc call session toggle`).
 - Remplacement des ouvertures de `wlogout` par `SessionService` dans le Centre de Contrôle (`NotificationCenter.qml`) et le clic droit du bouton d'énergie (`PowerButton.qml`).
 - Refonte graphique intégrale du Centre de Contrôle (`NotificationCenter.qml`) : cartes de connectivité modernes style Control Center (Wi-Fi, Bluetooth, Micro, Sortie son) avec retours d'état précis, curseurs audio/luminosité en capsules de verre, boutons d'actions système et cartes de notifications multicouches.

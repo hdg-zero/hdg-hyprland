@@ -187,5 +187,150 @@ ModulePopup {
                 text: "↓" + root.rxRate + "  ↑" + root.txRate
             }
         }
+
+        // Séparateur fin
+        Rectangle {
+            Layout.fillWidth: true
+            height: 1
+            color: Theme.glassBorder
+        }
+
+        // Actions rapides (Connexions, nmtui, VPN)
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Theme.spacingSm
+
+            // Bouton Gestionnaire (nm-connection-editor)
+            Rectangle {
+                Layout.fillWidth: true
+                height: Theme.spacingLg * 1.6
+                radius: Theme.radiusSmall
+                color: nmMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
+                border.color: nmMouse.containsMouse ? Theme.accent : Theme.glassBorder
+                border.width: 1
+
+                Behavior on color {
+                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
+                }
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: Theme.spacingXs
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.accent
+                        text: "󰛳"
+                    }
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.textPrimary
+                        text: "Connexions"
+                    }
+                }
+
+                MouseArea {
+                    id: nmMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        Quickshell.execDetached(["nm-connection-editor"]);
+                        root.close();
+                    }
+                }
+            }
+
+            // Bouton nmtui (Terminal)
+            Rectangle {
+                Layout.fillWidth: true
+                height: Theme.spacingLg * 1.6
+                radius: Theme.radiusSmall
+                color: nmtuiMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
+                border.color: nmtuiMouse.containsMouse ? Theme.accent : Theme.glassBorder
+                border.width: 1
+
+                Behavior on color {
+                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
+                }
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: Theme.spacingXs
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.accent
+                        text: "󰆍"
+                    }
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.textPrimary
+                        text: "nmtui"
+                    }
+                }
+
+                MouseArea {
+                    id: nmtuiMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        Quickshell.execDetached(["kitty", "-e", "nmtui"]);
+                        root.close();
+                    }
+                }
+            }
+
+            // Bouton VPN (Mullvad)
+            Rectangle {
+                Layout.fillWidth: true
+                height: Theme.spacingLg * 1.6
+                radius: Theme.radiusSmall
+                color: vpnMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
+                border.color: vpnMouse.containsMouse ? Theme.accent : Theme.glassBorder
+                border.width: 1
+
+                Behavior on color {
+                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
+                }
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: Theme.spacingXs
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.accent
+                        text: "󰒄"
+                    }
+
+                    Text {
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.textPrimary
+                        text: "VPN"
+                    }
+                }
+
+                MouseArea {
+                    id: vpnMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        Quickshell.execDetached(["sh", "-c", "command -v mullvad-gui >/dev/null 2>&1 && mullvad-gui || mullvad status"]);
+                        root.close();
+                    }
+                }
+            }
+        }
     }
 }
