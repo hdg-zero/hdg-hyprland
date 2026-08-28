@@ -797,12 +797,12 @@ PanelWindow {
                             // Boutons d'actions
                             RowLayout {
                                 Layout.fillWidth: true
-                                visible: modelData.actions && modelData.actions.values && modelData.actions.values.length > 0
+                                visible: modelData.actions && modelData.actions.length > 0
                                 spacing: Theme.spacingSm
                                 Layout.topMargin: Theme.spacingXs
 
                                 Repeater {
-                                    model: modelData.actions ? modelData.actions.values : []
+                                    model: modelData.actions || []
 
                                     delegate: Rectangle {
                                         required property var modelData

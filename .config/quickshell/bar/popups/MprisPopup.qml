@@ -46,7 +46,6 @@ ModulePopup {
                 fillMode: Image.PreserveAspectCrop
                 visible: source !== "" && status === Image.Ready
                 smooth: true
-                asynchronous: true
                 cache: true
             }
 

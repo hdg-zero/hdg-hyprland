@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Widgets
 import "../../theme"
 import "../../components"
 
@@ -52,16 +53,12 @@ ModulePopup {
             Layout.fillWidth: true
             spacing: Theme.spacingXs
 
-            Image {
+            IconImage {
                 id: popupIcon
                 width: Theme.spacingLg * 1.3
                 height: Theme.spacingLg * 1.3
                 source: root.iconSource
-                sourceSize: Qt.size(Theme.spacingXl * 2, Theme.spacingXl * 2)
-                smooth: true
-                mipmap: true
                 visible: root.iconSource !== "" && status === Image.Ready
-                fillMode: Image.PreserveAspectFit
             }
 
             Text {

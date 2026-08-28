@@ -60,6 +60,8 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
+- Correction des plantages et crashes récurrents de Quickshell (SIGSEGV / Pure virtual call `__cxa_pure_virtual` dans `QPlatformPixmap::fromFile` sous Qt 6.11 / Wayland) lors de l'ouverture d'applications ou de notifications : adoption exclusive du composant natif et thread-safe `IconImage` (`Quickshell.Widgets`) dans la barre des tâches (`TaskbarModule.qml`) et les popups d'applications (`AppPopup.qml`), et suppression des chargements asynchrones non thread-safe (`asynchronous: true`).
+- Élimination des avertissements QML `Unable to assign a function to a property of any type other than var` dans `NotificationToastWindow.qml` et `NotificationCenter.qml` en passant directement la liste `actions` au modèle du `Repeater` au lieu de `actions.values` (qui résolvait la méthode `Array.prototype.values`).
 - Suppression de l'utilisation dépréciée de `height` au profit exclusif de `implicitHeight` sur `PanelWindow` (`BarWindow.qml`) et typage entier strict des marges d'ancrage dans `ModulePopup.qml` éliminant les avertissements QML du runtime.
 - Correction de l'analyse `/proc/meminfo` dans `MemoryPopup.qml` via lecture directe `FileView` et expressions régulières, résolvant le problème d'affichage `0/0 Go`.
 - Définition explicite de la hauteur de fenêtre `height` et de la zone exclusive Wayland `WlrLayershell.exclusiveZone: height + margins.top + margins.bottom` dans `BarWindow.qml`, garantissant que Hyprland réserve immédiatement l'espace d'affichage nécessaire pour les fenêtres carrelées.

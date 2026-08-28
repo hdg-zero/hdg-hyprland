@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Widgets
 import "../../theme"
 import "../popups"
 
@@ -45,14 +46,10 @@ RowLayout {
 
             readonly property string iconSource: {
                 if (desktopEntry && desktopEntry.icon) {
-                    var p = Quickshell.iconPath(desktopEntry.icon, true);
-                    if (p && p.length > 0) return p;
+                    return desktopEntry.icon;
                 }
                 if (appClass && appClass.length > 0) {
-                    var p2 = Quickshell.iconPath(appClass.toLowerCase(), true);
-                    if (p2 && p2.length > 0) return p2;
-                    var p3 = Quickshell.iconPath(appClass, true);
-                    if (p3 && p3.length > 0) return p3;
+                    return appClass;
                 }
                 return "";
             }
@@ -84,19 +81,14 @@ RowLayout {
                 iconSource: taskItem.iconSource
             }
 
-            // Image vectorielle / haute résolution nette
-            Image {
+            // Rendu natif et thread-safe d'icônes Quickshell IconImage
+            IconImage {
                 id: appIcon
                 anchors.centerIn: parent
                 width: 20
                 height: 20
                 source: taskItem.iconSource
-                sourceSize: Qt.size(Theme.spacingXl * 2, Theme.spacingXl * 2)
-                smooth: true
-                mipmap: true
                 visible: taskItem.iconSource !== "" && status === Image.Ready
-                fillMode: Image.PreserveAspectFit
-                asynchronous: true
             }
 
             // Fallback texte si l'icône n'est pas trouvable

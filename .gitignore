@@ -11,6 +11,8 @@
 # Temporary & Log files
 *.log
 *.tmp
+crashes/
+crash/
 
 # Environment & Secrets
 .env

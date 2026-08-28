@@ -172,11 +172,11 @@ PanelWindow {
                     // Actions de la notification (si présentes)
                     RowLayout {
                         Layout.fillWidth: true
-                        visible: toastCard.notif && toastCard.notif.actions && toastCard.notif.actions.values && toastCard.notif.actions.values.length > 0
+                        visible: toastCard.notif && toastCard.notif.actions && toastCard.notif.actions.length > 0
                         spacing: Theme.spacingXs
 
                         Repeater {
-                            model: (toastCard.notif && toastCard.notif.actions) ? toastCard.notif.actions.values : []
+                            model: (toastCard.notif && toastCard.notif.actions) ? toastCard.notif.actions : []
 
                             delegate: Rectangle {
                                 required property var modelData
