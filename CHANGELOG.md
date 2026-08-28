@@ -61,6 +61,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
+- Élimination des avertissements `Cannot open: qrc:/qt/qml/Quickshell/Widgets/...` sur les icônes d'applications en sécurisant la résolution des chemins via `Quickshell.iconPath` avec support étendu des alias, des noms sans reverse-DNS et un repli propre sur chaîne vide garantissant l'absence de requêtes QRC invalides.
 - Élimination des avertissements DBus et requêtes d'icônes manquantes du SystemTray (`nm-no-connection-secure` / `StatusNotifierItem:IconName`) en filtrant les éléments réseaux redondants (`nm-applet`) directement au niveau du modèle dans `SystemTrayModule.qml`.
 - Élimination définitive des avertissements QML `Unable to assign a function to a property of any type other than var` dans `NotificationToastWindow.qml` et `NotificationCenter.qml` via la fonction d'aide dédiée `getNotificationActions(notif)` garantissant un type tableau strict pour le modèle de boutons d'actions.
 - Correction des plantages et crashes récurrents de Quickshell (SIGSEGV / Pure virtual call `__cxa_pure_virtual` dans `QPlatformPixmap::fromFile` sous Qt 6.11 / Wayland) lors de l'ouverture d'applications ou de notifications : adoption exclusive du composant natif et thread-safe `IconImage` (`Quickshell.Widgets`) dans la barre des tâches (`TaskbarModule.qml`) et les popups d'applications (`AppPopup.qml`), et suppression des chargements asynchrones non thread-safe (`asynchronous: true`).

@@ -46,10 +46,47 @@ RowLayout {
 
             readonly property string iconSource: {
                 if (desktopEntry && desktopEntry.icon) {
-                    return desktopEntry.icon;
+                    var p1 = Quickshell.iconPath(desktopEntry.icon, true);
+                    if (p1 && p1.length > 0) return p1;
                 }
                 if (appClass && appClass.length > 0) {
-                    return appClass;
+                    var c = appClass.trim();
+                    var p2 = Quickshell.iconPath(c.toLowerCase(), true);
+                    if (p2 && p2.length > 0) return p2;
+
+                    var p3 = Quickshell.iconPath(c, true);
+                    if (p3 && p3.length > 0) return p3;
+
+                    var dashed = c.toLowerCase().replace(/\s+/g, "-");
+                    var p4 = Quickshell.iconPath(dashed, true);
+                    if (p4 && p4.length > 0) return p4;
+
+                    // Résolution sans préfixe reverse-DNS (ex: org.gnome.Nautilus -> nautilus)
+                    var dotParts = c.split(".");
+                    if (dotParts.length > 1) {
+                        var lastPart = dotParts[dotParts.length - 1].toLowerCase();
+                        var p5 = Quickshell.iconPath(lastPart, true);
+                        if (p5 && p5.length > 0) return p5;
+                    }
+
+                    // Alias et fallbacks d'icônes connus
+                    var lower = c.toLowerCase();
+                    if (lower.indexOf("codium") !== -1 || lower.indexOf("vsc") !== -1) {
+                        var pCodium = Quickshell.iconPath("vscodium", true) || Quickshell.iconPath("codium", true) || Quickshell.iconPath("code", true);
+                        if (pCodium) return pCodium;
+                    }
+                    if (lower.indexOf("nautilus") !== -1) {
+                        var pNautilus = Quickshell.iconPath("org.gnome.Nautilus", true) || Quickshell.iconPath("nautilus", true) || Quickshell.iconPath("system-file-manager", true);
+                        if (pNautilus) return pNautilus;
+                    }
+                    if (lower.indexOf("mullvad") !== -1 && lower.indexOf("browser") !== -1) {
+                        var pMullvad = Quickshell.iconPath("mullvad-browser", true);
+                        if (pMullvad) return pMullvad;
+                    }
+                    if (lower.indexOf("bitwarden") !== -1) {
+                        var pBitwarden = Quickshell.iconPath("bitwarden", true);
+                        if (pBitwarden) return pBitwarden;
+                    }
                 }
                 return "";
             }

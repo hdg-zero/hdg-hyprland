@@ -49,7 +49,7 @@ RowLayout {
                 anchors.centerIn: parent
                 width: 16
                 height: 16
-                source: (trayItem.item && trayItem.item.icon) ? trayItem.item.icon : ""
+                source: (trayItem.item && trayItem.item.icon) ? (Quickshell.iconPath(trayItem.item.icon, true) || trayItem.item.icon) : ""
                 visible: source !== ""
             }
 
