@@ -8,7 +8,6 @@ RowLayout {
     id: root
 
     spacing: Theme.spacingXs
-    visible: SystemTray.items && SystemTray.items.values && SystemTray.items.values.length > 0
 
     function isNetworkItem(item) {
         if (!item) return false;
@@ -17,19 +16,26 @@ RowLayout {
         return id.indexOf("nm-applet") !== -1 || id.indexOf("network") !== -1 || title.indexOf("network") !== -1 || title.indexOf("nm-applet") !== -1;
     }
 
+    readonly property var validTrayItems: {
+        if (!SystemTray.items || !SystemTray.items.values) return [];
+        return SystemTray.items.values.filter(function(item) {
+            return item && !root.isNetworkItem(item);
+        });
+    }
+
+    visible: validTrayItems.length > 0
+
     Repeater {
-        model: SystemTray.items ? SystemTray.items.values : []
+        model: root.validTrayItems
 
         delegate: Rectangle {
             id: trayItem
             required property var modelData
 
             readonly property var item: modelData
-            readonly property bool isNet: root.isNetworkItem(item)
 
-            visible: !isNet
-            implicitWidth: isNet ? 0 : 20
-            implicitHeight: isNet ? 0 : 20
+            implicitWidth: 20
+            implicitHeight: 20
             radius: Theme.radiusSmall
             color: trayMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
             border.color: trayMouse.containsMouse ? Theme.glassBorder : "transparent"
@@ -43,7 +49,8 @@ RowLayout {
                 anchors.centerIn: parent
                 width: 16
                 height: 16
-                source: trayItem.item ? trayItem.item.icon : ""
+                source: (trayItem.item && trayItem.item.icon) ? trayItem.item.icon : ""
+                visible: source !== ""
             }
 
             MouseArea {

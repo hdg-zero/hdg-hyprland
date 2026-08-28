@@ -43,6 +43,14 @@ PanelWindow {
 
     visible: NotificationService.panelVisible
 
+    function getNotificationActions(item) {
+        if (!item || !item.actions) return [];
+        if (Array.isArray(item.actions)) return item.actions;
+        if (typeof item.actions.values !== "function" && item.actions.values) return item.actions.values;
+        if (typeof item.actions.length === "number") return item.actions;
+        return [];
+    }
+
     // États matériels
     property bool wifiEnabled: true
     property string wifiSsid: ""
@@ -797,12 +805,12 @@ PanelWindow {
                             // Boutons d'actions
                             RowLayout {
                                 Layout.fillWidth: true
-                                visible: modelData.actions && modelData.actions.length > 0
+                                visible: root.getNotificationActions(modelData).length > 0
                                 spacing: Theme.spacingSm
                                 Layout.topMargin: Theme.spacingXs
 
                                 Repeater {
-                                    model: modelData.actions || []
+                                    model: root.getNotificationActions(modelData)
 
                                     delegate: Rectangle {
                                         required property var modelData

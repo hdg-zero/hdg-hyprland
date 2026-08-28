@@ -31,6 +31,14 @@ PanelWindow {
 
     visible: NotificationService.activeToasts.length > 0
 
+    function getNotificationActions(n) {
+        if (!n || !n.actions) return [];
+        if (Array.isArray(n.actions)) return n.actions;
+        if (typeof n.actions.values !== "function" && n.actions.values) return n.actions.values;
+        if (typeof n.actions.length === "number") return n.actions;
+        return [];
+    }
+
     ColumnLayout {
         id: toastCol
         width: parent.width
@@ -172,11 +180,11 @@ PanelWindow {
                     // Actions de la notification (si présentes)
                     RowLayout {
                         Layout.fillWidth: true
-                        visible: toastCard.notif && toastCard.notif.actions && toastCard.notif.actions.length > 0
+                        visible: root.getNotificationActions(toastCard.notif).length > 0
                         spacing: Theme.spacingXs
 
                         Repeater {
-                            model: (toastCard.notif && toastCard.notif.actions) ? toastCard.notif.actions : []
+                            model: root.getNotificationActions(toastCard.notif)
 
                             delegate: Rectangle {
                                 required property var modelData
