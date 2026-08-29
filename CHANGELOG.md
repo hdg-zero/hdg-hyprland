@@ -42,6 +42,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé
+- Centralisation de la fonction utilitaire de calcul et formatage des débits réseau dans `Theme.qml` (`formatSpeed`), éliminant les duplications dans `NetworkModule.qml` et `NetworkPopup.qml`.
 - Élimination de la consommation CPU résiduelle de `ClockPopup.qml` au repos via l'activation conditionnelle du timer (`running: root.visible`) et remplacement des forks `hyprctl` par les dispatchers natifs directs `Hyprland.dispatch` (`Workspaces.qml`, `TaskbarModule.qml`, `AppPopup.qml`).
 - Normalisation du pourcentage de batterie (`BatteryPopup.qml`) et synchronisation du lecteur multimédia actif MPRIS entre module et popup avec l'API non dépréciée `trackArtist` (`MprisModule.qml`, `MprisPopup.qml`).
 - Unification des actions de session et extinction dans `PowerPopup.qml` et `QuickSettings.qml` via `SessionService`, assurant la conformité UWSM (`uwsm stop`, `uwsm app -- hyprlock`).

@@ -37,13 +37,6 @@ ModulePopup {
     property var lastTx: 0
     property var lastTime: 0
 
-    function formatSpeed(bytesPerSec) {
-        if (bytesPerSec < 1024) return Math.round(bytesPerSec) + " o/s";
-        if (bytesPerSec < 1048576) return (bytesPerSec / 1024).toFixed(1) + " Ko/s";
-        if (bytesPerSec < 1073741824) return (bytesPerSec / 1048576).toFixed(1) + " Mo/s";
-        return (bytesPerSec / 1073741824).toFixed(2) + " Go/s";
-    }
-
     Process {
         id: getNetDetails
         command: ["sh", "-c", "ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' || echo '127.0.0.1'"]
@@ -104,8 +97,8 @@ ModulePopup {
                 var rxDelta = Math.max(0, totalRx - root.lastRx);
                 var txDelta = Math.max(0, totalTx - root.lastTx);
 
-                root.rxRate = root.formatSpeed(rxDelta / deltaSec);
-                root.txRate = root.formatSpeed(txDelta / deltaSec);
+                root.rxRate = Theme.formatSpeed(rxDelta / deltaSec);
+                root.txRate = Theme.formatSpeed(txDelta / deltaSec);
             }
 
             root.lastRx = totalRx;

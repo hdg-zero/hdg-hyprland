@@ -81,6 +81,19 @@ QtObject {
         return Math.round(h * ratio);
     }
 
+    // Fonction de formatage des débits de transfert de données
+    function formatSpeed(bytesPerSec) {
+        if (bytesPerSec < 1024) {
+            return Math.round(bytesPerSec) + " o/s";
+        } else if (bytesPerSec < 1048576) {
+            return (bytesPerSec / 1024).toFixed(1) + " Ko/s";
+        } else if (bytesPerSec < 1073741824) {
+            return (bytesPerSec / 1048576).toFixed(1) + " Mo/s";
+        } else {
+            return (bytesPerSec / 1073741824).toFixed(2) + " Go/s";
+        }
+    }
+
     // --- Animations & Transitions ---
     readonly property int animDurationFast: 150
     readonly property int animDurationNormal: 200

@@ -50,18 +50,6 @@ PillButton {
         return "󰌘";
     }
 
-    function formatSpeed(bytesPerSec) {
-        if (bytesPerSec < 1024) {
-            return Math.round(bytesPerSec) + " o/s";
-        } else if (bytesPerSec < 1048576) {
-            return (bytesPerSec / 1024).toFixed(1) + " Ko/s";
-        } else if (bytesPerSec < 1073741824) {
-            return (bytesPerSec / 1048576).toFixed(1) + " Mo/s";
-        } else {
-            return (bytesPerSec / 1073741824).toFixed(2) + " Go/s";
-        }
-    }
-
     FileView {
         id: netDevFile
         path: "/proc/net/dev"
@@ -108,7 +96,7 @@ PillButton {
                 var txDelta = Math.max(0, totalTx - root.lastTx);
 
                 var totalBytesPerSec = (rxDelta + txDelta) / deltaSec;
-                root.totalSpeedFormatted = root.formatSpeed(totalBytesPerSec);
+                root.totalSpeedFormatted = Theme.formatSpeed(totalBytesPerSec);
             }
 
             root.lastRx = totalRx;
