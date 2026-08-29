@@ -74,15 +74,15 @@ RowLayout {
                 cursorShape: Qt.PointingHandCursor
 
                 onClicked: {
-                    Quickshell.execDetached(["hyprctl", "dispatch", "workspace", wsId.toString()]);
+                    Hyprland.dispatch("workspace " + wsId);
                 }
 
                 onWheel: function(wheel) {
                     var dy = wheel.angleDelta.y !== 0 ? wheel.angleDelta.y : (wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : 0);
                     if (dy > 0) {
-                        Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e-1"]);
+                        Hyprland.dispatch("workspace e-1");
                     } else if (dy < 0) {
-                        Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "e+1"]);
+                        Hyprland.dispatch("workspace e+1");
                     }
                 }
             }

@@ -177,18 +177,18 @@ RowLayout {
                         if (taskItem.toplevel.wayland) {
                             taskItem.toplevel.wayland.activate();
                         }
-                        // 2. Focus explicite hyprctl
+                        // 2. Focus explicite hyprctl via dispatcher natif
                         if (addr) {
-                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr]);
+                            Hyprland.dispatch("focuswindow address:" + addr);
                         }
                     } else if (mouse.button === Qt.MiddleButton) {
                         // 1. Fermeture native Wayland
                         if (taskItem.toplevel.wayland) {
                             taskItem.toplevel.wayland.close();
                         }
-                        // 2. Fermeture explicite hyprctl
+                        // 2. Fermeture explicite hyprctl via dispatcher natif
                         if (addr) {
-                            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
+                            Hyprland.dispatch("closewindow address:" + addr);
                         }
                     }
                 }

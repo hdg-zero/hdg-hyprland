@@ -66,7 +66,7 @@ ModulePopup {
 
     Timer {
         interval: 1000
-        running: true
+        running: root.visible
         repeat: true
         triggeredOnStart: true
         onTriggered: {
