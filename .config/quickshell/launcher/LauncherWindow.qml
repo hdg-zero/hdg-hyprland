@@ -89,7 +89,7 @@ PanelWindow {
             "codium": "vscodium",
             "code": "visual-studio-code",
             "cursor": "co.anysphere.cursor",
-            "agent-ia": "/home/agent/.local/share/icons/distrobox/arch.png",
+            "agent-ia": "distrobox",
             "distrobox": "distrobox",
             "portal": "applications-system-symbolic",
             "xdg-desktop-portal-gtk": "applications-system-symbolic",
@@ -239,10 +239,10 @@ PanelWindow {
 
         if (typeof app.execute === "function") {
             app.execute();
-        } else if (app.command) {
+        } else if (app.command && app.command.length > 0) {
             Quickshell.execDetached(["uwsm", "app", "--"].concat(app.command));
         } else if (app.execString) {
-            Quickshell.execDetached(["sh", "-c", "uwsm app -- " + app.execString]);
+            Quickshell.execDetached(["uwsm", "app", "--", app.execString]);
         }
     }
 

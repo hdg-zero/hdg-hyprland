@@ -42,6 +42,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé
+- Suppression du chemin absolu en dur `/home/agent/...` dans la table d'alias d'icônes du lanceur (`LauncherWindow.qml`) et sécurisation du lancement d'applications via la liste typée `app.command` sous `uwsm app --`.
 - Ajout du fichier de déclaration de module et singleton `.config/quickshell/notifications/qmldir` garantissant l'instanciation unique et typée du serveur D-Bus `NotificationService` et des fenêtres de notifications.
 - Correction de l'instanciation des fenêtres et de la barre d'état sur les écrans connectés à chaud et au démarrage : adoption de blocs `Variants` directs par fenêtre dans `shell.qml` au lieu d'un `Scope` imbriqué, garantissant la création immédiate et fiable de la topbar sur chaque écran (`Quickshell.screens`).
 - Correction de la syntaxe de `hyprpaper.conf` avec format plat et directive `preload` obligatoire.
