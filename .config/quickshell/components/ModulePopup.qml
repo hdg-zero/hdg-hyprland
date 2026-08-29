@@ -10,6 +10,15 @@ PopupWindow {
     property var anchorItem: null
     property bool autoHover: true
     property bool isOpen: false
+    // Lazy loading : fullyClosed() n'est émis qu'une fois par cycle et seulement après une
+    // vraie ouverture (à l'instanciation, opacity==0 && !isOpen — sans ce garde, le signal
+    // partirait immédiatement et le Loader qui vient de créer la popup la détruirait).
+    property bool hasBeenOpened: false
+    signal fullyClosed()
+
+    function markOpened() {
+        root.hasBeenOpened = true;
+    }
     
     property real widthPercent: 0
     property alias cardWidth: card.implicitWidth
@@ -51,53 +60,25 @@ PopupWindow {
     }
 
     function open() {
+        root.markOpened();
         isOpen = true;
     }
 
     function close() {
         isOpen = false;
-    }
-
-    Timer {
-        id: hoverOpenTimer
-        interval: 140
-        repeat: false
-        onTriggered: {
-            if (root.autoHover && root.anchorItem && root.anchorItem.isHovered) {
-                root.open();
-            }
+        // Cas « open()/close() dans la même frame » : l'opacité n'a jamais quitté 0.0, le
+        // handler onOpacityChanged ne repartira pas — on émet directement pour permettre la
+        // destruction par le Loader. Garde hasBeenOpened : une popup créée puis fermée sans
+        // jamais être ouverte n'émet pas (c'est LazyPopup.onLoaded qui la démonte alors).
+        if (root.hasBeenOpened && card.opacity <= 0.0) {
+            root.fullyClosed();
         }
     }
 
-    Timer {
-        id: hoverCloseTimer
-        interval: 320
-        repeat: false
-        onTriggered: {
-            if (root.autoHover && !root.isHovered) {
-                root.close();
-            }
-        }
-    }
-
-    Connections {
-        target: root.anchorItem
-        ignoreUnknownSignals: true
-        function onEntered() {
-            if (root.autoHover) {
-                hoverCloseTimer.stop();
-                hoverOpenTimer.restart();
-            }
-        }
-        function onExited() {
-            if (root.autoHover) {
-                hoverOpenTimer.stop();
-                if (!cardHoverHandler.hovered) {
-                    hoverCloseTimer.restart();
-                }
-            }
-        }
-    }
+    // NOTE (lazy loading) : les timers de survol (140 ms / 320 ms) et la Connections
+    // onEntered/onExited ont été déplacés dans LazyPopup.qml — l'item source du survol (le
+    // module de la barre) doit activer le Loader AVANT que la popup n'existe ; les timers ne
+    // peuvent donc plus résider ici (ils tourneraient sur rien à l'état non instancié).
 
     GlassCard {
         id: card
@@ -109,6 +90,14 @@ PopupWindow {
         opacity: root.isOpen ? 1.0 : 0.0
         scale: root.isOpen ? 1.0 : 0.95
         transformOrigin: Item.Top
+
+        // Fin de l'animation de sortie : opacité revenue à 0 après une vraie ouverture
+        // → la fenêtre, sa surface Wayland et ses contexts GPU peuvent être détruits.
+        onOpacityChanged: {
+            if (root.hasBeenOpened && !root.isOpen && opacity <= 0.0) {
+                root.fullyClosed();
+            }
+        }
 
         Behavior on opacity {
             NumberAnimation {
@@ -126,15 +115,6 @@ PopupWindow {
 
         HoverHandler {
             id: cardHoverHandler
-            onHoveredChanged: {
-                if (hovered) {
-                    hoverCloseTimer.stop();
-                } else {
-                    if (root.autoHover && (!root.anchorItem || !root.anchorItem.isHovered)) {
-                        hoverCloseTimer.restart();
-                    }
-                }
-            }
         }
 
         Item {
