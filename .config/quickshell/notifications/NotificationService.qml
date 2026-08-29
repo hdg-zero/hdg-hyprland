@@ -16,9 +16,16 @@ Scope {
     readonly property var trackedNotifications: notifServer.trackedNotifications
     readonly property int unreadCount: {
         if (!notifServer.trackedNotifications) return 0;
-        if (notifServer.trackedNotifications.values) return notifServer.trackedNotifications.values.length;
-        if (typeof notifServer.trackedNotifications.length === "number") return notifServer.trackedNotifications.length;
-        return 0;
+        var list = notifServer.trackedNotifications.values || notifServer.trackedNotifications;
+        if (!list) return 0;
+        var count = 0;
+        for (var i = 0; i < list.length; i++) {
+            var n = list[i];
+            if (n && ((n.summary || "").trim() !== "" || (n.body || "").trim() !== "")) {
+                count++;
+            }
+        }
+        return count;
     }
 
     Notifs.NotificationServer {
@@ -30,6 +37,19 @@ Scope {
         keepOnReload: false
 
         onNotification: function(notif) {
+            if (!notif) return;
+
+            var sum = (notif.summary || "").trim();
+            var body = (notif.body || "").trim();
+
+            // Ignorer et rejeter les notifications complètement vides (aucun résumé et aucun message)
+            if (sum === "" && body === "") {
+                if (typeof notif.dismiss === "function") {
+                    notif.dismiss();
+                }
+                return;
+            }
+
             notif.tracked = true;
 
             // Si en mode Ne Pas Déranger, ne pas afficher de toast flottant (sauvegardé directement dans l'historique)

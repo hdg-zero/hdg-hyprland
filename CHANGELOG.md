@@ -61,6 +61,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
+- Suppression des notifications vides (sans résumé ni corps) provoquées par les mises à jour DBus `StatusNotifierItem:IconName` de certains processus d'arrière-plan : rejet immédiat dans `NotificationService.qml` et filtrage au niveau du modèle d'affichage dans `NotificationCenter.qml`.
 - Élimination des avertissements `Cannot open: qrc:/qt/qml/Quickshell/Widgets/...` sur les icônes d'applications en sécurisant la résolution des chemins via `Quickshell.iconPath` avec support étendu des alias, des noms sans reverse-DNS et un repli propre sur chaîne vide garantissant l'absence de requêtes QRC invalides.
 - Élimination des avertissements DBus et requêtes d'icônes manquantes du SystemTray (`nm-no-connection-secure` / `StatusNotifierItem:IconName`) en filtrant les éléments réseaux redondants (`nm-applet`) directement au niveau du modèle dans `SystemTrayModule.qml`.
 - Élimination définitive des avertissements QML `Unable to assign a function to a property of any type other than var` dans `NotificationToastWindow.qml` et `NotificationCenter.qml` via la fonction d'aide dédiée `getNotificationActions(notif)` garantissant un type tableau strict pour le modèle de boutons d'actions.

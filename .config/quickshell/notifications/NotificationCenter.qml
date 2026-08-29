@@ -703,7 +703,12 @@ PanelWindow {
                     id: notifList
                     anchors.fill: parent
                     visible: NotificationService.unreadCount > 0
-                    model: (NotificationService.trackedNotifications && NotificationService.trackedNotifications.values) ? NotificationService.trackedNotifications.values : []
+                    model: {
+                        if (!NotificationService.trackedNotifications || !NotificationService.trackedNotifications.values) return [];
+                        return NotificationService.trackedNotifications.values.filter(function(n) {
+                            return n && ((n.summary || "").trim() !== "" || (n.body || "").trim() !== "");
+                        });
+                    }
                     clip: true
                     spacing: Theme.spacingSm
 
