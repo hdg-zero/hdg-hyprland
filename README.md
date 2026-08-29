@@ -14,7 +14,7 @@ Configuration de bureau Linux moderne, sobre et unifiée sous **Hyprland 0.56+**
 ## 🎯 1. Vision Globale & Périmètre Métier
 
 Ce dépôt regroupe l'infrastructure complète d'un environnement de travail Wayland moderne, ultra-performant et esthétiquement soigné :
-- **Unification logicielle Quickshell :** Élimination totale des démons et outils tiers hétérogènes (`waybar`, `swaync`, `wlogout`, `rofi`) au profit d'un environnement réactif monolithique modulaire sous Quickshell v0.3.1+.
+- **Unification logicielle Quickshell :** Environnement réactif monolithique modulaire sous Quickshell v0.3.1+ (Barre d'état, Centre de Contrôle, Notifications D-Bus, Menu de Session et Lanceur d'applications).
 - **Design Obsidian Glass & Glacier Blue :** Identité visuelle sombre translucide inspirée du verre fumé, contrastée par des bordures subtiles et des lueurs bleu glacier.
 - **Sobriété énergétique & performances :** 0% CPU au repos, zéro polling permanent, exécutions système asynchrones non-bloquantes (`Quickshell.execDetached`) et empreinte RAM inférieure à 35 Mo pour l'ensemble du shell.
 - **Dimensionnement 100% relatif :** Aucune dimension en pixels codée en dur ; adaptation instantanée et mathématique à toutes les résolutions et facteurs d'échelle (FHD, 2.8K 90Hz, 4K multi-écrans).
@@ -25,7 +25,7 @@ Ce dépôt regroupe l'infrastructure complète d'un environnement de travail Way
 |---|---|---|
 | **Compositeur** | Hyprland 0.56+ avec machine de configuration Lua typée | Hyprland legacy (syntaxe `.conf` dépréciée) |
 | **Gestionnaire de Session** | UWSM (systemd user slice, variables XDG, launch tracking) | Scripts de session X11, Display Managers lourds |
-| **Interface & Shell** | Quickshell (Top Bar, Popups, Notifications, Session, Launcher) | Waybar, SwayNC, Rofi, Wlogout, Eww |
+| **Interface & Shell** | Quickshell (Top Bar, Popups, Notifications, Session, Launcher) | Démons tiers hétérogènes (Waybar, SwayNC, Wlogout, etc.) |
 | **Audio & Multimédia** | PipeWire / WirePlumber (`pw-dump`, `PwObjectTracker`), MPRIS | PulseAudio legacy / ALSA direct |
 | **Affichage & Écrans** | Profils matériels Lua (`profiles/*.lua`), color depth 10-bit | Scripts bash de détection d'écrans non-déterministes |
 
@@ -109,7 +109,7 @@ graph TD
     │   │   ├── IconLabel.qml            # Label réactif icône + texte
     │   │   ├── ModulePopup.qml          # Fenêtre popup flottante avec survol intelligent
     │   │   └── qmldir                   # Déclaration de module
-    │   ├── launcher/                    # Lanceur d'applications natif (remplacement de Rofi)
+    │   ├── launcher/                    # Lanceur d'applications natif (Obsidian Glass)
     │   │   ├── LauncherService.qml      # Singleton IPC et gestionnaire de visibilité
     │   │   ├── LauncherWindow.qml       # Fenêtre overlay 33%, grille 5 colonnes, tri MRU
     │   │   └── qmldir                   # Déclaration de module
@@ -277,10 +277,10 @@ done
 
 ## 🔮 9. Dette Technique & Vision Moyen Terme
 
-- [x] Remplacement intégral de Waybar par la barre d'état Quickshell interactive.
-- [x] Remplacement de SwayNC par le serveur de notifications D-Bus et Centre de Contrôle natif Quickshell.
-- [x] Remplacement de Wlogout par le Menu de Session plein écran natif Quickshell.
-- [x] Remplacement intégral de Rofi par le lanceur d'applications natif Quickshell Obsidian Glass.
+- [x] Barre d'état Quickshell interactive multi-écrans et popups détaillées.
+- [x] Serveur de notifications D-Bus et Centre de Contrôle natif Quickshell.
+- [x] Menu de Session plein écran natif Quickshell.
+- [x] Lanceur d'applications natif Quickshell Obsidian Glass (grille 5 colonnes, tri MRU).
 - [x] Découpage modulaire du Centre de Contrôle en 4 sous-composants dédiés.
 - [ ] Support d'un sélecteur graphique de fonds d'écran intégré à Quickshell.
 - [ ] Module de gestion de profils d'affichage multi-écrans à la volée depuis le Centre de Contrôle.

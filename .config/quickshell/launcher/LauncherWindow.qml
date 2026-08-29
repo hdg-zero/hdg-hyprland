@@ -576,7 +576,7 @@ PanelWindow {
 
                                 Item { Layout.fillHeight: true }
 
-                                // Nom de l'application centré sous l'icône, visible uniquement lors de la sélection ou du survol (style Rofi)
+                                // Nom de l'application centré sous l'icône, visible uniquement lors de la sélection ou du survol
                                 Text {
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignHCenter

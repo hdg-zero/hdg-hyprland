@@ -91,8 +91,8 @@ RowLayout {
                 return "";
             }
 
-            // Ignorer les applications invisibles ou spécifiques (ex: rofi)
-            visible: appClass.toLowerCase() !== "rofi" && appClass !== ""
+            // Ignorer les applications invisibles ou sans classe
+            visible: appClass !== ""
 
             implicitWidth: 26
             implicitHeight: 22

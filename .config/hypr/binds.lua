@@ -117,8 +117,4 @@ return function(programs)
         locked = true,
         description = "Basculer le layout clavier",
     })
-
-    hl.bind(main_mod .. " + W", hl.dsp.exec_cmd("cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"), {
-        description = "Ouvrir l'historique clipboard",
-    })
 end

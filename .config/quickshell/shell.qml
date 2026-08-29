@@ -10,7 +10,7 @@ import "./launcher"
 ShellRoot {
     id: root
 
-    // Lanceur d'applications natif (style Rofi Obsidian Glass)
+    // Lanceur d'applications natif (Obsidian Glass)
     Variants {
         model: Quickshell.screens
 

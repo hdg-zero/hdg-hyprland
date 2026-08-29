@@ -6,8 +6,8 @@ Documentation technique du Lanceur d'Applications natif en verre dépoli Obsidia
 
 ## 🎯 1. Vision & Fonctionnalités
 
-Le lanceur d'applications réside dans `.config/quickshell/launcher/` et remplace intégralement `rofi` :
-- **Fidélité au Design Rofi :** Fenêtre centrale occupant **33% de la largeur d'écran** (`Theme.relWidth(0.33)`), fond Obsidian Glass (`rgba(11, 15, 20, 0.85)`), fine bordure Glacier Blue (`rgba(93, 173, 226, 0.35)`) et coins arrondis à 20px.
+Le lanceur d'applications réside dans `.config/quickshell/launcher/` et offre une interface moderne et réactive :
+- **Design Obsidian Glass & Glacier Blue :** Fenêtre centrale occupant **33% de la largeur d'écran** (`Theme.relWidth(0.33)`), fond Obsidian Glass (`rgba(11, 15, 20, 0.85)`), fine bordure Glacier Blue (`rgba(93, 173, 226, 0.35)`) et coins arrondis à 20px.
 - **Animation Style Apple :** Micro-zoom d'apparition élastique (`0.92 ➔ 1.0`) avec courbe de rebond `Easing.OutBack` façon macOS Spotlight / iOS Springboard (220ms).
 - **Grille 5 Colonnes & Centrage Dynamique :** Hauteur de cellule de 140px avec grandes icônes de 52x52px. Lorsque la sélection comporte moins de 5 éléments, la rangée se recentre automatiquement.
 - **Révélation des Noms au Survol/Sélection :** Les noms des applications sont masqués par défaut et apparaissent en fondu lors du focus clavier ou survol souris.
