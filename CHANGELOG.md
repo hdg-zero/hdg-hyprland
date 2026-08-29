@@ -27,13 +27,16 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents, journaux et secrets (`credentials`).
 
 ### Modifié
-- Réactivation et unification de la machine à états de gestion dynamique des écrans (`monitors.lua`) avec support direct des profils matériels (`profiles/default.lua`) et import centralisé dans `hyprland.lua`.
+- Simplification de la configuration des écrans dans `monitors.lua` : conservation exclusive des réglages de l'écran principal depuis `profiles/default.lua` (sans machine à états dynamique ni gestion de capot).
 - Sécurisation et fiabilisation de l'autostart dans `programs.lua` avec structure conditionnelle `if/then/else` Shell POSIX et suppression des scripts obsolètes commentés.
 - Extraction des constantes DRY pour les captures d'écran (`SCREENSHOT_DIR`) dans `binds.lua`.
 - Ajout de `jq` dans `check-dependencies.sh` et redirection de la sortie d'erreur vers `stderr`.
 - Sécurisation du parsing du niveau de batterie dans `battery-level.sh` et suppression du code mort.
-- Fusion des branches de plein écran dans `gesture.sh` et quotage strict des variables dans `monitor.sh`.
+- Fusion des branches de plein écran dans `gesture.sh`.
 - Ajout de boutons d'actions rapides en verre dépoli dans la popup réseau (`NetworkPopup.qml`) : bouton **Connexions** (`nm-connection-editor`), bouton **Terminal nmtui** (`kitty -e nmtui`) et bouton **VPN** (`mullvad-gui`).
+
+### Supprimé
+- Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé
 - Correction de la syntaxe de `hyprpaper.conf` avec format plat et directive `preload` obligatoire.
