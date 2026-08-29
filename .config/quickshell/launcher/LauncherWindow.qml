@@ -38,8 +38,18 @@ PanelWindow {
     // Maintient la fenêtre active pendant l'animation de fermeture
     visible: LauncherService.launcherVisible || animProgress > 0.01
 
-    // Progression d'animation d'ouverture/fermeture style Apple
-    property real animProgress: LauncherService.launcherVisible ? 1.0 : 0.0
+    // Progression d'animation d'ouverture/fermeture style Apple.
+    // Lazy loading : la fenêtre n'existe désormais que quand le service demande l'ouverture
+    // (ou pendant les 300 ms de keepalive post-fermeture). Pour que le ressort d'ouverture
+    // (Easing.OutBack) se voie à chaque création, la progression démarre à 0 et le binding
+    // n'est établi qu'une fois le fenêtre montée (Component.onCompleted) — sinon
+    // animProgress s'initialiserait directement à 1 et l'animation d'entrée serait perdue.
+    property real animProgress: 0.0
+    Component.onCompleted: {
+        animProgress = Qt.binding(function() {
+            return LauncherService.launcherVisible ? 1.0 : 0.0;
+        });
+    }
     Behavior on animProgress {
         NumberAnimation {
             duration: LauncherService.launcherVisible ? 220 : 160
@@ -114,10 +124,24 @@ PanelWindow {
             "manage printing": "cups"
         };
 
+        // Expansion des alias en UNE passe bornée : chaque candidat est traité au plus une
+        // fois (Set de déduplication). L'ancienne boucle poussait dans le tableau PENDANT son
+        // parcours : toute clé auto-référentielle de la table (« vscodium » → « vscodium »,
+        // « distrobox » → « distrobox ») provoquait une boucle infinie qui figeait le thread
+        // QML à l'ouverture du lanceur jusqu'au crash de Quickshell.
+        var seen = {};
+        var expanded = [];
         for (var i = 0; i < candidates.length; i++) {
             var c = candidates[i];
-            if (aliasMap[c]) candidates.push(aliasMap[c]);
+            if (!c || seen[c]) continue;
+            seen[c] = true;
+            expanded.push(c);
+            if (aliasMap[c] && !seen[aliasMap[c]]) {
+                seen[aliasMap[c]] = true;
+                expanded.push(aliasMap[c]);
+            }
         }
+        candidates = expanded;
 
         // Recherche via Quickshell et chemins standards
         for (var k = 0; k < candidates.length; k++) {
