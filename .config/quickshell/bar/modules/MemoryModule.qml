@@ -20,11 +20,16 @@ PillButton {
     customPaddingV: 1
     widthPercent: Theme.moduleWidthPercentMetrics
 
-    MemoryPopup {
-        id: memPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
-        ramPercent: root.memPercent
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: memLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            MemoryPopup {
+                ramPercent: root.memPercent
+            }
+        }
     }
 
     FileView {
@@ -69,7 +74,7 @@ PillButton {
     }
 
     onClicked: {
-        memPopup.toggle();
+        memLazy.toggle();
     }
 
     onRightClicked: {

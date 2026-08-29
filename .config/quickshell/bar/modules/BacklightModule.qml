@@ -25,11 +25,16 @@ PillButton {
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
 
-    BacklightPopup {
-        id: lightPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
-        brightnessPercent: root.brightnessPercent
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: lightLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            BacklightPopup {
+                brightnessPercent: root.brightnessPercent
+            }
+        }
     }
 
     Process {
@@ -75,6 +80,6 @@ PillButton {
     }
 
     onClicked: {
-        lightPopup.toggle();
+        lightLazy.toggle();
     }
 }

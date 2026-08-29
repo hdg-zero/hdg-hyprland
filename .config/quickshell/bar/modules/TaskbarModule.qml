@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Widgets
 import "../../theme"
+import "../../components"
 import "../popups"
 
 RowLayout {
@@ -109,13 +110,19 @@ RowLayout {
                 ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
             }
 
-            AppPopup {
-                id: appPopup
-                parentWindow: root.parentWindow
-                anchorItem: taskItem
-                toplevel: taskItem.toplevel
-                appClass: taskItem.appClass
-                iconSource: taskItem.iconSource
+            // Popup paresseuse par tâche : instanciée à l'entrée du curseur sur l'icône,
+            // détruite dès l'animation de fermeture terminée (une seule à la fois en pratique).
+            LazyPopup {
+                id: appLazy
+                targetWindow: root.parentWindow
+                anchor: taskItem
+                popupComponent: Component {
+                    AppPopup {
+                        toplevel: taskItem.toplevel
+                        appClass: taskItem.appClass
+                        iconSource: taskItem.iconSource
+                    }
+                }
             }
 
             // Rendu natif et thread-safe d'icônes Quickshell IconImage

@@ -20,11 +20,17 @@ PillButton {
     customPaddingV: 1
     widthPercent: Theme.moduleWidthPercentMetrics
 
-    CpuPopup {
-        id: cpuPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
-        cpuPercent: root.cpuUsage
+    // Popup paresseuse : instanciée au premier survol (140 ms) ou clic, détruite après
+    // l'animation de fermeture (économie de RAM : pas de surface Wayland/GPU au repos).
+    LazyPopup {
+        id: cpuLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            CpuPopup {
+                cpuPercent: root.cpuUsage
+            }
+        }
     }
 
     FileView {
@@ -75,7 +81,7 @@ PillButton {
     }
 
     onClicked: {
-        cpuPopup.toggle();
+        cpuLazy.toggle();
     }
 
     onRightClicked: {

@@ -9,10 +9,14 @@ import "../popups"
 PillButton {
     id: root
 
-    PowerPopup {
-        id: pwrPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: pwrLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            PowerPopup {}
+        }
     }
 
     icon: "⏻"
@@ -21,7 +25,7 @@ PillButton {
     customPaddingV: 1
 
     onClicked: {
-        pwrPopup.toggle();
+        pwrLazy.toggle();
     }
 
     onRightClicked: {

@@ -46,13 +46,18 @@ PillButton {
     readonly property real volumeLevel: (audio && audio.volume !== undefined) ? audio.volume : (wpVolumePercent / 100.0)
     readonly property int volumePercent: (audio && audio.volume !== undefined) ? Math.round(audio.volume * 100) : wpVolumePercent
 
-    VolumePopup {
-        id: volPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
-        volumePercent: root.volumePercent
-        isMuted: root.isMuted
-        isBluetooth: root.isBluetooth
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: volLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            VolumePopup {
+                volumePercent: root.volumePercent
+                isMuted: root.isMuted
+                isBluetooth: root.isBluetooth
+            }
+        }
     }
 
     Process {
@@ -104,7 +109,7 @@ PillButton {
     customPaddingV: 1
 
     onClicked: {
-        volPopup.toggle();
+        volLazy.toggle();
     }
 
     onRightClicked: {

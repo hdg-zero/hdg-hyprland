@@ -15,10 +15,14 @@ PillButton {
     property var lastTime: 0
     property string totalSpeedFormatted: "0 o/s"
 
-    NetworkPopup {
-        id: netPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: netLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            NetworkPopup {}
+        }
     }
 
     readonly property var activeDevice: {
@@ -116,7 +120,7 @@ PillButton {
     widthPercent: Theme.moduleWidthPercentMetrics
 
     onClicked: {
-        netPopup.toggle();
+        netLazy.toggle();
     }
 
     onRightClicked: {
