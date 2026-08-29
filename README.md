@@ -89,7 +89,7 @@ graph TD
     │   ├── programs.lua                 # Déclaration des applications et autostart sécurisé
     │   ├── hypridle.conf                # Démon d'inactivité avec inhibit_sleep
     │   ├── hyprlock.conf                # Écran de verrouillage graphique
-    │   ├── hyprpaper.conf               # Gestionnaire de fond d'écran (syntaxe plate + preload)
+    │   ├── hyprpaper.conf               # Gestionnaire de fond d'écran (bloc wallpaper{})
     │   ├── picture/                     # Fonds d'écran officiels
     │   ├── profiles/                    # Profils de configuration matérielle
     │   │   └── default.lua              # Profil écran principal (2.8K 90Hz, scale 1.25, 10-bit)
