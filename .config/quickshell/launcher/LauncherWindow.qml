@@ -576,18 +576,21 @@ PanelWindow {
 
                                 Item { Layout.fillHeight: true }
 
-                                // Nom de l'application centré sous l'icône
+                                // Nom de l'application centré sous l'icône, visible uniquement lors de la sélection ou du survol (style Rofi)
                                 Text {
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignHCenter
                                     horizontalAlignment: Text.AlignHCenter
                                     font.family: Theme.fontFamily
                                     font.pixelSize: Theme.fontSizeSmall
-                                    font.bold: isSelected
-                                    color: isSelected ? Theme.textPrimary : Theme.textSecondary
+                                    font.bold: true
+                                    color: Theme.textPrimary
                                     text: delegateRoot.modelData.name || "App"
                                     elide: Text.ElideRight
                                     maximumLineCount: 1
+                                    opacity: (isSelected || appMouse.containsMouse) ? 1.0 : 0.0
+
+                                    Behavior on opacity { NumberAnimation { duration: Theme.animDurationFast } }
                                 }
                             }
 
