@@ -8,6 +8,7 @@ et ce projet adhère au versionnage sémantique.
 ## [Unreleased]
 
 ### Ajouté
+- Module de Lanceur d'applications natif Quickshell (`.config/quickshell/launcher/` avec `LauncherService.qml`, `LauncherWindow.qml`, `qmldir`) : calque overlay centré occupant 33% de la largeur d'écran, esthétique Obsidian Glass & Glacier Blue reproduisant fidèlement le design Rofi, grille d'applications 5 colonnes avec grandes icônes 48px centrées, recherche et filtrage instantanés, navigation clavier complète (<kbd>Flèches</kbd>, <kbd>Entrée</kbd>, <kbd>Échap</kbd>, <kbd>Tab</kbd>) et gestionnaire IPC dédié (`quickshell ipc call launcher toggle`).
 - Décomposition modulaire du Centre de Contrôle sous `.config/quickshell/notifications/components/` avec 4 sous-composants à responsabilité unique : `QuickSettings.qml` (toggles et actions système), `VolumeBrightnessSliders.qml` (curseurs en capsule), `NotificationList.qml` (historique et actions) et `Scratchpad.qml` (bloc-notes persistant).
 - Module de Menu de Session plein écran natif Quickshell (`.config/quickshell/session/` avec `SessionService.qml`, `SessionWindow.qml`, `qmldir`) : calque overlay en verre dépoli Obsidian Glass, 6 cartes d'actions centrées avec raccourcis clavier directs (<kbd>L</kbd> Verrouiller, <kbd>U</kbd> Veille, <kbd>E</kbd> Déconnexion, <kbd>H</kbd> Hiberner, <kbd>R</kbd> Redémarrer, <kbd>S</kbd> Éteindre, <kbd>Échap</kbd> Annuler), et gestionnaire IPC dédié (`quickshell ipc call session toggle`).
 - Initialisation de la structure de configuration Quickshell v0.3.1 (`.config/quickshell/`) avec `shell.qml`, singleton `Theme.qml` (tokens Obsidian Glass & Glacier Blue) et composants UI réutilisables (`GlassCard`, `PillButton`, `IconLabel`, `ModulePopup`).
@@ -27,6 +28,7 @@ et ce projet adhère au versionnage sémantique.
 - Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents, journaux et secrets (`credentials`).
 
 ### Modifié
+- Remplacement de Rofi par le lanceur d'applications natif Quickshell dans `programs.lua` (`menu`), `binds.lua` (`SUPER + SPACE`) et le bouton de lancement de la barre (`LauncherButton.qml`).
 - Simplification de la configuration des écrans dans `monitors.lua` : conservation exclusive des réglages de l'écran principal depuis `profiles/default.lua` (sans machine à états dynamique ni gestion de capot).
 - Sécurisation et fiabilisation de l'autostart dans `programs.lua` avec structure conditionnelle `if/then/else` Shell POSIX et suppression des scripts obsolètes commentés.
 - Extraction des constantes DRY pour les captures d'écran (`SCREENSHOT_DIR`) dans `binds.lua`.
@@ -36,6 +38,7 @@ et ce projet adhère au versionnage sémantique.
 - Ajout de boutons d'actions rapides en verre dépoli dans la popup réseau (`NetworkPopup.qml`) : bouton **Connexions** (`nm-connection-editor`), bouton **Terminal nmtui** (`kitty -e nmtui`) et bouton **VPN** (`mullvad-gui`).
 
 ### Supprimé
+- Suppression définitive du composant et de la configuration Rofi (`.config/rofi/`) et retrait de sa dépendance obligatoire dans `check-dependencies.sh`.
 - Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé

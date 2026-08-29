@@ -1,7 +1,7 @@
 local programs = {
     terminal = "kitty",
     file_manager = "nautilus",
-    menu = "rofi -show drun || pkill rofi",
+    menu = "quickshell ipc call launcher toggle || qs ipc call launcher toggle",
 }
 
 local autostart_commands = {

@@ -1,8 +1,8 @@
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import "../../theme"
 import "../../components"
+import "../../launcher"
 
 PillButton {
     id: root
@@ -13,6 +13,6 @@ PillButton {
     customPaddingV: 1
     
     onClicked: {
-        Quickshell.execDetached(["rofi", "-show", "drun"]);
+        LauncherService.toggle();
     }
 }

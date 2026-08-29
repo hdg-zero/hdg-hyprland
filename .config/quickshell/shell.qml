@@ -5,9 +5,21 @@ import "./components"
 import "./bar"
 import "./notifications"
 import "./session"
+import "./launcher"
 
 ShellRoot {
     id: root
+
+    // Lanceur d'applications natif (style Rofi Obsidian Glass)
+    Variants {
+        model: Quickshell.screens
+
+        LauncherWindow {
+            required property var modelData
+            targetScreen: modelData
+            screen: modelData
+        }
+    }
 
     // Barre d'état déployée dynamiquement sur chaque écran connecté
     Variants {

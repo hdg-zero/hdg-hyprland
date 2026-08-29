@@ -14,7 +14,6 @@ REQUIRED_DEPS=(
   notify-send
   playerctl
   quickshell
-  rofi
   uwsm
   wl-copy
   wl-paste
