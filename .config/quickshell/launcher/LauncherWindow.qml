@@ -43,56 +43,113 @@ PanelWindow {
     property int selectedIndex: 0
     property var appHistory: ({})
 
-    // Résolution robuste des icônes d'applications avec multiples stratégies de repli
+    // Résolution robuste et exhaustive des icônes d'applications
     function resolveAppIcon(app) {
         if (!app) return "";
-        var iconName = app.icon || app.id || "";
-        if (!iconName) return "";
-        if (iconName.indexOf("/") !== -1) return iconName;
+        var iconName = app.icon || "";
+        var appId = (app.id || "").replace(/\.desktop$/i, "");
+        var appName = (app.name || "").toLowerCase();
+        var execStr = (app.execString || app.command || "").toString().toLowerCase();
 
-        // 1. Recherche directe par nom
-        var resolved = Quickshell.iconPath(iconName, true);
-        if (resolved) return resolved;
+        // 1. Si chemin absolu direct
+        if (iconName.indexOf("/") === 0) return "file://" + iconName;
+        if (iconName.indexOf("file://") === 0) return iconName;
 
-        // 2. Recherche en minuscules
-        var lower = iconName.toLowerCase();
-        resolved = Quickshell.iconPath(lower, true);
-        if (resolved) return resolved;
+        // 2. Ensemble de termes candidats ordonnés
+        var candidates = [];
+        if (iconName) {
+            candidates.push(iconName);
+            candidates.push(iconName.toLowerCase());
+            candidates.push(iconName.replace(/\.(png|svg|xpm|ico)$/i, ""));
+        }
+        if (appId) {
+            candidates.push(appId);
+            candidates.push(appId.toLowerCase());
+            var dotParts = appId.toLowerCase().split(".");
+            if (dotParts.length > 1) {
+                candidates.push(dotParts[dotParts.length - 1]);
+                if (dotParts[1] === "gnome") candidates.push("gnome-" + dotParts[dotParts.length - 1]);
+            }
+        }
+        if (appName) {
+            candidates.push(appName);
+            candidates.push(appName.replace(/\s+/g, "-"));
+        }
+        if (execStr) {
+            var execBinary = execStr.split(/\s+/)[0].split("/").pop();
+            if (execBinary) candidates.push(execBinary);
+        }
 
-        // 3. Extraction du suffixe sans préfixe reverse-DNS (ex: org.gnome.Nautilus -> nautilus)
-        var parts = lower.split(".");
-        if (parts.length > 1) {
-            var suffix = parts[parts.length - 1];
-            resolved = Quickshell.iconPath(suffix, true);
+        // Table de correspondance d'alias enrichie
+        var aliasMap = {
+            "navigateur mullvad": "mullvad-browser",
+            "mullvad": "mullvad-browser",
+            "mullvadbrowser": "mullvad-browser",
+            "vscodium": "vscodium",
+            "codium": "vscodium",
+            "code": "visual-studio-code",
+            "cursor": "co.anysphere.cursor",
+            "agent-ia": "/home/agent/.local/share/icons/distrobox/arch.png",
+            "distrobox": "distrobox",
+            "portal": "applications-system-symbolic",
+            "xdg-desktop-portal-gtk": "applications-system-symbolic",
+            "user-dirs-update-gtk": "user-home",
+            "user folders update": "user-home",
+            "lstopo": "hwloc",
+            "hardware locality lstopo": "hwloc",
+            "avahi zeroconf browser": "network-wired",
+            "avahi ssh server browser": "network-wired",
+            "avahi vnc server browser": "network-wired",
+            "view file": "document-open",
+            "access prompt": "security-medium",
+            "manage printing": "cups"
+        };
+
+        for (var i = 0; i < candidates.length; i++) {
+            var c = candidates[i];
+            if (aliasMap[c]) candidates.push(aliasMap[c]);
+        }
+
+        // Recherche via Quickshell et chemins standards
+        for (var k = 0; k < candidates.length; k++) {
+            var term = candidates[k];
+            if (!term) continue;
+            if (term.indexOf("/") === 0) return "file://" + term;
+            if (term.indexOf("file://") === 0) return term;
+
+            var clean = term.replace(/\.(png|svg|xpm|ico)$/i, "");
+
+            // Résolution Quickshell
+            var resolved = Quickshell.iconPath(clean, true);
+            if (resolved) return resolved;
+            resolved = Quickshell.iconPath(clean.toLowerCase(), true);
             if (resolved) return resolved;
 
-            if (parts.length >= 3 && parts[1] === "gnome") {
-                resolved = Quickshell.iconPath("gnome-" + suffix, true);
+            // Formats symboliques Adwaita
+            if (clean.indexOf("-symbolic") === -1) {
+                resolved = Quickshell.iconPath(clean + "-symbolic", true);
                 if (resolved) return resolved;
             }
         }
 
-        // 4. Alias courants
-        var aliases = {
-            "codium": "vscodium",
-            "code": "visual-studio-code",
-            "mullvad browser": "mullvad-browser",
-            "mullvad-browser": "mullvad-browser",
-            "org.gnome.nautilus": "system-file-manager",
-            "nautilus": "system-file-manager",
-            "kitty": "kitty",
-            "terminal": "utilities-terminal"
-        };
-        if (aliases[lower]) {
-            resolved = Quickshell.iconPath(aliases[lower], true);
-            if (resolved) return resolved;
-        }
-
-        // 5. Icône système générique pour exécutables
-        resolved = Quickshell.iconPath("application-x-executable", true);
-        if (resolved) return resolved;
-
         return "";
+    }
+
+    // Icône de secours Nerd Font intelligente selon la catégorie ou le nom
+    function getFallbackIcon(app) {
+        if (!app) return "󰘔";
+        var str = ((app.name || "") + " " + (app.comment || "") + " " + (app.id || "") + " " + (app.execString || "")).toLowerCase();
+        if (str.indexOf("browser") !== -1 || str.indexOf("web") !== -1 || str.indexOf("mullvad") !== -1 || str.indexOf("chrome") !== -1 || str.indexOf("navig") !== -1) return "󰈹";
+        if (str.indexOf("terminal") !== -1 || str.indexOf("kitty") !== -1 || str.indexOf("foot") !== -1 || str.indexOf("sh") !== -1 || str.indexOf("console") !== -1) return "󰞷";
+        if (str.indexOf("code") !== -1 || str.indexOf("edit") !== -1 || str.indexOf("dev") !== -1 || str.indexOf("cursor") !== -1 || str.indexOf("codium") !== -1) return "󰨞";
+        if (str.indexOf("file") !== -1 || str.indexOf("folder") !== -1 || str.indexOf("dossier") !== -1 || str.indexOf("nautilus") !== -1) return "󰉋";
+        if (str.indexOf("network") !== -1 || str.indexOf("wifi") !== -1 || str.indexOf("server") !== -1 || str.indexOf("ssh") !== -1 || str.indexOf("vnc") !== -1) return "󰛳";
+        if (str.indexOf("security") !== -1 || str.indexOf("key") !== -1 || str.indexOf("pass") !== -1 || str.indexOf("pinentry") !== -1 || str.indexOf("prompt") !== -1) return "󰌋";
+        if (str.indexOf("hard") !== -1 || str.indexOf("cpu") !== -1 || str.indexOf("topo") !== -1 || str.indexOf("monit") !== -1 || str.indexOf("hwloc") !== -1) return "󰍛";
+        if (str.indexOf("video") !== -1 || str.indexOf("media") !== -1 || str.indexOf("audio") !== -1 || str.indexOf("camera") !== -1) return "󰕼";
+        if (str.indexOf("setting") !== -1 || str.indexOf("config") !== -1 || str.indexOf("portal") !== -1 || str.indexOf("pref") !== -1) return "󰒓";
+        if (str.indexOf("print") !== -1 || str.indexOf("cup") !== -1) return "󰐪";
+        return "󰘔";
     }
 
     // Chargement de l'historique d'utilisation des applications (fréquence MRU)
@@ -489,31 +546,30 @@ PanelWindow {
                                     width: 52
                                     height: 52
 
+                                    readonly property string iconSrc: root.resolveAppIcon(delegateRoot.modelData)
+
                                     IconImage {
                                         id: appIconImg
                                         anchors.fill: parent
-                                        source: root.resolveAppIcon(delegateRoot.modelData)
+                                        visible: parent.iconSrc !== ""
+                                        source: parent.iconSrc
                                     }
 
-                                    // Badge de remplacement moderne avec initiale en verre quand aucune icône n'est résolue
+                                    // Badge de remplacement moderne avec icône thématique Nerd Font quand aucune icône image n'est disponible
                                     Rectangle {
                                         anchors.fill: parent
-                                        visible: appIconImg.source === ""
+                                        visible: parent.iconSrc === ""
                                         radius: Theme.radiusLarge
-                                        color: isSelected ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : Qt.rgba(1, 1, 1, 0.08)
+                                        color: isSelected ? Qt.rgba(0.365, 0.678, 0.886, 0.22) : Qt.rgba(1, 1, 1, 0.08)
                                         border.color: isSelected ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                                         border.width: 1
 
                                         Text {
                                             anchors.centerIn: parent
                                             font.family: Theme.fontFamily
-                                            font.pixelSize: Math.round(Theme.fontSizeTitle * 1.3)
-                                            font.bold: true
-                                            color: isSelected ? Theme.accent : Theme.textPrimary
-                                            text: {
-                                                var n = (delegateRoot.modelData.name || "A").trim();
-                                                return n.length > 0 ? n.charAt(0).toUpperCase() : "󰘔";
-                                            }
+                                            font.pixelSize: Math.round(Theme.fontSizeTitle * 1.6)
+                                            color: isSelected ? Theme.accent : Theme.textSecondary
+                                            text: root.getFallbackIcon(delegateRoot.modelData)
                                         }
                                     }
                                 }
