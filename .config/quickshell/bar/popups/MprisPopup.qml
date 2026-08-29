@@ -11,7 +11,8 @@ ModulePopup {
     property var targetPlayer: null
     widthPercent: Theme.popupWidthPercentWide
     cardHeight: mprisCol.implicitHeight + Theme.spacingMd * 2
-    readonly property var player: targetPlayer ? targetPlayer : {
+    readonly property var player: {
+        if (targetPlayer) return targetPlayer;
         if (!Mpris.players || !Mpris.players.values) return null;
         var list = Mpris.players.values;
         for (var i = 0; i < list.length; i++) {
