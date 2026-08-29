@@ -9,28 +9,47 @@ import "./session"
 ShellRoot {
     id: root
 
-    // Barre d'état, notifications et menu de session déployés dynamiquement sur chaque écran connecté
+    // Barre d'état déployée dynamiquement sur chaque écran connecté
     Variants {
         model: Quickshell.screens
 
-        Scope {
+        BarWindow {
             required property var modelData
+            targetScreen: modelData
+            screen: modelData
+        }
+    }
 
-            BarWindow {
-                targetScreen: modelData
-            }
+    // Toasts de notification sur chaque écran connecté
+    Variants {
+        model: Quickshell.screens
 
-            NotificationToastWindow {
-                targetScreen: modelData
-            }
+        NotificationToastWindow {
+            required property var modelData
+            targetScreen: modelData
+            screen: modelData
+        }
+    }
 
-            NotificationCenter {
-                targetScreen: modelData
-            }
+    // Centre de contrôle et notifications sur chaque écran connecté
+    Variants {
+        model: Quickshell.screens
 
-            SessionWindow {
-                targetScreen: modelData
-            }
+        NotificationCenter {
+            required property var modelData
+            targetScreen: modelData
+            screen: modelData
+        }
+    }
+
+    // Menu de session plein écran sur chaque écran connecté
+    Variants {
+        model: Quickshell.screens
+
+        SessionWindow {
+            required property var modelData
+            targetScreen: modelData
+            screen: modelData
         }
     }
 }

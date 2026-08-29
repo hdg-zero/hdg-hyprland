@@ -39,6 +39,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé
+- Correction de l'instanciation des fenêtres et de la barre d'état sur les écrans connectés à chaud et au démarrage : adoption de blocs `Variants` directs par fenêtre dans `shell.qml` au lieu d'un `Scope` imbriqué, garantissant la création immédiate et fiable de la topbar sur chaque écran (`Quickshell.screens`).
 - Correction de la syntaxe de `hyprpaper.conf` avec format plat et directive `preload` obligatoire.
 - Élimination des processus Shell périodiques (`date`, `uptime -p`) en boucle chaque seconde dans `SessionWindow.qml` au profit de l'API Date JS et de la lecture native `/proc/uptime` via `FileView`.
 - Remplacement du timer 50ms par une `NumberAnimation` fluide pour la jauge de progression dans `NotificationToastWindow.qml`.
