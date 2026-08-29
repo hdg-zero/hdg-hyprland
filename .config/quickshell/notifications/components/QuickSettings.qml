@@ -227,7 +227,10 @@ ColumnLayout {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: { Quickshell.execDetached(["hyprlock"]); }
+                onClicked: {
+                    NotificationService.panelVisible = false;
+                    SessionService.lock();
+                }
             }
         }
 

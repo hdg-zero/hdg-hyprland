@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import "../../theme"
 import "../../components"
+import "../../session"
 
 ModulePopup {
     id: root
@@ -21,11 +22,11 @@ ModulePopup {
 
         Repeater {
             model: [
-                { label: "Verrouiller", icon: "󰌾", color: Theme.accent, cmd: "hyprlock" },
-                { label: "Veille", icon: "󰤄", color: Theme.accentSecondary, cmd: "systemctl suspend" },
-                { label: "Déconnexion", icon: "󰍃", color: Theme.warning, cmd: "hyprctl dispatch exit" },
-                { label: "Redémarrer", icon: "󰜉", color: Theme.warning, cmd: "systemctl reboot" },
-                { label: "Éteindre", icon: "⏻", color: Theme.destructive, cmd: "systemctl poweroff" }
+                { label: "Verrouiller", icon: "󰌾", color: Theme.accent, action: function() { SessionService.lock(); } },
+                { label: "Veille", icon: "󰤄", color: Theme.accentSecondary, action: function() { SessionService.suspend(); } },
+                { label: "Déconnexion", icon: "󰍃", color: Theme.warning, action: function() { SessionService.logout(); } },
+                { label: "Redémarrer", icon: "󰜉", color: Theme.warning, action: function() { SessionService.reboot(); } },
+                { label: "Éteindre", icon: "⏻", color: Theme.destructive, action: function() { SessionService.shutdown(); } }
             ]
 
             delegate: Rectangle {
@@ -67,8 +68,8 @@ ModulePopup {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        Quickshell.execDetached(["sh", "-c", modelData.cmd]);
                         root.close();
+                        modelData.action();
                     }
                 }
             }

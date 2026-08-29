@@ -42,6 +42,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé
+- Unification des actions de session et extinction dans `PowerPopup.qml` et `QuickSettings.qml` via `SessionService`, assurant la conformité UWSM (`uwsm stop`, `uwsm app -- hyprlock`).
 - Résolution des conflits de focus exclusif LayerShell en environnement multi-écrans sur `LauncherWindow.qml` et `SessionWindow.qml` en restreignant `WlrKeyboardFocus.Exclusive` au moniteur actif (`Hyprland.focusedMonitor`).
 - Suppression du chemin absolu en dur `/home/agent/...` dans la table d'alias d'icônes du lanceur (`LauncherWindow.qml`) et sécurisation du lancement d'applications via la liste typée `app.command` sous `uwsm app --`.
 - Ajout du fichier de déclaration de module et singleton `.config/quickshell/notifications/qmldir` garantissant l'instanciation unique et typée du serveur D-Bus `NotificationService` et des fenêtres de notifications.
