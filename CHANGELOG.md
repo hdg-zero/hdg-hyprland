@@ -42,6 +42,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé
+- Adoption du type natif `Singleton` (`import Quickshell`) pour tous les singletons du projet (`Theme.qml`, `NotificationService.qml`, `SessionService.qml`), garantissant le bon chargement des tokens de couleur, styles et services.
 - Correction de la syntaxe de liaison QML de la propriété `player` dans `MprisPopup.qml` éliminant l'erreur de chargement de configuration.
 - Centralisation de la fonction utilitaire de calcul et formatage des débits réseau dans `Theme.qml` (`formatSpeed`), éliminant les duplications dans `NetworkModule.qml` et `NetworkPopup.qml`.
 - Élimination de la consommation CPU résiduelle de `ClockPopup.qml` au repos via l'activation conditionnelle du timer (`running: root.visible`) et remplacement des forks `hyprctl` par les dispatchers natifs directs `Hyprland.dispatch` (`Workspaces.qml`, `TaskbarModule.qml`, `AppPopup.qml`).

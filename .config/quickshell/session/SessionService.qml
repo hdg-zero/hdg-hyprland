@@ -3,7 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-Scope {
+Singleton {
     id: root
 
     property bool sessionVisible: false
