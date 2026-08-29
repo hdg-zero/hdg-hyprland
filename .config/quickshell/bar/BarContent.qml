@@ -1,8 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import "../theme"
-import "../components"
-import "./modules"
+import "./sections"
 
 Item {
     id: root
@@ -10,12 +9,11 @@ Item {
 
     property var parentWindow: null
 
-    // Fond de la barre collée aux bords de l'écran
+    // Fond de la barre collée aux bords de l'écran avec bordure inférieure
     Rectangle {
         anchors.fill: parent
         color: Theme.background
 
-        // Ligne de bordure inférieure subtile uniquement
         Rectangle {
             anchors {
                 left: parent.left
@@ -27,51 +25,29 @@ Item {
         }
     }
 
-    // Section GAUCHE : Lanceur + Workspaces + CPU + RAM + Network + Lecteur MPRIS
-    RowLayout {
+    // Section GAUCHE : Lanceur + Workspaces + CPU + RAM + Network + MPRIS
+    LeftSection {
+        parentWindow: root.parentWindow
         anchors {
             left: parent.left
             leftMargin: Theme.spacingSm
             verticalCenter: parent.verticalCenter
         }
-        spacing: Theme.spacingXs
-
-        LauncherButton {}
-        Workspaces {}
-        CpuModule { parentWindow: root.parentWindow }
-        MemoryModule { parentWindow: root.parentWindow }
-        NetworkModule { parentWindow: root.parentWindow }
-        MprisModule { parentWindow: root.parentWindow }
     }
 
     // Section CENTRE : Titre de la fenêtre active
-    Item {
+    CenterSection {
+        parentWindow: root.parentWindow
         anchors.centerIn: parent
-        implicitWidth: activeWin.implicitWidth
-        implicitHeight: activeWin.implicitHeight
-
-        ActiveWindow {
-            id: activeWin
-            anchors.centerIn: parent
-        }
     }
 
     // Section DROITE : Taskbar + SystemTray + Backlight + Audio + Batterie + Notifications + Horloge + Power
-    RowLayout {
+    RightSection {
+        parentWindow: root.parentWindow
         anchors {
             right: parent.right
             rightMargin: Theme.spacingSm
             verticalCenter: parent.verticalCenter
         }
-        spacing: Theme.spacingXs
-
-        TaskbarModule { parentWindow: root.parentWindow }
-        SystemTrayModule {}
-        BacklightModule { parentWindow: root.parentWindow }
-        VolumeModule { parentWindow: root.parentWindow }
-        BatteryModule { parentWindow: root.parentWindow }
-        NotificationButton {}
-        ClockModule { parentWindow: root.parentWindow }
-        PowerButton { parentWindow: root.parentWindow }
     }
 }
