@@ -30,32 +30,41 @@ PanelWindow {
     property string currentDate: ""
     property string uptimeStr: ""
 
-    Process {
-        id: getClockProc
-        command: ["date", "+%H:%M|%A %d %B %Y"]
-        stdout: StdioCollector { id: clockOut }
-        onExited: {
-            var parts = clockOut.text.trim().split("|");
-            if (parts.length === 2) {
-                root.currentTime = parts[0];
-                var d = parts[1];
-                root.currentDate = d.charAt(0).toUpperCase() + d.slice(1);
-            }
-        }
+    FileView {
+        id: procUptime
+        path: "/proc/uptime"
+        watchChanges: false
     }
 
-    Process {
-        id: getUptimeProc
-        command: ["sh", "-c", "uptime -p 2>/dev/null | sed 's/up //g' || echo ''"]
-        stdout: StdioCollector { id: uptimeOut }
-        onExited: {
-            root.uptimeStr = uptimeOut.text.trim();
-        }
+    function formatUptime(seconds) {
+        var sec = Math.floor(seconds);
+        var days = Math.floor(sec / 86400);
+        sec %= 86400;
+        var hours = Math.floor(sec / 3600);
+        sec %= 3600;
+        var mins = Math.floor(sec / 60);
+
+        var parts = [];
+        if (days > 0) parts.push(days + (days > 1 ? " jours" : " jour"));
+        if (hours > 0) parts.push(hours + (hours > 1 ? " heures" : " heure"));
+        if (mins > 0 || parts.length === 0) parts.push(mins + (mins > 1 ? " minutes" : " minute"));
+        return parts.join(", ");
     }
 
     function refreshInfo() {
-        if (!getClockProc.running) getClockProc.running = true;
-        if (!getUptimeProc.running) getUptimeProc.running = true;
+        var now = new Date();
+        root.currentTime = Qt.formatDateTime(now, "hh:mm");
+        var d = Qt.formatDateTime(now, "dddd dd MMMM yyyy");
+        root.currentDate = d.charAt(0).toUpperCase() + d.slice(1);
+
+        procUptime.reload();
+        var txt = typeof procUptime.text === "function" ? procUptime.text() : (procUptime.text || "");
+        if (txt) {
+            var firstVal = parseFloat(txt.trim().split(/\s+/)[0]);
+            if (!isNaN(firstVal)) {
+                root.uptimeStr = formatUptime(firstVal);
+            }
+        }
     }
 
     onVisibleChanged: {

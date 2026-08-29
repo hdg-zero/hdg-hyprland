@@ -68,20 +68,14 @@ PanelWindow {
                 Behavior on opacity { NumberAnimation { duration: Theme.animDurationNormal; easing.type: Theme.easingType } }
                 Behavior on scale { NumberAnimation { duration: Theme.animDurationNormal; easing.type: Theme.easingType } }
 
-                // Timer d'expiration automatique (mis en pause au survol de la souris)
+                // Timer d'expiration automatique
                 Timer {
                     id: dismissTimer
-                    interval: 50
+                    interval: modelData.timeout
                     running: modelData.timeout > 0 && !toastCard.isHovered
-                    repeat: true
-                    property real elapsed: 0
-
+                    repeat: false
                     onTriggered: {
-                        elapsed += 50;
-                        if (elapsed >= modelData.timeout) {
-                            running = false;
-                            NotificationService.dismissToast(toastCard.modelData.id);
-                        }
+                        NotificationService.dismissToast(toastCard.modelData.id);
                     }
                 }
 
@@ -224,6 +218,7 @@ PanelWindow {
 
                 // Barre de progression du temps d'affichage
                 Rectangle {
+                    id: progressTrack
                     anchors {
                         left: parent.left
                         right: parent.right
@@ -234,9 +229,17 @@ PanelWindow {
                     visible: modelData.timeout > 0
 
                     Rectangle {
+                        id: progressBar
                         height: parent.height
-                        width: parent.width * Math.max(0, 1.0 - (dismissTimer.elapsed / modelData.timeout))
+                        width: parent.width
                         color: toastCard.isCritical ? Theme.destructive : Theme.accent
+
+                        NumberAnimation on width {
+                            from: progressTrack.width
+                            to: 0
+                            duration: modelData.timeout > 0 ? modelData.timeout : 1
+                            running: modelData.timeout > 0 && !toastCard.isHovered
+                        }
                     }
                 }
             }

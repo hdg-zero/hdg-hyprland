@@ -1,7 +1,5 @@
--- Machine à états de gestion des écrans (DÉSACTIVÉE / COMMENTÉE)
--- Le script shell originel `.config/hypr/scripts/monitor.sh` est restauré et utilisé manuellement.
+-- Machine à états déterministe de gestion dynamique des écrans sous Hyprland 0.56
 
---[[
 local ok, profile = pcall(require, "profiles.default")
 if not ok or not profile then
     profile = {
@@ -139,4 +137,3 @@ end, { locked = true, description = "Ajuster l'affichage à l'ouverture du capot
 hl.bind("switch:on:Lid Switch", function()
     update_monitors()
 end, { locked = true, description = "Ajuster l'affichage à la fermeture du capot" })
---]]

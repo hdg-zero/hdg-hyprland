@@ -26,6 +26,7 @@ OPTIONAL_DEPS=(
   bluetoothctl
   btop
   gnome-system-monitor
+  jq
   mullvad-gui
   nmcli
   pavucontrol
@@ -66,7 +67,7 @@ echo "Obligatoires manquantes : $missing_required"
 echo "Optionnelles manquantes : $missing_optional"
 
 if [ "$missing_required" -gt 0 ]; then
-  echo "Erreur : des dépendances obligatoires sont manquantes !"
+  echo "Erreur : des dépendances obligatoires sont manquantes !" >&2
   exit 1
 else
   echo "Toutes les dépendances obligatoires sont présentes."

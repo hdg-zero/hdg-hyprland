@@ -21,7 +21,7 @@ notify() {
 enable_internal() {
   local command="hl.monitor({ output = \"${INTERNAL_MONITOR}\", mode = \"${INTERNAL_MODE}\", position = \"auto\", scale = ${INTERNAL_SCALE}, bitdepth = 10 })"
 
-  if [[ $DRY_RUN == true ]]; then
+  if [[ "$DRY_RUN" == true ]]; then
     printf "hyprctl eval '%s'\n" "$command"
   else
     hyprctl eval "$command"
@@ -31,7 +31,7 @@ enable_internal() {
 disable_internal() {
   local command="hl.monitor({ output = \"${INTERNAL_MONITOR}\", disabled = true })"
 
-  if [[ $DRY_RUN == true ]]; then
+  if [[ "$DRY_RUN" == true ]]; then
     printf "hyprctl eval '%s'\n" "$command"
   else
     hyprctl eval "$command"
@@ -51,12 +51,12 @@ external_count=$(
 if (( external_count > 0 )); then
   if [[ ${1:-} == "open" ]]; then
     enable_internal
-    [[ $DRY_RUN == true ]] || notify "Écran externe détecté, écran du portable conservé."
+    [[ "$DRY_RUN" == true ]] || notify "Écran externe détecté, écran du portable conservé."
   else
     disable_internal
-    [[ $DRY_RUN == true ]] || notify "Écran externe détecté, écran du portable désactivé."
+    [[ "$DRY_RUN" == true ]] || notify "Écran externe détecté, écran du portable désactivé."
   fi
 else
   enable_internal
-  [[ $DRY_RUN == true ]] || notify "Aucun écran externe détecté, écran du portable conservé."
+  [[ "$DRY_RUN" == true ]] || notify "Aucun écran externe détecté, écran du portable conservé."
 fi

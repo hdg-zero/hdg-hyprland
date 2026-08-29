@@ -78,8 +78,8 @@ PillButton {
     }
 
     Timer {
-        interval: 2000
-        running: true
+        interval: 5000
+        running: root.audio === null
         repeat: true
         triggeredOnStart: true
         onTriggered: {

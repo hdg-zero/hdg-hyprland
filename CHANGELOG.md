@@ -8,9 +8,8 @@ et ce projet adhère au versionnage sémantique.
 ## [Unreleased]
 
 ### Ajouté
+- Décomposition modulaire du Centre de Contrôle sous `.config/quickshell/notifications/components/` avec 4 sous-composants à responsabilité unique : `QuickSettings.qml` (toggles et actions système), `VolumeBrightnessSliders.qml` (curseurs en capsule), `NotificationList.qml` (historique et actions) et `Scratchpad.qml` (bloc-notes persistant).
 - Module de Menu de Session plein écran natif Quickshell (`.config/quickshell/session/` avec `SessionService.qml`, `SessionWindow.qml`, `qmldir`) : calque overlay en verre dépoli Obsidian Glass, 6 cartes d'actions centrées avec raccourcis clavier directs (<kbd>L</kbd> Verrouiller, <kbd>U</kbd> Veille, <kbd>E</kbd> Déconnexion, <kbd>H</kbd> Hiberner, <kbd>R</kbd> Redémarrer, <kbd>S</kbd> Éteindre, <kbd>Échap</kbd> Annuler), et gestionnaire IPC dédié (`quickshell ipc call session toggle`).
-- Module de bloc-notes rapide persistant (`scratchpad`) intégré dans le Centre de Contrôle (`NotificationCenter.qml`) : zone d'édition en verre dépoli, sauvegarde automatique temporisée dans `$XDG_STATE_HOME/quickshell/scratchpad.txt`, bouton de copie instantanée vers le presse-papier (`wl-copy`) et bouton d'effacement rapide.
-- Système complet de fenêtres popups interactives pour chaque module sous `.config/quickshell/bar/popups/` :
 - Initialisation de la structure de configuration Quickshell v0.3.1 (`.config/quickshell/`) avec `shell.qml`, singleton `Theme.qml` (tokens Obsidian Glass & Glacier Blue) et composants UI réutilisables (`GlassCard`, `PillButton`, `IconLabel`, `ModulePopup`).
 - Barre d'état Quickshell complète multi-écrans (`BarWindow`, `BarContent`) intégrant tous les modules : Workspaces, CPU, Mémoire, Réseau, MPRIS, ActiveWindow, Taskbar, SystemTray, Luminosité, Volume, Batterie, Notifications, Horloge et Power.
 - Fenêtres flottantes et popups interactives riches (`bar/popups/`) avec ancrage dynamique sous chaque module :
@@ -25,42 +24,22 @@ et ce projet adhère au versionnage sémantique.
   - `PowerPopup` : Menu rapide de session (Verrouiller, Veille, Redémarrer, Éteindre, Déconnexion).
   - `AppPopup` : Fenêtre flottante interactive d'aperçu d'application au survol des icônes de la barre de tâches (nom de l'app, titre complet de la fenêtre, badge de workspace, état flottant/plein écran, boutons de focus et de fermeture rapide).
 - Documentation technique exhaustive de la barre d'état et des popups Quickshell v0.3.1 dans `docs/quickshell-bar.md`.
-- Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents et secrets.
+- Fichier `.gitignore` pour exclure les artefacts de travail, configurations d'éditeurs, règles d'agents, journaux et secrets (`credentials`).
 
 ### Modifié
+- Réactivation et unification de la machine à états de gestion dynamique des écrans (`monitors.lua`) avec support direct des profils matériels (`profiles/default.lua`) et import centralisé dans `hyprland.lua`.
+- Sécurisation et fiabilisation de l'autostart dans `programs.lua` avec structure conditionnelle `if/then/else` Shell POSIX et suppression des scripts obsolètes commentés.
+- Extraction des constantes DRY pour les captures d'écran (`SCREENSHOT_DIR`) dans `binds.lua`.
+- Ajout de `jq` dans `check-dependencies.sh` et redirection de la sortie d'erreur vers `stderr`.
+- Sécurisation du parsing du niveau de batterie dans `battery-level.sh` et suppression du code mort.
+- Fusion des branches de plein écran dans `gesture.sh` et quotage strict des variables dans `monitor.sh`.
 - Ajout de boutons d'actions rapides en verre dépoli dans la popup réseau (`NetworkPopup.qml`) : bouton **Connexions** (`nm-connection-editor`), bouton **Terminal nmtui** (`kitty -e nmtui`) et bouton **VPN** (`mullvad-gui`).
-- Remplacement du raccourci clavier `SUPER + M` dans `binds.lua` par le déclencheur IPC natif Quickshell (`quickshell ipc call session toggle`).
-- Remplacement des ouvertures de `wlogout` par `SessionService` dans le Centre de Contrôle (`NotificationCenter.qml`) et le clic droit du bouton d'énergie (`PowerButton.qml`).
-- Refonte graphique intégrale du Centre de Contrôle (`NotificationCenter.qml`) : cartes de connectivité modernes style Control Center (Wi-Fi, Bluetooth, Micro, Sortie son) avec retours d'état précis, curseurs audio/luminosité en capsules de verre, boutons d'actions système et cartes de notifications multicouches.
-- Augmentation de l'espacement et de la zone cliquable entre les icônes d'applications (`spacing: 10px`, `width: 26px`) dans la barre des tâches (`TaskbarModule.qml`).
-- Liaison réactive instantanée et zéro polling pour le bouton de notification de la barre (`NotificationButton.qml`) connecté directement au `NotificationService` natif.
-- Bascule du raccourci clavier `SUPER + f` dans `binds.lua` vers l'IPC natif Quickshell (`quickshell ipc call notifications toggle`).
-- Intégration de `quickshell` dans la table `autostart_commands` de `.config/hypr/programs.lua` avec vérification préalable de présence (`command -v`) et lancement encapsulé sous UWSM (`uwsm app -- quickshell`).
-- Dimensionnement 100% relatif et proportionnel en pourcentage d'écran pour la popup MPRIS (`widthPercent: Theme.popupWidthPercentWide`), avec pochette d'album (`coverSize: 72% effectiveWidth`), typographie et commandes multimédia (`btnPlaySize: 28% coverSize`) adaptatives sans pixels fixes.
-- Agrandissement des icônes d'applications de la barre des tâches (`20x20px`) dans `TaskbarModule.qml` sans impacter la compacité de la barre.
-- Refonte de la disposition de la popup MPRIS (`MprisPopup.qml`) : pochette d'album grand format centrée en haut, métadonnées (titre, artiste, album) centrées en dessous et commandes multimédia élargies en bas.
-- Réduction drastique des marges et espacements verticaux (`customPaddingV: 1px`, `barHeightRatio: 0.024`, ~25px) autour des textes et icônes sur l'ensemble des modules de la top barre pour éliminer tout vide inutile.
-- Augmentation globale de l'échelle typographique de l'environnement (`Theme.fontSize*` rehaussé de 2px à 4px) et épaississement des barres de progression et curseurs de réglage (`progressBarHeight: 8px`, `progressBarMiniHeight: 6px`) pour une lisibilité accrue sur la barre et les popups.
-- Refonte et ajustements des fenêtres popups : affichage du détail par cœur CPU et température dans `CpuPopup`, restauration de la vue multimédia riche MPRIS (`MprisPopup`), restauration de la vue calendrier/horloge complète (`ClockPopup`), passage aux boutons d'actions en icônes pures dans `AppPopup`, et égalisation de la taille des boutons Mute / Panneau dans `VolumePopup`.
-- Optimisation compacte de la barre d'état : suppression des marges extérieures pour coller la barre aux bords de l'écran, réduction de la hauteur relative (`barHeightRatio: 0.028`, ~30px) et conservation exclusive de la fine bordure inférieure façon verre (`glassBorder`).
-- Remplacement intégral de toutes les valeurs de pixels fixes par un système de dimensionnement relatif et proportionnel à l'écran (`Theme.relWidth`, `Theme.relHeight`, `Theme.moduleWidthPercent*`, `Theme.popupWidthPercent*`, tokens d'espacement et de typographie) assurant une adaptabilité parfaite sur toutes les résolutions (FHD, QHD, 4K, écrans haute densité).
-- Transformation de la barre d'état en îlot flottant avec marges natives Wayland layer-shell (`top: 6px`, `left: 8px`, `right: 8px`), coins arrondis (`12px`) et zone d'exclusion dynamique pour les fenêtres Hyprland.
-- Épuration complète et minimaliste de l'ensemble des fenêtres flottantes (`bar/popups/*.qml`) : suppression des textes verbeux et listes surchargées, réduction des dimensions et concentration exclusive sur les métriques et actions essentielles.
-- Mise à jour du `README.md` (architecture, documentation de la top barre Quickshell, dépendances et procédure d'installation).
-- Remplacement de la dépendance `waybar` et retrait de `wlogout` dans `.config/hypr/scripts/check-dependencies.sh`.
-- Optimisation globale et unification de tous les modules et popups sous l'API native Quickshell v0.3.1 (`Quickshell.execDetached`, `Quickshell.Services.Mpris.trackArtUrl`, `Quickshell.Services.UPower`, `Quickshell.Services.SystemTray`), éliminant tout blocage du thread d'interface et garantissant une exécution asynchrone déterministe.
-- Ajout d'une animation fluide de fondu (`opacity`) et de micro-zoom (`scale 0.95 -> 1.0`) à l'ouverture et à la fermeture de toutes les fenêtres flottantes `ModulePopup` (150ms `Easing.OutCubic`).
-- Ajustement de l'espace alloué aux modules CPU, RAM et Réseau à 3% de l'écran (`widthPercent: 0.03`) et activation de l'ouverture automatique au survol de la souris (`autoHover`) avec temporisations anti-scintillement sur l'ensemble des popups.
-- Adoption d'un dimensionnement responsive en pourcentage relatif d'écran (`widthPercent`) dans `PillButton.qml`, assurant une échelle visuelle fluide et sans décalage quelle que soit la résolution de l'écran (FHD, QHD, 4K).
-- Configuration du clic gauche sur le module musique MPRIS pour basculer directement lecture/pause (`playPause()`), clic droit pour afficher le popup multimédia détaillé, clic milieu et molette pour passer aux pistes suivantes/précédentes.
-- Ajout et configuration du module `python` dans `.config/starship.toml` pour afficher la version Python et l'environnement virtuel (venv) actif (`$virtualenv`).
-
-### Supprimé
-- Suppression définitive de l'utilitaire externe et de la configuration Wlogout (`.config/wlogout/`) et retrait de sa dépendance obligatoire.
-- Suppression définitive du démon et de la configuration SwayNC (`.config/swaync/`) et retrait des dépendances `swaync` et `swaync-client`.
-- Suppression définitive du composant et de la configuration Waybar (`.config/waybar/`).
 
 ### Corrigé
+- Correction de la syntaxe de `hyprpaper.conf` avec format plat et directive `preload` obligatoire.
+- Élimination des processus Shell périodiques (`date`, `uptime -p`) en boucle chaque seconde dans `SessionWindow.qml` au profit de l'API Date JS et de la lecture native `/proc/uptime` via `FileView`.
+- Remplacement du timer 50ms par une `NumberAnimation` fluide pour la jauge de progression dans `NotificationToastWindow.qml`.
+- Élimination du polling `wpctl` permanent dans `VolumeModule.qml` grâce au suivi événementiel réactif de `Pipewire.defaultAudioSink.audio`.
 - Suppression des notifications vides (sans résumé ni corps) provoquées par les mises à jour DBus `StatusNotifierItem:IconName` de certains processus d'arrière-plan : rejet immédiat dans `NotificationService.qml` et filtrage au niveau du modèle d'affichage dans `NotificationCenter.qml`.
 - Élimination des avertissements `Cannot open: qrc:/qt/qml/Quickshell/Widgets/...` sur les icônes d'applications en sécurisant la résolution des chemins via `Quickshell.iconPath` avec support étendu des alias, des noms sans reverse-DNS et un repli propre sur chaîne vide garantissant l'absence de requêtes QRC invalides.
 - Élimination des avertissements DBus et requêtes d'icônes manquantes du SystemTray (`nm-no-connection-secure` / `StatusNotifierItem:IconName`) en filtrant les éléments réseaux redondants (`nm-applet`) directement au niveau du modèle dans `SystemTrayModule.qml`.

@@ -97,13 +97,15 @@ return function(programs)
 
     hl.bind(main_mod .. " + SHIFT + l", hl.dsp.exec_cmd("hyprlock"), { locked = true, description = "Verrouiller la session" })
 
-    hl.bind(main_mod .. " + i", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m output -o "$HOME/Pictures/Screenshots"'), {
+    local SCREENSHOT_DIR = "$HOME/Pictures/Screenshots"
+
+    hl.bind(main_mod .. " + i", hl.dsp.exec_cmd('mkdir -p "' .. SCREENSHOT_DIR .. '" && hyprshot -m output -o "' .. SCREENSHOT_DIR .. '"'), {
         description = "Capture écran de la sortie",
     })
-    hl.bind(main_mod .. " + y", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m window -o "$HOME/Pictures/Screenshots"'), {
+    hl.bind(main_mod .. " + y", hl.dsp.exec_cmd('mkdir -p "' .. SCREENSHOT_DIR .. '" && hyprshot -m window -o "' .. SCREENSHOT_DIR .. '"'), {
         description = "Capture écran de la fenêtre",
     })
-    hl.bind(main_mod .. " + u", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m region -o "$HOME/Pictures/Screenshots"'), {
+    hl.bind(main_mod .. " + u", hl.dsp.exec_cmd('mkdir -p "' .. SCREENSHOT_DIR .. '" && hyprshot -m region -o "' .. SCREENSHOT_DIR .. '"'), {
         description = "Capture écran d'une région",
     })
 
