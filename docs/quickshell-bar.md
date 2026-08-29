@@ -1,17 +1,17 @@
-# 💎 Barre d'État Quickshell (`hdg-quickshell-bar`)
+# 💎 Écosystème Quickshell (`hdg-quickshell`)
 
-Documentation technique et guide d'architecture de la barre d'état et des fenêtres flottantes interactives développées sous **[Quickshell](https://quickshell.outfoxxed.me/) v0.3.1+** pour l'environnement **Hyprland 0.56+ / Wayland**.
+Documentation technique et guide d'architecture de la suite logicielle native développée sous **[Quickshell](https://quickshell.outfoxxed.me/) v0.3.1+** pour l'environnement **Hyprland 0.56+ / Wayland**.
 
 ---
 
 ## 🎯 1. Vision & Objectifs
 
-La barre d'état Quickshell remplace l'ancienne implémentation statique Waybar. Ses objectifs fondamentaux sont :
-- **Sobriété énergétique & performances maximales :** Empreinte RAM minimale (< 25 Mo), zéro réveil processeur inutile au repos (0% CPU idle).
+Quickshell unifie et remplace l'intégralité des démons et interfaces graphiques externes (`waybar`, `swaync`, `wlogout`, `rofi`). Ses objectifs fondamentaux sont :
+- **Sobriété énergétique & performances maximales :** Empreinte RAM minimale (< 35 Mo pour l'ensemble des modules), zéro réveil processeur inutile au repos (0% CPU idle).
 - **Interactivité riche :** Chaque module de la barre dispose d'une fenêtre flottante (**Popup**) détaillée et interactive qui s'ouvre au survol ou au clic.
 - **Design Obsidian Glass & Glacier Blue :** Esthétique moderne "Liquid Glass" sombre et translucide avec bordures subtiles et accents bleu glacier.
-- **Support Multi-Écrans Natif :** Déploiement automatique et dynamique sur tous les moniteurs connectés via `Quickshell.screens`.
-- **Dimensionnement Responsive :** Échelle proportionnelle à la résolution d'écran (`widthPercent`) sans décalage ni saut visuel lors des variations de charge ou de format.
+- **Support Multi-Écrans Natif :** Déploiement automatique et dynamique sur tous les moniteurs connectés via `Quickshell.screens` et des blocs `Variants` dédiés.
+- **Dimensionnement Responsive :** Échelle proportionnelle à la résolution d'écran (`relWidth`, `relHeight`) sans décalage ni saut visuel lors des variations de charge ou de format.
 
 ---
 
@@ -31,10 +31,19 @@ L'ensemble de la configuration réside dans `.config/quickshell/` :
 │   ├── IconLabel.qml            # Label combiné icône/texte avec animation de couleur
 │   ├── ModulePopup.qml          # Fenêtre flottante PopupWindow (survol intelligent, fondu)
 │   └── qmldir                   # Déclaration du module Components
+├── launcher/                    # Lanceur d'applications natif (remplacement de Rofi)
+│   ├── LauncherService.qml      # Singleton IPC (toggle, open, close) et visibilité
+│   ├── LauncherWindow.qml       # Fenêtre overlay 33%, grille 5 colonnes, tri MRU, animation Apple
+│   └── qmldir                   # Déclaration du module Launcher
 ├── notifications/               # Serveur de notifications natif & Centre de Contrôle
 │   ├── NotificationService.qml  # Singleton D-Bus (NotificationServer), état DND, historique, IPC
-│   ├── NotificationToastWindow.qml # Fenêtre de toasts flottants OSD avec compte à rebours
-│   ├── NotificationCenter.qml   # Centre de Contrôle Glassmorphism (toggles Apple, sliders, historique, bloc-notes)
+│   ├── NotificationToastWindow.qml # Fenêtre de toasts flottants OSD avec compte à rebours fluide 60fps
+│   ├── NotificationCenter.qml   # Centre de Contrôle Glassmorphism (conteneur modulaire)
+│   ├── components/              # Sous-composants modulaires à responsabilité unique
+│   │   ├── QuickSettings.qml    # Toggles Wi-Fi, Bluetooth, Audio, Micro, Verrouiller, Session
+│   │   ├── VolumeBrightnessSliders.qml # Curseurs horizontaux en capsule de verre
+│   │   ├── NotificationList.qml # Liste des notifications, actions et état vide
+│   │   └── Scratchpad.qml       # Mini bloc-notes persistant (scratchpad.txt)
 │   └── qmldir                   # Déclaration du module Notifications
 ├── session/                     # Menu de session plein écran natif (Power Menu)
 │   ├── SessionService.qml       # Singleton d'état, helper d'actions et IpcHandler
@@ -45,7 +54,7 @@ L'ensemble de la configuration réside dans `.config/quickshell/` :
     ├── BarContent.qml           # Disposition des 3 sections (Gauche, Centre, Droite)
     ├── qmldir                   # Déclaration du module Bar
     ├── modules/                 # Modules visibles dans la barre
-    │   ├── LauncherButton.qml   # Lanceur d'applications Rofi
+    │   ├── LauncherButton.qml   # Déclencheur du lanceur Quickshell (LauncherService.toggle)
     │   ├── Workspaces.qml       # Sélecteur de workspaces Hyprland
     │   ├── CpuModule.qml        # Jauge et charge CPU (3.8% écran)
     │   ├── MemoryModule.qml     # Jauge et utilisation RAM (3.8% écran)
@@ -53,9 +62,9 @@ L'ensemble de la configuration réside dans `.config/quickshell/` :
     │   ├── MprisModule.qml      # Lecteur musical MPRIS (12% écran)
     │   ├── ActiveWindow.qml     # Titre de la fenêtre active
     │   ├── TaskbarModule.qml    # Barre de tâches avec icônes d'applications ouvertes
-    │   ├── SystemTrayModule.qml # Zone de notification système (System Tray)
+    │   ├── SystemTrayModule.qml # Zone de notification système (System Tray filtré)
     │   ├── BacklightModule.qml  # Jauge de rétroéclairage
-    │   ├── VolumeModule.qml     # Jauge de volume audio PipeWire/WirePlumber
+    │   ├── VolumeModule.qml     # Jauge de volume audio PipeWire réactive (PwObjectTracker)
     │   ├── BatteryModule.qml    # Jauge de batterie UPower
     │   ├── NotificationButton.qml # Centre de notifications & badge réactif DND
     │   ├── ClockModule.qml      # Horloge à la minute (SystemClock)
@@ -69,7 +78,7 @@ L'ensemble de la configuration réside dans `.config/quickshell/` :
         ├── CpuPopup.qml         # Température, détail par cœur, load average et Top 5 processus
         ├── MemoryPopup.qml      # RAM, Swap détaillé et Top 5 processus RAM
         ├── MprisPopup.qml       # Pochette d'album HD centrée, métadonnées et contrôles complets
-        ├── NetworkPopup.qml     # IP locale, passerelle, débits UP/DOWN et totaux session
+        ├── NetworkPopup.qml     # IP locale, passerelle, débits UP/DOWN et boutons nmtui/VPN
         ├── PowerPopup.qml       # Verrouiller, Veille, Redémarrer, Éteindre, Déconnexion
         ├── VolumePopup.qml      # Curseur 0-150%, presets rapides, mute et mixeur Pavucontrol
         └── qmldir               # Déclaration du module Popups
@@ -83,7 +92,7 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
 
 | Token | Valeur | Rôle |
 | :--- | :--- | :--- |
-| `background` | `#e00b0f14` | Fond principal de la barre (Obsidian Glass 88% opacité) |
+| `background` | `#e00b0f14` | Fond principal de la barre et fenêtres (Obsidian Glass 88% opacité) |
 | `cardBackground` | `#f0121920` | Fond des cartes flottantes et popups (94% opacité) |
 | `cardBackgroundHover` | `#fa232f3c` | Fond des éléments au survol (98% opacité) |
 | `glassBorder` | `#405dade2` | Bordure subtile façon verre (Glacier Blue 25% opacité) |
@@ -104,7 +113,7 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
 ## 🕹️ 4. Modules et Fenêtres Flottantes (Popups)
 
 ### 📌 4.1 Section Gauche (Système & Navigation)
-- **󰣇 Lanceur (`LauncherButton`) :** Déclenche `rofi -show drun`.
+- **󰣇 Lanceur (`LauncherButton`) :** Déclenche `LauncherService.toggle()` (Lanceur Quickshell).
 - **Workspaces (`Workspaces`) :** 
   - Affiche les bureaux actifs et occupés.
   - Clic gauche : Bascule sur le bureau sélectionné.
@@ -117,7 +126,7 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
   - Popup épuré : Jauge fine, pourcentage, RAM utilisée / totale et pourcentage Swap.
 - **󰤨 Réseau (`NetworkModule` + `NetworkPopup`) :**
   - Barre : Largeur fixée à 3.8% de l'écran (`widthPercent: 0.038`).
-  - Popup épuré : Nom du WiFi / Filaire + signal, adresse IP locale et débits instantanés (↓/↑).
+  - Popup épuré : Nom du WiFi / Filaire + signal, adresse IP locale, débits instantanés (↓/↑) et boutons d'action rapide (**Connexions**, **Terminal nmtui**, **VPN**).
 - **󰝚 Lecteur Multimédia (`MprisModule` + `MprisPopup`) :**
   - Barre : Largeur fixée à 12% de l'écran (`widthPercent: 0.12`) avec défilement/troncature propre.
   - Clic gauche : Lecture / Pause immédiate (`togglePlaying()`).
@@ -130,16 +139,17 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
 
 ### 📌 4.3 Section Droite (Tâches & Contrôle Matériel)
 - **Barre des Tâches (`TaskbarModule` + `AppPopup`) :**
-  - Affiche les icônes haute résolution des fenêtres ouvertes sous Hyprland avec espacement respirant (`spacing: 10px`).
+  - Affiche les icônes haute résolution des fenêtres ouvertes sous Hyprland via le composant thread-safe `IconImage`.
   - Clic gauche : Focus et passage au premier plan de l'application.
   - Clic milieu : Fermeture de la fenêtre.
   - **Popup d'Aperçu au survol (`AppPopup`) :**
     - Nom de l'application, badge de workspace assigné, titre de fenêtre sur une ligne et boutons compacts **󰘳 Basculer** (focus) et **󰅖 Fermer**.
-- **System Tray (`SystemTrayModule`) :** Zone de notification SNI native Wayland avec support clic gauche, clic droit et molette.
+- **System Tray (`SystemTrayModule`) :** Zone de notification SNI native Wayland filtrée (élimination des applets réseaux redondantes) avec support clic gauche, clic droit et molette.
 - **󰃠 Luminosité (`BacklightModule` + `BacklightPopup`) :**
   - Molette sur la barre : Ajustement par pas de 3%.
   - Popup épuré : Curseur interactif 1-100% et presets rapides (25%, 50%, 75%, 100%).
 - **󰕾 Volume Audio (`VolumeModule` + `VolumePopup`) :**
+  - Suivi réactif sans polling via `Pipewire.defaultAudioSink.audio`.
   - Molette sur la barre : Ajustement par pas de 5%.
   - Clic droit : Ouvre le mixeur `pavucontrol`.
   - Popup épuré : Curseur interactif 0-150% PipeWire, bouton Muet et raccourci mixeur `󰓃`.
@@ -152,7 +162,7 @@ Le design system repose sur une palette sombre et épurée inspirée du verre fu
   - Badge dynamique en temps réel sans polling affichant le nombre de notifications non lues.
   - Toasts OSD flottants (`NotificationToastWindow`) avec compte à rebours de fermeture automatique.
 - **󰥔 Horloge (`ClockModule` + `ClockPopup`) :**
-  - Barre : Heure au format `HH:mm` cadencée à la minute.
+  - Barre : Heure au format `HH:mm` cadencée à la minute (`SystemClock.Minutes`).
   - Popup épuré : Heure avec secondes, date en français, calendrier compact du mois avec jour courant en surbrillance et Uptime système.
 - **⏻ Menu Énergie (`PowerButton` + `PowerPopup`) :**
   - Clic gauche : Menu rapide compact (Verrouiller, Veille, Déconnexion, Redémarrer, Éteindre).
@@ -182,7 +192,7 @@ Toutes les transitions d'ouverture et de fermeture utilisent des courbes cubique
 2. **Horloge cadencée à la minute :**
    Utilisation de `SystemClock` avec `precision: SystemClock.Minutes` sur la barre principale pour éliminer les réveils de timers chaque seconde.
 3. **Exécution Asynchrone `Quickshell.execDetached` :**
-   Toutes les interactions et lancements de commandes externes (`hyprctl`, `wpctl`, `brightnessctl`, `powerprofilesctl`, `rofi`) sont exécutés de façon asynchrone et détachée, prévenant tout blocage du thread graphique de rendu.
+   Toutes les interactions et lancements de commandes externes (`hyprctl`, `wpctl`, `brightnessctl`, `powerprofilesctl`) sont exécutés de façon asynchrone et détachée, prévenant tout blocage du thread graphique de rendu.
 
 ---
 
@@ -192,7 +202,8 @@ Le sous-système de notifications réside dans `.config/quickshell/notifications
 
 ### 1. `NotificationService.qml` (Singleton D-Bus)
 - **Serveur D-Bus natif :** Instancie `Quickshell.Services.Notifications.NotificationServer` qui revendique le nom de bus standard `org.freedesktop.Notifications`.
-- **Gestionnaire DND (Ne Pas Déranger) :** Filtre l'affichage des alertes visuelles tout en conservant l'historique complet dans `trackedNotifications`.
+- **Filtrage Intelligent :** Rejet immédiat des notifications vides sans titre ni corps.
+- **Gestionnaire DND (Ne Pas Déranger) :** Filtre l'affichage des alertes visuelles tout en conservant l'historique complet.
 - **Handler IPC & Raccourcis :** Enregistre une cible IPC (`target: "notifications"`) permettant le contrôle par scripts et binds Hyprland :
   ```bash
   quickshell ipc call notifications toggle
@@ -202,17 +213,15 @@ Le sous-système de notifications réside dans `.config/quickshell/notifications
 
 ### 2. `NotificationToastWindow.qml` (Toasts Flottants OSD)
 - Fenêtre en calque `Overlay` affichant les notifications entrantes dans le coin supérieur droit.
-- Barre de progression d'expiration visuelle (5s normale, 3.5s basse priorité, infinie pour les alertes critiques).
+- Barre de progression d'expiration visuelle animée à 60fps via `NumberAnimation`.
 - Mise en pause automatique du compte à rebours au survol de la souris.
 
-### 3. `NotificationCenter.qml` (Centre de Contrôle Glassmorphism)
-- **Design épuré style Apple Control Center :**
-  - **Toggles rapides sans texte :** Pavés tactiles à grandes icônes centrées (Wi-Fi, Bluetooth, Micro, Audio).
-  - **Curseurs en capsule :** Curseurs horizontaux de volume et luminosité avec icône intégrée et pourcentage dynamique.
-  - **Actions système :** Boutons compacts Verrouiller (`hyprlock`) et Session (`SessionService.openSession()`).
-  - **Mini Bloc-Notes persistant (Scratchpad) :** Zone d'édition défilante avec persistance synchrone débouncée dans `scratchpad.txt` et boutons Copier / Purger.
-  - **Historique & Actions :** Liste défilante des notifications avec suppression unitaire ou globale (`󰃢`).
-- **100% Dimensionnement Relatif :** Largeur fixée à 12.5% de l'écran (`Theme.relWidth(0.125, screen)`), hauteur dynamique adaptée au contenu.
+### 3. `NotificationCenter.qml` (Centre de Contrôle Glassmorphism Décomposé)
+- **Architecture modulaire :** Découpé en 4 sous-composants dédiés sous `.config/quickshell/notifications/components/` :
+  - **`QuickSettings.qml` :** Toggles rapides compacts sans texte (Wi-Fi, Bluetooth, Micro, Audio) et raccourcis Verrouiller / Session.
+  - **`VolumeBrightnessSliders.qml` :** Curseurs horizontaux en capsule de verre avec icône intégrée et pourcentage réactif.
+  - **`NotificationList.qml` :** Historique avec suppression unitaire ou globale (`󰃢`) et support complet des actions.
+  - **`Scratchpad.qml` :** Bloc-notes persistant synchronisé avec `scratchpad.txt` et raccourci de copie instantanée (`wl-copy`).
 
 ---
 
@@ -231,7 +240,7 @@ Le module de session réside dans `.config/quickshell/session/` et remplace int�
   ```
 
 ### 2. `SessionWindow.qml` (Fenêtre Plein Écran Glassmorphism)
-- **Calque Overlay avec Focus Exclusif :** `WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive` capture immédiatement toutes les touches dès l'ouverture.
+- **Calque Overlay avec Focus Exclusif :** Capture immédiatement toutes les touches dès l'ouverture.
 - **Raccourcis Clavier Directs :**
   - <kbd>L</kbd> : Verrouiller (`hyprlock`)
   - <kbd>U</kbd> : Veille (`loginctl lock-session && systemctl suspend`)
@@ -242,3 +251,37 @@ Le module de session réside dans `.config/quickshell/session/` et remplace int�
   - <kbd>Échap</kbd> ou **Clic extérieur** : Fermeture instantanée du menu.
 - **Cartes Obsidian Glass :** 6 grandes cartes tactiles animées au survol avec halo de couleur et micro-scale responsive.
 
+---
+
+## 🚀 9. Architecture du Lanceur d'Applications Natif (App Launcher)
+
+Le module de lanceur d'applications réside dans `.config/quickshell/launcher/` et remplace intégralement `rofi` :
+
+```mermaid
+graph TD
+    USER["Utilisateur (SUPER + Espace / Clic Top Bar)"] --> LS["LauncherService (Singleton IPC)"]
+    LS --> LW["LauncherWindow.qml (Overlay 33% Centré)"]
+    LW --> INPUT["TextInput (Faint Glass & Loupe Glacier Blue)"]
+    LW --> MRU["Historique MRU (launcher_history.json)"]
+    LW --> DE["DesktopEntries.applications (XDG)"]
+    LW --> GRID["GridView (5 Colonnes, Hauteur 140px)"]
+    GRID --> CARD["AppCard (Icônes 52px + Nom au survol/sélection)"]
+    CARD --> EXEC["uwsm app -- exec / entry.execute()"]
+```
+
+### 1. `LauncherService.qml` (Singleton d'État & IPC)
+- Gère la visibilité réactive du lanceur (`launcherVisible`).
+- Enregistre une cible IPC dédiée (`target: "launcher"`) pour le raccourci Hyprland <kbd>SUPER</kbd> + <kbd>Espace</kbd> :
+  ```bash
+  quickshell ipc call launcher toggle
+  quickshell ipc call launcher open
+  quickshell ipc call launcher close
+  ```
+
+### 2. `LauncherWindow.qml` (Fenêtre de Lanceur Glassmorphic)
+- **Dimensions & Format :** Fenêtre centrale occupant exactement **33% de la largeur d'écran** (`Theme.relWidth(0.33, root.screen)`), fond Obsidian Glass (`rgba(11, 15, 20, 0.85)`), fine bordure Glacier Blue (`rgba(93, 173, 226, 0.35)`) et coins arrondis à 20px.
+- **Animation Style Apple (Spotlight / Springboard) :** Apparition fluide avec micro-zoom `0.92 ➔ 1.0` et courbe de rebond élastique subtile `Easing.OutBack` (220ms).
+- **Grille 5 Colonnes & Centrage Dynamique :** Cellules aérées de **140px de hauteur** avec grandes icônes de **52x52px**. Lorsqu'il reste moins de 5 éléments filtrés, la rangée se recentre automatiquement au milieu de la carte.
+- **Révélation Épurée des Noms :** Les noms des applications sont invisibles par défaut pour une grille épurée et apparaissent en fondu uniquement lors de la présélection au clavier ou du survol souris.
+- **Tri Intelligent par Fréquence d'Utilisation (MRU) :** Suivi persistant des lancements dans `$XDG_STATE_HOME/quickshell/launcher_history.json`. Les applications les plus fréquemment ouvertes apparaissent en tête de liste sans recherche, et les correspondances exactes sont priorisées lors de la saisie.
+- **Cascade de Résolution d'Icônes Infaillible :** Moteur multi-niveaux résolvant les chemins directs, noms minuscules, suppression de reverse-DNS `org.gnome.*`, dictionnaire d'alias et icône Nerd Font contextuelle adaptée selon la catégorie en cas d'absence de fichier image.

@@ -7,145 +7,286 @@
 ╚═╝  ╚═╝╚═════╝  ╚═════╝       ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝
 ```
 
-Ce dépôt contient mes fichiers de configuration personnels pour **Hyprland** et ses composants associés. La configuration a été auditée et modernisée selon les standards **Hyprland 0.56+** (Lua) sous **UWSM**, avec une barre d'état interactive nouvelle génération développée sous **Quickshell v0.3.1**.
+Configuration de bureau Linux moderne, sobre et unifiée sous **Hyprland 0.56+** (Lua) orchestrée par **UWSM** (Universal Wayland Session Manager), avec une suite logicielle native complète développée sous **Quickshell v0.3.1+** (Barre d'état, Centre de Contrôle, Notifications D-Bus, Menu de Session et Lanceur d'applications).
 
 ---
 
-## 📁 Structure des Dossiers
+## 🎯 1. Vision Globale & Périmètre Métier
 
-La configuration est organisée comme suit :
+Ce dépôt regroupe l'infrastructure complète d'un environnement de travail Wayland moderne, ultra-performant et esthétiquement soigné :
+- **Unification logicielle Quickshell :** Élimination totale des démons et outils tiers hétérogènes (`waybar`, `swaync`, `wlogout`, `rofi`) au profit d'un environnement réactif monolithique modulaire sous Quickshell v0.3.1+.
+- **Design Obsidian Glass & Glacier Blue :** Identité visuelle sombre translucide inspirée du verre fumé, contrastée par des bordures subtiles et des lueurs bleu glacier.
+- **Sobriété énergétique & performances :** 0% CPU au repos, zéro polling permanent, exécutions système asynchrones non-bloquantes (`Quickshell.execDetached`) et empreinte RAM inférieure à 35 Mo pour l'ensemble du shell.
+- **Dimensionnement 100% relatif :** Aucune dimension en pixels codée en dur ; adaptation instantanée et mathématique à toutes les résolutions et facteurs d'échelle (FHD, 2.8K 90Hz, 4K multi-écrans).
+
+### Matrice Scope & Out-of-Scope
+
+| Domaine | Couvert (In-Scope) | Hors Périmètre (Out-of-Scope) |
+|---|---|---|
+| **Compositeur** | Hyprland 0.56+ avec machine de configuration Lua typée | Hyprland legacy (syntaxe `.conf` dépréciée) |
+| **Gestionnaire de Session** | UWSM (systemd user slice, variables XDG, launch tracking) | Scripts de session X11, Display Managers lourds |
+| **Interface & Shell** | Quickshell (Top Bar, Popups, Notifications, Session, Launcher) | Waybar, SwayNC, Rofi, Wlogout, Eww |
+| **Audio & Multimédia** | PipeWire / WirePlumber (`pw-dump`, `PwObjectTracker`), MPRIS | PulseAudio legacy / ALSA direct |
+| **Affichage & Écrans** | Profils matériels Lua (`profiles/*.lua`), color depth 10-bit | Scripts bash de détection d'écrans non-déterministes |
+
+---
+
+## 🏛️ 2. Analyse Architecturale & Patterns
+
+### Modèle Architectural
+
+L'architecture repose sur une séparation stricte des responsabilités en couches découplées :
+1. **Couche Déclarative Système (Hyprland Lua) :** Déclaration centralisée des raccourcis (`binds.lua`), de l'autostart sécurisé (`programs.lua`) et des profils d'affichage (`monitors.lua`).
+2. **Couche Services & Singletons QML (Quickshell) :** Gestionnaires d'état réactifs (`Theme.qml`, `LauncherService.qml`, `NotificationService.qml`, `SessionService.qml`) communicant via D-Bus et IPC Quickshell.
+3. **Couche UI / Vues Déclaratives (Wayland Layer-Shell Surfaces) :** Fenêtres `PanelWindow` WlrLayershell réparties dynamiquement sur chaque écran connecté (`Variants { model: Quickshell.screens }`).
+
+```mermaid
+graph TD
+    subgraph HYPR["Hyprland 0.56+ & UWSM"]
+        HL["hyprland.lua"] --> BINDS["binds.lua"]
+        HL --> PROG["programs.lua"]
+        HL --> MON["monitors.lua (profiles/default.lua)"]
+    end
+
+    subgraph QS_CORE["Quickshell ShellRoot (shell.qml)"]
+        VAR["Variants (Quickshell.screens)"]
+        THEME["Theme.qml (Tokens Obsidian Glass)"]
+        
+        VAR --> BW["BarWindow.qml (Top Bar)"]
+        VAR --> LW["LauncherWindow.qml (33% Overlay)"]
+        VAR --> NT["NotificationToastWindow.qml"]
+        VAR --> NC["NotificationCenter.qml"]
+        VAR --> SW["SessionWindow.qml (Power Menu)"]
+    end
+
+    subgraph QS_SERVICES["Services Réactifs & IPC"]
+        LS["LauncherService (MRU + DesktopEntries)"]
+        NS["NotificationService (org.freedesktop.Notifications)"]
+        SS["SessionService (Actions système)"]
+    end
+
+    BINDS -->|IPC / Raccourcis| QS_SERVICES
+    LW <--> LS
+    NC <--> NS
+    NT <--> NS
+    SW <--> SS
+```
+
+### 📁 Arborescence Intégrale du Projet
 
 ```
 .
-├── CHANGELOG.md                    # Journal des modifications (Keep a Changelog)
-├── LICENSE                         # Licence MIT
-├── README.md                       # Documentation principale
-├── docs/                           # Documentations techniques
-│   └── quickshell-bar.md           # Architecture & guide complet de la barre Quickshell
-└── .config
-    ├── hypr
-    │   ├── hyprland.lua            # Configuration principale (Lua)
-    │   ├── binds.lua               # Raccourcis et dispatchers (Lua)
-    │   ├── monitors.lua            # Machine à états de gestion dynamique des écrans (Lua 0.56)
-    │   ├── programs.lua            # Applications par défaut et autostart
-    │   ├── hypridle.conf           # Gestionnaire d'inactivité sécurisé (inhibit_sleep)
-    │   ├── hyprlock.conf           # Écran de verrouillage (Lock screen)
-    │   ├── hyprpaper.conf          # Gestionnaire de fond d'écran
-    │   ├── picture/                # Fonds d'écran
-    │   ├── profiles/               # Profils matériels d'affichage
-    │   │   └── default.lua         # Profil d'écran interne/externe par défaut
-    │   └── scripts/                # Scripts utilitaires
-    │       ├── battery-level.sh    # Notification de batterie faible
-    │       └── check-dependencies.sh # Validation automatique des dépendances (exit code)
-    ├── kitty
-    │   └── kitty.conf              # Émulateur de terminal Kitty
-    ├── quickshell                  # Barre d'état réactive, popups & notifications (Quickshell 0.3.1)
-    │   ├── shell.qml               # Point d'entrée ShellRoot (multi-écrans)
-    │   ├── theme/                  # Tokens visuels (Obsidian Glass & Glacier Blue)
-    │   ├── components/             # Composants d'interface (GlassCard, PillButton, ModulePopup)
-    │   ├── bar/                    # Modules de la barre et fenêtres popups
-    │   ├── notifications/          # Serveur de notifications natif D-Bus & Centre de Contrôle
-    │   └── session/                # Menu de session plein écran natif (Power Menu)
-    ├── rofi
-    │   ├── config.rasi             # Configuration globale de Rofi
-    │   └── themes/
-    │       └── theme.rasi          # Thème graphique Rofi
-    └── starship.toml               # Configuration du prompt de terminal Starship
+├── CHANGELOG.md                         # Journal des modifications conforme à Keep a Changelog
+├── LICENSE                              # Licence MIT
+├── README.md                            # Documentation d'architecture principale
+├── docs/                                # Documentations techniques détaillées
+│   └── quickshell-bar.md                # Guide exhaustif de l'écosystème Quickshell
+└── .config/
+    ├── hypr/
+    │   ├── hyprland.lua                 # Point d'entrée de configuration Hyprland (Lua)
+    │   ├── binds.lua                    # Table typée des raccourcis clavier & souris
+    │   ├── monitors.lua                 # Configuration des écrans & profils matériels
+    │   ├── programs.lua                 # Déclaration des applications et autostart sécurisé
+    │   ├── hypridle.conf                # Démon d'inactivité avec inhibit_sleep
+    │   ├── hyprlock.conf                # Écran de verrouillage graphique
+    │   ├── hyprpaper.conf               # Gestionnaire de fond d'écran (syntaxe plate + preload)
+    │   ├── picture/                     # Fonds d'écran officiels
+    │   ├── profiles/                    # Profils de configuration matérielle
+    │   │   └── default.lua              # Profil écran principal (2.8K 90Hz, scale 1.25, 10-bit)
+    │   └── scripts/                     # Scripts utilitaires idempotents
+    │       ├── battery-level.sh         # Surveillance batterie avec parsing sécurisé
+    │       └── check-dependencies.sh    # Validation automatisée de l'environnement (exit code)
+    ├── kitty/
+    │   └── kitty.conf                   # Émulateur de terminal GPU Kitty
+    ├── quickshell/                      # Écosystème complet Quickshell v0.3.1
+    │   ├── shell.qml                    # Point d'entrée ShellRoot (déploiement multi-écrans)
+    │   ├── theme/                       # Design tokens & Thème
+    │   │   ├── Theme.qml                # Singleton de couleurs, typographie, espacements et ratios
+    │   │   └── qmldir                   # Déclaration de module
+    │   ├── components/                  # Composants graphiques réutilisables
+    │   │   ├── GlassCard.qml            # Carte en verre translucide avec bordure lumineuse
+    │   │   ├── PillButton.qml           # Bouton pilule interactif avec animation
+    │   │   ├── IconLabel.qml            # Label réactif icône + texte
+    │   │   ├── ModulePopup.qml          # Fenêtre popup flottante avec survol intelligent
+    │   │   └── qmldir                   # Déclaration de module
+    │   ├── launcher/                    # Lanceur d'applications natif (remplacement de Rofi)
+    │   │   ├── LauncherService.qml      # Singleton IPC et gestionnaire de visibilité
+    │   │   ├── LauncherWindow.qml       # Fenêtre overlay 33%, grille 5 colonnes, tri MRU
+    │   │   └── qmldir                   # Déclaration de module
+    │   ├── notifications/               # Serveur D-Bus & Centre de Contrôle
+    │   │   ├── NotificationService.qml  # Démon D-Bus, filtrage des alertes vides, état DND
+    │   │   ├── NotificationToastWindow.qml # Toasts flottants avec jauge fluide à 60fps
+    │   │   ├── NotificationCenter.qml   # Conteneur principal du Centre de Contrôle
+    │   │   ├── components/              # Sous-composants modulaires du centre
+    │   │   │   ├── QuickSettings.qml    # Toggles Wi-Fi, Bluetooth, Audio, Micro & Actions
+    │   │   │   ├── VolumeBrightnessSliders.qml # Curseurs horizontaux en capsule de verre
+    │   │   │   ├── NotificationList.qml # Liste des notifications, actions et état vide
+    │   │   │   └── Scratchpad.qml       # Mini bloc-notes persistant (scratchpad.txt)
+    │   │   └── qmldir                   # Déclaration de module
+    │   ├── session/                     # Menu de session plein écran (Power Menu)
+    │   │   ├── SessionService.qml       # Singleton d'actions système et IpcHandler
+    │   │   ├── SessionWindow.qml        # Fenêtre plein écran Obsidian Glass avec touches directes
+    │   │   └── qmldir                   # Déclaration de module
+    │   └── bar/                         # Barre d'état supérieure
+    │       ├── BarWindow.qml            # Surface Layer-Shell Top avec zone exclusive
+    │       ├── BarContent.qml           # Disposition des sections Gauche, Centre, Droite
+    │       ├── modules/                 # Modules visibles de la barre
+    │       │   ├── LauncherButton.qml   # Bouton déclencheur du lanceur Quickshell
+    │       │   ├── Workspaces.qml       # Sélecteur réactif de bureaux virtuels
+    │       │   ├── CpuModule.qml        # Jauge et charge CPU (3.8% largeur écran)
+    │       │   ├── MemoryModule.qml     # Jauge et consommation RAM (3.8% largeur écran)
+    │       │   ├── NetworkModule.qml    # Statut réseau et débits temps réel (3.8% écran)
+    │       │   ├── MprisModule.qml      # Lecteur multimédia MPRIS compact (12% écran)
+    │       │   ├── ActiveWindow.qml     # Titre de l'application active
+    │       │   ├── TaskbarModule.qml    # Icônes des fenêtres ouvertes avec IconImage
+    │       │   ├── SystemTrayModule.qml # Zone de notification système SNI filtrée
+    │       │   ├── BacklightModule.qml  # Jauge de luminosité
+    │       │   ├── VolumeModule.qml     # Jauge de volume PipeWire réactive (sans polling)
+    │       │   ├── BatteryModule.qml    # Jauge de batterie UPower
+    │       │   ├── NotificationButton.qml # Bouton cloche & compteur non lu
+    │       │   ├── ClockModule.qml      # Horloge système cadencée à la minute
+    │       │   ├── PowerButton.qml      # Bouton d'accès au menu énergie
+    │       │   └── qmldir               # Déclaration de module
+    │       └── popups/                  # Popups détaillées au survol / clic
+    │           ├── AppPopup.qml         # Aperçu de fenêtre, statut et actions Focus/Fermer
+    │           ├── BacklightPopup.qml   # Curseur de luminosité et presets rapides
+    │           ├── BatteryPopup.qml     # Débit Watts, autonomie estimée et profils UPower
+    │           ├── ClockPopup.qml       # Calendrier dynamique du mois, secondes et uptime
+    │           ├── CpuPopup.qml         # Charge par cœur, température et Top 5 CPU
+    │           ├── MemoryPopup.qml      # RAM / Swap détaillé et Top 5 Mémoire
+    │           ├── MprisPopup.qml       # Pochette HD centrée et contrôles multimédias
+    │           ├── NetworkPopup.qml     # IP, passerelle, débits et boutons nmtui/VPN
+    │           ├── PowerPopup.qml       # Menu compact d'extinction rapide
+    │           ├── VolumePopup.qml      # Curseur 0-150%, muet et raccourci pavucontrol
+    │           └── qmldir               # Déclaration de module
+    └── starship.toml                    # Configuration du prompt Starship
 ```
 
 ---
 
-## 🔍 État de la Configuration & Modernisation 🟢
+## 🗄️ 3. Modélisation des Données & Persistance
 
-L'ensemble de la configuration a été audité et mis à niveau pour **Hyprland 0.56+** et **Quickshell 0.3.1+**.
-
-### 1. Barre d'État & Centre de Contrôle Quickshell Nouvelle Génération 🟢
-*(Voir la [Documentation technique détaillée](docs/quickshell-bar.md))*
-* **Design "Obsidian Glass & Glacier Blue"** : Effet de verre fumé translucide sombre avec reflets glassmorphic, bordures subtiles et accents bleu glacier.
-* **100% Dimensionnement Relatif & Proportionnel** : Zéro pixel codé en dur, chaque élément (modules, barres, curseurs, popups, panneau de notifications) s'adapte automatiquement à toutes les résolutions (FHD, QHD, 4K, multi-écrans).
-* **Fenêtres flottantes interactives (Popups)** : Chaque module dispose d'une fenêtre détaillée ouverte au survol intelligent (avec temporisation anti-scintillement) ou au clic :
-  - **CPU & RAM** : Charge en direct, détail par cœur, température, load average, répartition RAM/Swap, Top 5 des processus les plus gourmands et raccourci `btop`.
-  - **Réseau** : SSID/Filaire, IPv4, passerelle, débits temps réel (↓/↑), totaux session et accès rapide à `nm-connection-editor` / `nmtui`.
-  - **Musique MPRIS** : Pochette grand format HD centrée, métadonnées épurées et contrôles multimédias 100% relatifs.
-  - **Barre des tâches & AppPopup** : Aperçu riche au survol de chaque icône d'application (titre de la fenêtre, workspace, statut plein écran/flottant, bouton focus et fermeture rapide).
-  - **Contrôles matériel** : Sliders interactifs pour le volume audio PipeWire (0-150%), luminosité écran et profils d'alimentation UPower (**Éco**, **Équilibré**, **Max**).
-  - **Horloge & Calendrier** : Vue calendaire complète du mois en français avec jour actif surligné et uptime système.
-* **Serveur de Notifications D-Bus & Centre de Contrôle Natif** :
-  - **Démon natif D-Bus** : Implémente la spécification standard `org.freedesktop.Notifications` sous Quickshell sans nécessiter de démon tiers (SwayNC supprimé).
-  - **Centre de Contrôle inspiré d'Apple macOS/iOS** : Toggles tactiles compacts sans texte superflu (Wi-Fi, Bluetooth, Mute Micro, Mute Audio), curseurs de volume et luminosité en capsules de verre, raccourcis de session (`hyprlock`, Menu de Session Quickshell), mode Ne Pas Déranger (DND) et historique complet.
-  - **Mini Bloc-Notes persistant (Scratchpad)** : Éditeur de notes rapides intégré au Centre de Contrôle avec synchronisation automatique dans `scratchpad.txt` et raccourci de copie instantanée dans le presse-papier (`wl-copy`).
-  - **Toasts OSD éphémères** : Alertes flottantes animées avec barre de compte à rebours d'expiration et pause au survol.
-* **Menu de Session Plein Écran Natif Quickshell** :
-  - Remplace intégralement `wlogout` sans dépendance externe GTK.
-  - 6 cartes d'actions centrées en verre poli : Verrouiller (<kbd>L</kbd>), Veille (<kbd>U</kbd>), Déconnexion (<kbd>E</kbd>), Hiberner (<kbd>H</kbd>), Redémarrer (<kbd>R</kbd>), Éteindre (<kbd>S</kbd>) et annulation par <kbd>Échap</kbd> ou clic extérieur.
-* **Sobriété énergétique & performances** : Empreinte RAM minimale (< 25 Mo), lazy-loading des processus système (0% CPU au repos), zéro polling et exécutions asynchrones non-bloquantes via `Quickshell.execDetached`.
-
-### 2. Gestion des Écrans (Monitors 0.56) 🟢
-* **Inventaire matériel complet** : Utilisation de `hl.get_monitors({ all = true })` pour inclure toutes les sorties (y compris désactivées).
-* **Écran externe prioritaire** : Lors du branchement d'un écran externe, l'affichage externe est automatiquement activé et priorisé.
-* **Sécurité Capot** : Fallback `SAFETY_FALLBACK` garantissant que l'écran interne reste actif si le capot est fermé sans écran externe connecté.
-
-### 3. Veille et Verrouillage (Lock/Suspend) 🟢
-* **Attente du verrouillage** : Ajout de `inhibit_sleep = true` dans `hypridle.conf` et exécution sécurisée (`loginctl lock-session && systemctl suspend`) pour éliminer tout risque de session visible au réveil.
-
-### 4. Contrôle des Dépendances & Nettoyage 🟢
-* **Script de vérification** : `check-dependencies.sh` distingue les dépendances obligatoires des optionnelles et retourne un code d'erreur non-nul (`exit 1`) en cas de prérequis manquant.
-* **Suppression des composants obsolètes** : Suppression intégrale de `waybar`, `swaync`, `wlogout`, `monitor.sh` et `gesture.sh` pour maintenir un environnement propre, unifié et sans redondance.
+- **Tokens & Ratios Globaux (`Theme.qml`) :** Singleton centralisant les palettes de couleurs (`Qt.rgba`), les polices typographiques, les constantes d'animation et les fonctions de calcul proportionnel d'écran (`relWidth`, `relHeight`, `relFontSize`).
+- **Historique de Fréquence des Applications (`launcher_history.json`) :** Suivi persistant du nombre de lancements par application sous `$XDG_STATE_HOME/quickshell/launcher_history.json` pour garantir un tri MRU (Most Recently/Frequently Used) instantané.
+- **Bloc-Notes Persistant (`scratchpad.txt`) :** Sauvegarde asynchrone débouncée des notes rapides du Centre de Contrôle sous `$XDG_STATE_HOME/quickshell/scratchpad.txt`.
+- **Profils Matériels d'Écran (`profiles/*.lua`) :** Modélisation déclarative des écrans (nom, résolution, taux de rafraîchissement, position, échelle, profondeur de couleur 10-bit et variable de secours).
 
 ---
 
-## 📦 Dépendances requises
+## ⚡ 4. Stack Technique Justifiée
 
-Pour vérifier l'état des dépendances sur votre système :
+| Technologie / Outil | Version | Rôle | Justification du Choix |
+|:---|:---|:---|:---|
+| **Hyprland** | `>= 0.56.0` | Compositeur Wayland dynamique | Performance GPU, architecture Wayland native et configuration Lua typée. |
+| **UWSM** | `>= 0.20` | Gestionnaire de session Wayland | Intégration Systemd native, gestion des tranches cgroups et autostart standardisé. |
+| **Quickshell** | `>= 0.3.1` | Shell unifié (Bar, Notifs, Session, Launcher) | Moteur QtQuick/QML C++, réactivité événementielle, bindings Wayland directs et zéro surcoût. |
+| **PipeWire / WirePlumber**| `>= 1.0` | Serveur audio & multimédia | Suivi événementiel sans polling via `PwObjectTracker`, latence ultra-faible. |
+| **UPower** | Standard | Gestion énergétique & profils de batterie | API D-Bus standard pour suivi en temps réel et sélection de profils d'alimentation. |
+| **Kitty** | Standard | Émulateur de terminal GPU | Rendu OpenGL matériel, support étendu des polices Nerd Font et faible latence. |
+| **Starship** | Standard | Prompt de shell universel | Vitesse d'exécution en Rust, compatibilité multi-shell. |
+
+---
+
+## 🛡️ 5. Stratégie de Sécurité & Robustesse
+
+1. **Isolation des Processus & Sandboxing UWSM :**
+   - Toutes les applications lancées depuis le lanceur Quickshell, la barre des tâches ou les raccourcis Hyprland sont exécutées dans leur propre unité Systemd via `uwsm app -- <commande>`.
+2. **Gestion Sécurisée de la Veille (`hypridle.conf`) :**
+   - Directive `inhibit_sleep = true` activée pour empêcher la mise en veille avant que le verrouillage par `hyprlock` ne soit effectif, éliminant tout risque de session visible lors de la reprise.
+3. **Idempotence & Sécurité des Scripts Shell :**
+   - Tous les scripts utilitaires respectent strictement la directive `set -euo pipefail`.
+   - Contrôle systématique via `shellcheck` et absence de toute variable non initialisée.
+4. **Zéro Chemin en Dur & Confidentialité :**
+   - Utilisation exclusive des variables d'environnement `$HOME`, `$XDG_CONFIG_HOME`, `$XDG_STATE_HOME` et `os.getenv("HOME")`.
+   - Exclusion absolue des fichiers secrets (`credentials`, `.env`) dans `.gitignore`.
+
+---
+
+## 🚨 6. Résilience, Gestion des Erreurs & Observabilité
+
+- **Cascade de Résolution d'Icônes Infaillible :**
+  - Moteur de recherche d'icônes à 5 niveaux dans `LauncherWindow.qml` (chemin direct, recherche minuscules, suppression du préfixe reverse-DNS `org.gnome.*`, dictionnaire d'alias et icône de secours Nerd Font thématique contextuelle selon la catégorie).
+- **Filtrage Anti-Spam des Notifications :**
+  - Rejet automatique des notifications fantômes sans titre ni corps générées par les mises à jour DBus de certains démons d'arrière-plan (`StatusNotifierItem:IconName`).
+- **Validation Automatisée de l'Environnement :**
+  - Le script [`check-dependencies.sh`](file:///Projets/github/hdg-hyprland/.config/hypr/scripts/check-dependencies.sh) vérifie chaque dépendance obligatoire et optionnelle et émet un code de retour strict (`exit 0` / `exit 1`).
+
+---
+
+## 🚀 7. Performance, Scalabilité & Caching
+
+- **Élimination Intégrale du Polling :**
+  - Volume audio PipeWire suivi réactivement par `PwObjectTracker`.
+  - Horloge cadencée à la minute (`SystemClock.Minutes`).
+  - Débit réseau et monitoring système désactivés tant que les popups associées ne sont pas ouvertes (`running: root.visible`).
+- **Maintien du Thread Graphique Dédié :**
+  - Utilisation exclusive du composant natif et thread-safe `IconImage` (`Quickshell.Widgets`) pour éviter tout risque de crash de texture sous Qt 6 / Wayland.
+  - Exécutions externes toujours asynchrones via `Quickshell.execDetached`.
+
+---
+
+## 🛠️ 8. Guide de Démarrage & Standard de Qualité
+
+### Prérequis Système
+- Distribution Linux avec Wayland (Arch Linux, Fedora, Debian Sid, NixOS).
+- Packages obligatoires : `hyprland>=0.56.0`, `quickshell>=0.3.1`, `uwsm`, `kitty`, `hypridle`, `hyprlock`, `hyprpaper`, `brightnessctl`, `playerctl`, `wpctl`, `wl-copy`, `wl-paste`, `cliphist`.
+
+### Procédure d'Installation
+
 ```bash
-~/.config/hypr/scripts/check-dependencies.sh
+# 1. Cloner le dépôt dans votre répertoire de travail
+git clone https://github.com/hdg-zero/hdg-hyprland.git
+cd hdg-hyprland
+
+# 2. Valider la conformité des dépendances
+.config/hypr/scripts/check-dependencies.sh
+
+# 3. Créer les liens symboliques vers ~/.config/
+REPO_PATH="$(pwd)"
+
+for dir in hypr kitty quickshell; do
+  if [ -e "$HOME/.config/$dir" ] && [ ! -L "$HOME/.config/$dir" ]; then
+    mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
+  fi
+  ln -sf "$REPO_PATH/.config/$dir" "$HOME/.config/$dir"
+done
+
+for file in starship.toml; do
+  if [ -f "$HOME/.config/$file" ] && [ ! -L "$HOME/.config/$file" ]; then
+    mv "$HOME/.config/$file" "$HOME/.config/${file}.bak"
+  fi
+  ln -sf "$REPO_PATH/.config/$file" "$HOME/.config/$file"
+done
 ```
 
-- **Hyprland** (>= 0.56.0) avec support Lua
-- **UWSM** (Wayland Session Manager)
-- **Quickshell** (>= 0.3.1)
-- **hypridle** & **hyprlock**
-- **Rofi**, **kitty**
-- **brightnessctl**, **playerctl**, **wpctl**
+### Raccourcis Clavier Principaux
+
+| Raccourci | Action |
+|:---|:---|
+| <kbd>SUPER</kbd> + <kbd>Espace</kbd> | Lanceur d'applications Quickshell (Obsidian Glass 5 colonnes) |
+| <kbd>SUPER</kbd> + <kbd>Entrée</kbd> | Terminal Kitty |
+| <kbd>SUPER</kbd> + <kbd>E</kbd> | Gestionnaire de fichiers Nautilus |
+| <kbd>SUPER</kbd> + <kbd>M</kbd> | Menu de session plein écran (Power Menu) |
+| <kbd>SUPER</kbd> + <kbd>F</kbd> | Centre de Contrôle & Notifications |
+| <kbd>SUPER</kbd> + <kbd>Q</kbd> | Fermer la fenêtre active |
+| <kbd>SUPER</kbd> + <kbd>V</kbd> | Basculer en mode flottant |
+| <kbd>SUPER</kbd> + <kbd>P</kbd> | Capture d'écran zone interactive (`hyprshot`) |
+| <kbd>SUPER</kbd> + <kbd>W</kbd> | Historique du presse-papier |
 
 ---
 
-## 🚀 Installation
+## 🔮 9. Dette Technique & Vision Moyen Terme
 
-1. Cloner le dépôt :
-   ```bash
-   git clone https://github.com/hdg-zero/hdg-hyprland.git
-   cd hdg-hyprland
-   ```
-2. Tester les dépendances :
-   ```bash
-   .config/hypr/scripts/check-dependencies.sh
-   ```
-3. Créer les liens symboliques vers `~/.config/` :
-   ```bash
-   REPO_PATH="$(pwd)"
-
-   for dir in hypr kitty quickshell rofi; do
-     if [ -e "$HOME/.config/$dir" ] && [ ! -L "$HOME/.config/$dir" ]; then
-       mv "$HOME/.config/$dir" "$HOME/.config/${dir}.bak"
-     fi
-     ln -sf "$REPO_PATH/.config/$dir" "$HOME/.config/$dir"
-   done
-
-   for file in starship.toml; do
-     if [ -f "$HOME/.config/$file" ] && [ ! -L "$HOME/.config/$file" ]; then
-       mv "$HOME/.config/$file" "$HOME/.config/${file}.bak"
-     fi
-     ln -sf "$REPO_PATH/.config/$file" "$HOME/.config/$file"
-   done
-   ```
-4. Recharger la configuration :
-   ```bash
-   hyprctl reload
-   ```
+- [x] Remplacement intégral de Waybar par la barre d'état Quickshell interactive.
+- [x] Remplacement de SwayNC par le serveur de notifications D-Bus et Centre de Contrôle natif Quickshell.
+- [x] Remplacement de Wlogout par le Menu de Session plein écran natif Quickshell.
+- [x] Remplacement intégral de Rofi par le lanceur d'applications natif Quickshell Obsidian Glass.
+- [x] Découpage modulaire du Centre de Contrôle en 4 sous-composants dédiés.
+- [ ] Support d'un sélecteur graphique de fonds d'écran intégré à Quickshell.
+- [ ] Module de gestion de profils d'affichage multi-écrans à la volée depuis le Centre de Contrôle.
 
 ---
 
 ## 📄 Licence
 
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+Ce projet est distribué sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus d'informations.
