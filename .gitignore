@@ -11,6 +11,8 @@
 # Temporary & Log files
 *.log
 *.tmp
+heaptrack*
+*.zst
 crashes/
 crash/
 
