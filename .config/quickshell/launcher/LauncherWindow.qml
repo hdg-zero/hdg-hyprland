@@ -4,7 +4,6 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
-import Quickshell.Services.Applications
 import "../theme"
 import "../components"
 
