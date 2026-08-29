@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import Quickshell.Widgets
 import Quickshell.Io
 import "../theme"
@@ -14,6 +15,12 @@ PanelWindow {
     property var targetScreen: null
     screen: targetScreen
 
+    readonly property bool isCurrentMonitor: {
+        var focused = Hyprland.focusedMonitor;
+        var current = Hyprland.monitorFor(root.screen);
+        return focused && current ? (focused.id === current.id) : true;
+    }
+
     anchors {
         top: true
         bottom: true
@@ -24,7 +31,7 @@ PanelWindow {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: LauncherService.launcherVisible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: (LauncherService.launcherVisible && isCurrentMonitor) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // Maintient la fenêtre active pendant l'animation de fermeture
     visible: LauncherService.launcherVisible || animProgress > 0.01

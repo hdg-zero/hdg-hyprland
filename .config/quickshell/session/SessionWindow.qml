@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import Quickshell.Io
 import "../theme"
 
@@ -10,6 +11,12 @@ PanelWindow {
 
     property var targetScreen: null
     screen: targetScreen
+
+    readonly property bool isCurrentMonitor: {
+        var focused = Hyprland.focusedMonitor;
+        var current = Hyprland.monitorFor(root.screen);
+        return focused && current ? (focused.id === current.id) : true;
+    }
 
     anchors {
         top: true
@@ -21,7 +28,7 @@ PanelWindow {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: (visible && isCurrentMonitor) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     visible: SessionService.sessionVisible
 
