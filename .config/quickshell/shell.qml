@@ -1,5 +1,5 @@
-import Quickshell
 import QtQuick
+import Quickshell
 import "./theme"
 import "./components"
 import "./bar"
@@ -10,16 +10,31 @@ import "./launcher"
 ShellRoot {
     id: root
 
-    // Lanceur d'applications natif (Obsidian Glass)
-    Variants {
-        model: Quickshell.screens
+    // Maintien en vie du lanceur après fermeture : laisse l'animation de sortie (160 ms)
+    // se jouer avant que le Loader ne détruise la fenêtre et sa surface Wayland.
+    property bool launcherKeepAlive: false
 
-        LauncherWindow {
-            targetScreen: modelData
+    Timer {
+        id: launcherKeepAliveTimer
+        interval: 300
+        onTriggered: root.launcherKeepAlive = false
+    }
+
+    Connections {
+        target: LauncherService
+        function onLauncherVisibleChanged() {
+            if (!LauncherService.launcherVisible) {
+                root.launcherKeepAlive = true;
+                launcherKeepAliveTimer.restart();
+            } else {
+                launcherKeepAliveTimer.stop();
+                root.launcherKeepAlive = false;
+            }
         }
     }
 
-    // Barre d'état déployée dynamiquement sur chaque écran connecté
+    // La barre d'état reste permanente : surface visible en continu, une destruction/
+    // recréation n'amortirait rien et ferait scintiller les écrans à chaque reload.
     Variants {
         model: Quickshell.screens
 
@@ -28,30 +43,61 @@ ShellRoot {
         }
     }
 
-    // Toasts de notification sur chaque écran connecté
+    // ---- Fenêtres secondaires paresseuses -------------------------------------------
+    // Chaque fenêtre (surface Wayland + contexts GPU) n'est instanciée que lorsque son
+    // service l'exige, puis détruite (economie RAM/GPU au repos : le shell au démarrage
+    // ne crée qu'une seule surface par écran, la barre).
+
+    // Lanceur : monté tant que demandé + 300 ms après fermeture (anim de sortie 160 ms).
     Variants {
         model: Quickshell.screens
 
-        NotificationToastWindow {
-            targetScreen: modelData
+        Loader {
+            required property var modelData
+            active: LauncherService.launcherVisible || root.launcherKeepAlive
+
+            sourceComponent: LauncherWindow {
+                targetScreen: modelData
+            }
         }
     }
 
-    // Centre de contrôle et notifications sur chaque écran connecté
+    // Menu de session plein écran (pas d'animation de sortie : destruction immédiate).
     Variants {
         model: Quickshell.screens
 
-        NotificationCenter {
-            targetScreen: modelData
+        Loader {
+            required property var modelData
+            active: SessionService.sessionVisible
+            sourceComponent: SessionWindow {
+                targetScreen: modelData
+            }
         }
     }
 
-    // Menu de session plein écran sur chaque écran connecté
+    // Centre de contrôle & notifications.
     Variants {
         model: Quickshell.screens
 
-        SessionWindow {
-            targetScreen: modelData
+        Loader {
+            required property var modelData
+            active: NotificationService.panelVisible
+            sourceComponent: NotificationCenter {
+                targetScreen: modelData
+            }
+        }
+    }
+
+    // Toasts de notification (fenêtre existante tant qu'un toast est affiché).
+    Variants {
+        model: Quickshell.screens
+
+        Loader {
+            required property var modelData
+            active: NotificationService.activeToasts.length > 0
+            sourceComponent: NotificationToastWindow {
+                targetScreen: modelData
+            }
         }
     }
 }

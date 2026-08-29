@@ -82,6 +82,15 @@ PanelWindow {
         }
     }
 
+    // Lazy loading : à la recréation par le Loader, la fenêtre naît déjà visible —
+    // onVisibleChanged(→true) ne part pas toujours. On (re)lance l'horloge/uptime à la
+    // fin de l'instanciation pour un affichage à jour dès la première frame.
+    Component.onCompleted: {
+        if (visible) {
+            refreshInfo();
+        }
+    }
+
     Timer {
         interval: 1000
         running: root.visible

@@ -55,6 +55,16 @@ PanelWindow {
         }
     }
 
+    // Lazy loading : à la recréation par le Loader, la fenêtre naît déjà visible —
+    // onVisibleChanged(false→true) ne part pas toujours. On rafraîchit donc aussi à la fin
+    // de l'instanciation (états Wi-Fi/BT/micro, curseurs, notes du scratchpad).
+    Component.onCompleted: {
+        if (visible) {
+            refreshStatus();
+            scratchpad.loadNotes();
+        }
+    }
+
     Timer {
         interval: 3000
         running: root.visible
