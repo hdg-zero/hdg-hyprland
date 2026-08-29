@@ -15,6 +15,7 @@ Item {
         id: mprisPopup
         parentWindow: root.parentWindow
         anchorItem: pill
+        targetPlayer: root.activePlayer
     }
 
     readonly property var activePlayer: {
@@ -45,29 +46,11 @@ Item {
         readonly property string trackText: {
             if (!root.activePlayer) return "";
             var title = root.activePlayer.trackTitle || "";
-            var rawArtists = root.activePlayer.trackArtists;
-            var artist = "";
-            if (rawArtists !== null && rawArtists !== undefined) {
-                if (typeof rawArtists.join === "function") {
-                    artist = rawArtists.join(", ");
-                } else if (typeof rawArtists === "string") {
-                    artist = rawArtists;
-                } else if (rawArtists.length !== undefined) {
-                    var parts = [];
-                    for (var k = 0; k < rawArtists.length; k++) {
-                        parts.push(rawArtists[k]);
-                    }
-                    artist = parts.join(", ");
-                } else {
-                    artist = rawArtists.toString();
-                }
-            } else if (root.activePlayer.trackArtist) {
-                artist = "" + root.activePlayer.trackArtist;
-            }
-            if (artist.length > 0) {
+            var artist = root.activePlayer.trackArtist || "";
+            if (artist.length > 0 && title.length > 0) {
                 return artist + " - " + title;
             }
-            return title;
+            return title || artist;
         }
 
         icon: isPlaying ? "󰐊" : "󰏤"

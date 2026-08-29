@@ -42,6 +42,7 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé
+- Normalisation du pourcentage de batterie (`BatteryPopup.qml`) et synchronisation du lecteur multimédia actif MPRIS entre module et popup avec l'API non dépréciée `trackArtist` (`MprisModule.qml`, `MprisPopup.qml`).
 - Unification des actions de session et extinction dans `PowerPopup.qml` et `QuickSettings.qml` via `SessionService`, assurant la conformité UWSM (`uwsm stop`, `uwsm app -- hyprlock`).
 - Résolution des conflits de focus exclusif LayerShell en environnement multi-écrans sur `LauncherWindow.qml` et `SessionWindow.qml` en restreignant `WlrKeyboardFocus.Exclusive` au moniteur actif (`Hyprland.focusedMonitor`).
 - Suppression du chemin absolu en dur `/home/agent/...` dans la table d'alias d'icônes du lanceur (`LauncherWindow.qml`) et sécurisation du lancement d'applications via la liste typée `app.command` sous `uwsm app --`.

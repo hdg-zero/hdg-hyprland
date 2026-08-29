@@ -8,10 +8,24 @@ import "../../components"
 ModulePopup {
     id: root
 
+    property var targetPlayer: null
     widthPercent: Theme.popupWidthPercentWide
     cardHeight: mprisCol.implicitHeight + Theme.spacingMd * 2
-
-    readonly property var player: (Mpris.players && Mpris.players.values && Mpris.players.values.length > 0) ? Mpris.players.values[0] : null
+    readonly property var player: targetPlayer ? targetPlayer : {
+        if (!Mpris.players || !Mpris.players.values) return null;
+        var list = Mpris.players.values;
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].playbackState === MprisPlaybackState.Playing) {
+                return list[i];
+            }
+        }
+        for (var j = 0; j < list.length; j++) {
+            if (list[j].trackTitle && list[j].trackTitle.length > 0) {
+                return list[j];
+            }
+        }
+        return list.length > 0 ? list[0] : null;
+    }
     readonly property bool isPlaying: player ? (player.playbackState === MprisPlaybackState.Playing) : false
 
     readonly property int coverSize: Math.round(effectiveWidth * 0.72)

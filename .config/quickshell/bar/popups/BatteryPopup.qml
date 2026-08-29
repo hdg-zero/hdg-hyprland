@@ -9,7 +9,11 @@ ModulePopup {
     id: root
 
     readonly property var bat: UPower.displayDevice
-    readonly property int chargePercent: bat ? Math.round(bat.percentage * 100) : 100
+    readonly property int chargePercent: {
+        if (!bat) return 100;
+        var p = bat.percentage;
+        return p <= 1.0 ? Math.round(p * 100) : Math.round(p);
+    }
     readonly property bool isCharging: bat ? (bat.state === UPowerDeviceState.Charging) : false
     readonly property bool isFull: bat ? (bat.state === UPowerDeviceState.FullyCharged) : false
     readonly property string energyRateFormatted: bat && bat.energyRate > 0 ? (bat.energyRate.toFixed(1) + " W") : ""
