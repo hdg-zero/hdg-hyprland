@@ -43,6 +43,58 @@ PanelWindow {
     property int selectedIndex: 0
     property var appHistory: ({})
 
+    // Résolution robuste des icônes d'applications avec multiples stratégies de repli
+    function resolveAppIcon(app) {
+        if (!app) return "";
+        var iconName = app.icon || app.id || "";
+        if (!iconName) return "";
+        if (iconName.indexOf("/") !== -1) return iconName;
+
+        // 1. Recherche directe par nom
+        var resolved = Quickshell.iconPath(iconName, true);
+        if (resolved) return resolved;
+
+        // 2. Recherche en minuscules
+        var lower = iconName.toLowerCase();
+        resolved = Quickshell.iconPath(lower, true);
+        if (resolved) return resolved;
+
+        // 3. Extraction du suffixe sans préfixe reverse-DNS (ex: org.gnome.Nautilus -> nautilus)
+        var parts = lower.split(".");
+        if (parts.length > 1) {
+            var suffix = parts[parts.length - 1];
+            resolved = Quickshell.iconPath(suffix, true);
+            if (resolved) return resolved;
+
+            if (parts.length >= 3 && parts[1] === "gnome") {
+                resolved = Quickshell.iconPath("gnome-" + suffix, true);
+                if (resolved) return resolved;
+            }
+        }
+
+        // 4. Alias courants
+        var aliases = {
+            "codium": "vscodium",
+            "code": "visual-studio-code",
+            "mullvad browser": "mullvad-browser",
+            "mullvad-browser": "mullvad-browser",
+            "org.gnome.nautilus": "system-file-manager",
+            "nautilus": "system-file-manager",
+            "kitty": "kitty",
+            "terminal": "utilities-terminal"
+        };
+        if (aliases[lower]) {
+            resolved = Quickshell.iconPath(aliases[lower], true);
+            if (resolved) return resolved;
+        }
+
+        // 5. Icône système générique pour exécutables
+        resolved = Quickshell.iconPath("application-x-executable", true);
+        if (resolved) return resolved;
+
+        return "";
+    }
+
     // Chargement de l'historique d'utilisation des applications (fréquence MRU)
     Process {
         id: loadHistoryProc
@@ -346,12 +398,12 @@ PanelWindow {
             }
 
             // ==========================================
-            // 2. GRILLE D'APPLICATIONS (5 COLONNES, HAUTEUR ACCRUE & CENTRAGE DYNAMIQUE)
+            // 2. GRILLE D'APPLICATIONS (5 COLONNES, ANTI-CLIPPING & CENTRAGE DYNAMIQUE)
             // ==========================================
             Item {
                 id: gridContainer
                 Layout.fillWidth: true
-                implicitHeight: Math.min(Math.round(Theme.relHeight(0.55, root.screen)), Math.max(135, Math.ceil(Math.min(10, root.filteredApps.length) / 5.0) * 135))
+                implicitHeight: Math.min(Math.round(Theme.relHeight(0.55, root.screen)), Math.max(140, Math.ceil(Math.min(10, root.filteredApps.length) / 5.0) * 140))
                 clip: true
 
                 // État vide
@@ -377,22 +429,24 @@ PanelWindow {
                     }
                 }
 
-                // Grille avec centrage dynamique si moins de 5 éléments
+                // Grille avec marges de sécurité anti-clipping et centrage dynamique si moins de 5 éléments
                 GridView {
                     id: appGrid
                     visible: root.filteredApps.length > 0
                     model: root.filteredApps
 
-                    readonly property int defaultCellWidth: Math.floor(gridContainer.width / 5)
+                    // Marges de sécurité latérales évitant tout rognage de bordure lors du grossissement / sélection
+                    readonly property int sidePadding: 8
+                    readonly property int availableWidth: Math.max(100, gridContainer.width - (sidePadding * 2))
+                    readonly property int defaultCellWidth: Math.floor(availableWidth / 5)
 
                     // Centrage dynamique si moins de 5 éléments
-                    width: root.filteredApps.length < 5 ? (root.filteredApps.length * defaultCellWidth) : gridContainer.width
+                    width: root.filteredApps.length < 5 ? (root.filteredApps.length * defaultCellWidth) : (defaultCellWidth * 5)
                     height: parent.height
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     cellWidth: defaultCellWidth
-                    cellHeight: 135
-                    clip: true
+                    cellHeight: 140
 
                     delegate: Item {
                         id: delegateRoot
@@ -408,13 +462,13 @@ PanelWindow {
                             id: appCard
                             anchors {
                                 fill: parent
-                                margins: 4
+                                margins: 6
                             }
                             radius: Theme.radiusLarge
                             color: (appMouse.containsMouse || isSelected) ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
                             border.color: isSelected ? Theme.accent : (appMouse.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.16) : "transparent")
                             border.width: isSelected ? 2 : 1
-                            scale: (appMouse.containsMouse || isSelected) ? 1.06 : 1.0
+                            scale: (appMouse.containsMouse || isSelected) ? 1.05 : 1.0
 
                             Behavior on scale { NumberAnimation { duration: Theme.animDurationFast; easing.type: Easing.OutCubic } }
                             Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
@@ -429,34 +483,38 @@ PanelWindow {
 
                                 Item { Layout.fillHeight: true }
 
-                                // Grande icône 52x52 centrée
+                                // Conteneur d'icône avec repli visuel garanti
                                 Item {
                                     Layout.alignment: Qt.AlignHCenter
                                     width: 52
                                     height: 52
 
                                     IconImage {
+                                        id: appIconImg
                                         anchors.fill: parent
-                                        source: {
-                                            var iconName = delegateRoot.modelData.icon || delegateRoot.modelData.id || "";
-                                            if (!iconName) return "";
-                                            if (iconName.indexOf("/") !== -1) return iconName;
-                                            var resolved = Quickshell.iconPath(iconName, true);
-                                            if (resolved) return resolved;
-                                            resolved = Quickshell.iconPath(iconName.toLowerCase(), true);
-                                            if (resolved) return resolved;
-                                            return "";
-                                        }
+                                        source: root.resolveAppIcon(delegateRoot.modelData)
                                     }
 
-                                    // Icône de secours si introuvable
-                                    Text {
-                                        anchors.centerIn: parent
-                                        visible: parent.children[0].source === ""
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: Math.round(Theme.fontSizeTitle * 1.8)
-                                        color: isSelected ? Theme.accent : Theme.textSecondary
-                                        text: "󰀻"
+                                    // Badge de remplacement moderne avec initiale en verre quand aucune icône n'est résolue
+                                    Rectangle {
+                                        anchors.fill: parent
+                                        visible: appIconImg.source === ""
+                                        radius: Theme.radiusLarge
+                                        color: isSelected ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : Qt.rgba(1, 1, 1, 0.08)
+                                        border.color: isSelected ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
+                                        border.width: 1
+
+                                        Text {
+                                            anchors.centerIn: parent
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: Math.round(Theme.fontSizeTitle * 1.3)
+                                            font.bold: true
+                                            color: isSelected ? Theme.accent : Theme.textPrimary
+                                            text: {
+                                                var n = (delegateRoot.modelData.name || "A").trim();
+                                                return n.length > 0 ? n.charAt(0).toUpperCase() : "󰘔";
+                                            }
+                                        }
                                     }
                                 }
 
