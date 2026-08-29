@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
+import Quickshell.Io
 import "../theme"
 import "../components"
 
@@ -23,14 +24,48 @@ PanelWindow {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: LauncherService.launcherVisible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
-    visible: LauncherService.launcherVisible
+    // Maintient la fenêtre active pendant l'animation de fermeture
+    visible: LauncherService.launcherVisible || animProgress > 0.01
+
+    // Progression d'animation d'ouverture/fermeture style Apple
+    property real animProgress: LauncherService.launcherVisible ? 1.0 : 0.0
+    Behavior on animProgress {
+        NumberAnimation {
+            duration: LauncherService.launcherVisible ? 220 : 160
+            easing.type: LauncherService.launcherVisible ? Easing.OutBack : Easing.InQuad
+            easing.overshoot: 1.12
+        }
+    }
 
     property string searchQuery: ""
     property int selectedIndex: 0
+    property var appHistory: ({})
 
-    // Liste filtrée et triée des applications XDG
+    // Chargement de l'historique d'utilisation des applications (fréquence MRU)
+    Process {
+        id: loadHistoryProc
+        command: ["sh", "-c", "mkdir -p \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell\" && cat \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/launcher_history.json\" 2>/dev/null || echo '{}'"]
+        stdout: StdioCollector { id: histOut }
+        onExited: {
+            try {
+                var json = histOut.text.trim();
+                if (json) {
+                    root.appHistory = JSON.parse(json);
+                }
+            } catch (e) {
+                root.appHistory = {};
+            }
+        }
+    }
+
+    function saveHistory() {
+        var str = JSON.stringify(root.appHistory);
+        Quickshell.execDetached(["sh", "-c", "mkdir -p \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell\" && printf '%s' \"$1\" > \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/launcher_history.json\"", "--", str]);
+    }
+
+    // Liste filtrée et triée par fréquence d'utilisation (MRU) et pertinence
     readonly property var filteredApps: {
         if (!DesktopEntries.applications) return [];
         var list = DesktopEntries.applications.values ? DesktopEntries.applications.values : DesktopEntries.applications;
@@ -53,15 +88,27 @@ PanelWindow {
         }
 
         res.sort(function(a, b) {
-            var nameA = (a.name || "").toLowerCase();
-            var nameB = (b.name || "").toLowerCase();
+            var idA = a.id || a.name || "";
+            var idB = b.id || b.name || "";
+            var countA = (root.appHistory && root.appHistory[idA]) ? root.appHistory[idA] : 0;
+            var countB = (root.appHistory && root.appHistory[idB]) ? root.appHistory[idB] : 0;
+
             if (q) {
+                var nameA = (a.name || "").toLowerCase();
+                var nameB = (b.name || "").toLowerCase();
                 var startsA = (nameA.indexOf(q) === 0);
                 var startsB = (nameB.indexOf(q) === 0);
                 if (startsA && !startsB) return -1;
                 if (!startsA && startsB) return 1;
+
+                // À pertinence égale, trier par fréquence d'utilisation
+                if (countA !== countB) return countB - countA;
+                return nameA.localeCompare(nameB);
             }
-            return nameA.localeCompare(nameB);
+
+            // Vue par défaut sans recherche : trier strictement par fréquence d'utilisation décroissante
+            if (countA !== countB) return countB - countA;
+            return (a.name || "").localeCompare(b.name || "");
         });
 
         return res;
@@ -69,7 +116,18 @@ PanelWindow {
 
     function launchApp(app) {
         if (!app) return;
+
+        // Incrémentation du compteur de fréquence
+        var appId = app.id || app.name || "";
+        if (appId) {
+            var updated = Object.assign({}, root.appHistory);
+            updated[appId] = (updated[appId] || 0) + 1;
+            root.appHistory = updated;
+            saveHistory();
+        }
+
         LauncherService.close();
+
         if (typeof app.execute === "function") {
             app.execute();
         } else if (app.command) {
@@ -86,21 +144,23 @@ PanelWindow {
     }
 
     onVisibleChanged: {
-        if (visible) {
+        if (visible && LauncherService.launcherVisible) {
             root.searchQuery = "";
             root.selectedIndex = 0;
             searchInput.text = "";
             searchInput.forceActiveFocus();
+            if (!loadHistoryProc.running) {
+                loadHistoryProc.running = true;
+            }
         }
     }
 
-    // Fond assombri avec flou et clic pour fermer
+    // Fond assombri avec fondu fluide
     Rectangle {
         id: backdrop
         anchors.fill: parent
         color: Qt.rgba(0.02, 0.03, 0.05, 0.70)
-
-        Behavior on opacity { NumberAnimation { duration: Theme.animDurationFast } }
+        opacity: root.animProgress
 
         MouseArea {
             anchors.fill: parent
@@ -119,6 +179,11 @@ PanelWindow {
         border.color: Theme.glassBorder           // Glacier Blue border
         border.width: 1
         clip: true
+
+        // Animation d'ouverture et fermeture style Apple (Spotlight / Springboard)
+        scale: 0.92 + (0.08 * root.animProgress)
+        opacity: Math.min(1.0, root.animProgress * 1.25)
+        transformOrigin: Item.Center
 
         // Événements clavier globaux
         Keys.onEscapePressed: function(event) {
@@ -192,16 +257,16 @@ PanelWindow {
                 top: parent.top
                 margins: Theme.spacingLg
             }
-            spacing: Theme.spacingMd
+            spacing: Theme.spacingLg
 
             // ==========================================
             // 1. BARRE DE RECHERCHE (Faint Glass & Loupe Glacier Blue)
             // ==========================================
             Rectangle {
                 Layout.fillWidth: true
-                height: 44
+                height: 46
                 radius: Theme.radiusMedium
-                color: Qt.rgba(1.0, 1.0, 1.0, 0.05)
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.06)
                 border.color: searchInput.activeFocus ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                 border.width: 1
 
@@ -281,12 +346,12 @@ PanelWindow {
             }
 
             // ==========================================
-            // 2. GRILLE D'APPLICATIONS (5 COLONNES)
+            // 2. GRILLE D'APPLICATIONS (5 COLONNES, HAUTEUR ACCRUE & CENTRAGE DYNAMIQUE)
             // ==========================================
             Item {
                 id: gridContainer
                 Layout.fillWidth: true
-                implicitHeight: Math.min(Math.round(Theme.relHeight(0.48, root.screen)), Math.max(120, Math.ceil(Math.min(10, root.filteredApps.length) / 5.0) * 110))
+                implicitHeight: Math.min(Math.round(Theme.relHeight(0.55, root.screen)), Math.max(135, Math.ceil(Math.min(10, root.filteredApps.length) / 5.0) * 135))
                 clip: true
 
                 // État vide
@@ -298,7 +363,7 @@ PanelWindow {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         font.family: Theme.fontFamily
-                        font.pixelSize: Math.round(Theme.fontSizeTitle * 1.5)
+                        font.pixelSize: Math.round(Theme.fontSizeTitle * 1.6)
                         color: Theme.textDisabled
                         text: "󰱵"
                     }
@@ -312,15 +377,21 @@ PanelWindow {
                     }
                 }
 
-                // Grille 5 colonnes
+                // Grille avec centrage dynamique si moins de 5 éléments
                 GridView {
                     id: appGrid
-                    anchors.fill: parent
                     visible: root.filteredApps.length > 0
                     model: root.filteredApps
 
-                    cellWidth: Math.floor(gridContainer.width / 5)
-                    cellHeight: 110
+                    readonly property int defaultCellWidth: Math.floor(gridContainer.width / 5)
+
+                    // Centrage dynamique si moins de 5 éléments
+                    width: root.filteredApps.length < 5 ? (root.filteredApps.length * defaultCellWidth) : gridContainer.width
+                    height: parent.height
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    cellWidth: defaultCellWidth
+                    cellHeight: 135
                     clip: true
 
                     delegate: Item {
@@ -343,7 +414,7 @@ PanelWindow {
                             color: (appMouse.containsMouse || isSelected) ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
                             border.color: isSelected ? Theme.accent : (appMouse.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.16) : "transparent")
                             border.width: isSelected ? 2 : 1
-                            scale: (appMouse.containsMouse || isSelected) ? 1.05 : 1.0
+                            scale: (appMouse.containsMouse || isSelected) ? 1.06 : 1.0
 
                             Behavior on scale { NumberAnimation { duration: Theme.animDurationFast; easing.type: Easing.OutCubic } }
                             Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
@@ -352,17 +423,17 @@ PanelWindow {
                             ColumnLayout {
                                 anchors {
                                     fill: parent
-                                    margins: Theme.spacingSm
+                                    margins: Theme.spacingMd
                                 }
-                                spacing: Theme.spacingXs
+                                spacing: Theme.spacingSm
 
                                 Item { Layout.fillHeight: true }
 
-                                // Grande icône 48x48 centrée
+                                // Grande icône 52x52 centrée
                                 Item {
                                     Layout.alignment: Qt.AlignHCenter
-                                    width: 48
-                                    height: 48
+                                    width: 52
+                                    height: 52
 
                                     IconImage {
                                         anchors.fill: parent
@@ -383,7 +454,7 @@ PanelWindow {
                                         anchors.centerIn: parent
                                         visible: parent.children[0].source === ""
                                         font.family: Theme.fontFamily
-                                        font.pixelSize: Math.round(Theme.fontSizeTitle * 1.6)
+                                        font.pixelSize: Math.round(Theme.fontSizeTitle * 1.8)
                                         color: isSelected ? Theme.accent : Theme.textSecondary
                                         text: "󰀻"
                                     }
@@ -418,30 +489,6 @@ PanelWindow {
                             }
                         }
                     }
-                }
-            }
-
-            // ==========================================
-            // 3. PIED DE PAGE & RACCOURCIS D'AIDE
-            // ==========================================
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.topMargin: Theme.spacingXs
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMicro
-                    color: Theme.textDisabled
-                    text: root.filteredApps.length + " application(s)"
-                }
-
-                Item { Layout.fillWidth: true }
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMicro
-                    color: Theme.textDisabled
-                    text: "[↑↓←→] Naviguer   [Entrée] Lancer   [Échap] Fermer"
                 }
             }
         }
