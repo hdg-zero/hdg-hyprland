@@ -15,9 +15,7 @@ ShellRoot {
         model: Quickshell.screens
 
         LauncherWindow {
-            required property var modelData
             targetScreen: modelData
-            screen: modelData
         }
     }
 
@@ -26,9 +24,7 @@ ShellRoot {
         model: Quickshell.screens
 
         BarWindow {
-            required property var modelData
             targetScreen: modelData
-            screen: modelData
         }
     }
 
@@ -37,9 +33,7 @@ ShellRoot {
         model: Quickshell.screens
 
         NotificationToastWindow {
-            required property var modelData
             targetScreen: modelData
-            screen: modelData
         }
     }
 
@@ -48,9 +42,7 @@ ShellRoot {
         model: Quickshell.screens
 
         NotificationCenter {
-            required property var modelData
             targetScreen: modelData
-            screen: modelData
         }
     }
 
@@ -59,9 +51,7 @@ ShellRoot {
         model: Quickshell.screens
 
         SessionWindow {
-            required property var modelData
             targetScreen: modelData
-            screen: modelData
         }
     }
 }

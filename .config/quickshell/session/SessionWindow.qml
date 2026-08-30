@@ -9,13 +9,15 @@ import "../theme"
 PanelWindow {
     id: root
 
+    property var modelData: null
     property var targetScreen: null
-    screen: targetScreen
+    screen: targetScreen || modelData
 
     readonly property bool isCurrentMonitor: {
+        if (!root.screen) return true;
         var focused = Hyprland.focusedMonitor;
         var current = Hyprland.monitorFor(root.screen);
-        return focused && current ? (focused.id === current.id) : true;
+        return (focused && current) ? (focused.id === current.id) : true;
     }
 
     anchors {

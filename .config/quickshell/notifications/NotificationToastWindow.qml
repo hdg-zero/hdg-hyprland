@@ -9,8 +9,9 @@ import "../components"
 PanelWindow {
     id: root
 
+    property var modelData: null
     property var targetScreen: null
-    screen: targetScreen
+    screen: targetScreen || modelData
 
     anchors {
         top: true
