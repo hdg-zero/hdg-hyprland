@@ -371,15 +371,27 @@ PanelWindow {
 
     function launchCommand(cmd) {
         LauncherService.close();
-        if (cmd && cmd.length > 0) {
-            var updated = Object.assign({}, root.cmdHistory);
-            updated[cmd] = (updated[cmd] || 0) + 1;
-            root.cmdHistory = updated;
-            saveCmdHistory();
+        var targetCmd = (cmd !== undefined && cmd !== null) ? cmd.toString().trim() : "";
 
-            Quickshell.execDetached(["uwsm", "app", "--", "kitty", "sh", "-c", cmd + "; exec ${SHELL:-bash}"]);
+        // 1. Exécution immédiate du processus dans Kitty
+        if (targetCmd.length > 0) {
+            Quickshell.execDetached(["uwsm", "app", "--", "kitty", "sh", "-c", targetCmd + "; exec ${SHELL:-bash}"]);
         } else {
             Quickshell.execDetached(["uwsm", "app", "--", "kitty"]);
+        }
+
+        // 2. Persistance de l'historique isolée et non-bloquante
+        if (targetCmd.length > 0) {
+            try {
+                var updated = Object.assign({}, root.cmdHistory);
+                updated[targetCmd] = (updated[targetCmd] || 0) + 1;
+                root.cmdHistory = updated;
+                if (cmdHistoryFile && typeof cmdHistoryFile.setText === "function") {
+                    cmdHistoryFile.setText(JSON.stringify(updated));
+                }
+            } catch (e) {
+                // Ignore storage errors to avoid breaking execution
+            }
         }
     }
 
