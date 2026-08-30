@@ -37,6 +37,7 @@ PillButton {
         id: procStat
         path: "/proc/stat"
         watchChanges: false
+        blockAllReads: true
     }
 
     Timer {
@@ -47,7 +48,7 @@ PillButton {
 
         onTriggered: {
             procStat.reload();
-            var content = typeof procStat.text === "function" ? procStat.text() : (procStat.text || "");
+            var content = procStat.text();
             if (!content) return;
 
             var firstLine = content.split("\n")[0];

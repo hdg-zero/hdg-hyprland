@@ -16,15 +16,36 @@ ModulePopup {
     widthPercent: Theme.popupWidthPercentStandard
     cardHeight: mainCol.implicitHeight + Theme.spacingMd * 2
 
+    property string tempSensorPath: ""
+
     Process {
-        id: getCpuTemp
-        command: ["sh", "-c", "for t in /sys/class/thermal/thermal_zone*/temp /sys/class/hwmon/hwmon*/temp*_input; do if [ -f \"$t\" ]; then val=$(cat \"$t\" 2>/dev/null); if [ \"$val\" -gt 10000 ] && [ \"$val\" -lt 115000 ]; then echo -n $((val/1000))°C; break; fi; fi; done"]
+        id: findTempSensor
+        command: ["sh", "-c", "for t in /sys/class/hwmon/hwmon*/temp*_input /sys/class/thermal/thermal_zone*/temp; do if [ -f \"$t\" ]; then echo -n \"$t\"; break; fi; done"]
         stdout: StdioCollector {
-            id: tempOut
+            id: tempPathOut
         }
         onExited: function(exitCode, exitStatus) {
-            var str = tempOut.text.trim();
-            if (str) root.cpuTemp = str;
+            var path = tempPathOut.text.trim();
+            if (path) {
+                root.tempSensorPath = path;
+                root.updateCpuTemp();
+            }
+        }
+    }
+
+    FileView {
+        id: tempFile
+        path: root.tempSensorPath
+        watchChanges: false
+        blockAllReads: true
+    }
+
+    function updateCpuTemp() {
+        if (!root.tempSensorPath) return;
+        tempFile.reload();
+        var val = parseInt(tempFile.text().trim()) || 0;
+        if (val > 10000 && val < 115000) {
+            root.cpuTemp = Math.round(val / 1000) + "°C";
         }
     }
 
@@ -32,11 +53,12 @@ ModulePopup {
         id: procStatFile
         path: "/proc/stat"
         watchChanges: false
+        blockAllReads: true
     }
 
     function updateCpuStats() {
         procStatFile.reload();
-        var txt = typeof procStatFile.text === "function" ? procStatFile.text() : (procStatFile.text || "");
+        var txt = procStatFile.text();
         if (!txt) return;
 
         var lines = txt.split("\n");
@@ -104,6 +126,10 @@ ModulePopup {
         }
     }
 
+    Component.onCompleted: {
+        findTempSensor.running = true;
+    }
+
     Timer {
         interval: 1500
         running: root.visible
@@ -111,16 +137,14 @@ ModulePopup {
         triggeredOnStart: true
         onTriggered: {
             root.updateCpuStats();
-            if (!getCpuTemp.running) {
-                getCpuTemp.running = true;
-            }
+            root.updateCpuTemp();
         }
     }
 
     onVisibleChanged: {
         if (visible) {
             root.updateCpuStats();
-            getCpuTemp.running = true;
+            root.updateCpuTemp();
         }
     }
 

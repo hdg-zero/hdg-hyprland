@@ -62,6 +62,7 @@ ModulePopup {
         id: uptimeFile
         path: "/proc/uptime"
         watchChanges: false
+        blockAllReads: true
     }
 
     Timer {
@@ -73,7 +74,7 @@ ModulePopup {
             root.updateDateTime();
             if (root.visible) {
                 uptimeFile.reload();
-                var txt = typeof uptimeFile.text === "function" ? uptimeFile.text() : (uptimeFile.text || "");
+                var txt = uptimeFile.text();
                 if (txt) {
                     var secs = parseFloat(txt.split(" ")[0]) || 0;
                     var hrs = Math.floor(secs / 3600);

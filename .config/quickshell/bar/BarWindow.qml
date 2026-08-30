@@ -19,9 +19,9 @@ PanelWindow {
     implicitHeight: Math.max(24, Theme.relHeight(Theme.barHeightRatio, root.screen))
 
     color: "transparent"
-    exclusionMode: ExclusionMode.Normal
+    exclusiveZone: implicitHeight
     WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.exclusiveZone: implicitHeight
+    WlrLayershell.namespace: "qs-bar"
 
     BarContent {
         parentWindow: root

@@ -36,6 +36,7 @@ PillButton {
         id: procMeminfo
         path: "/proc/meminfo"
         watchChanges: false
+        blockAllReads: true
     }
 
     Timer {
@@ -45,7 +46,7 @@ PillButton {
         triggeredOnStart: true
         onTriggered: {
             procMeminfo.reload();
-            var content = typeof procMeminfo.text === "function" ? procMeminfo.text() : (procMeminfo.text || "");
+            var content = procMeminfo.text();
             if (!content) return;
 
             var totalKb = 0;

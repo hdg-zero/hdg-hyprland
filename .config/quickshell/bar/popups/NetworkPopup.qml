@@ -56,6 +56,7 @@ ModulePopup {
         id: netDevFile
         path: "/proc/net/dev"
         watchChanges: false
+        blockAllReads: true
     }
 
     Timer {
@@ -69,7 +70,7 @@ ModulePopup {
             }
 
             netDevFile.reload();
-            var content = typeof netDevFile.text === "function" ? netDevFile.text() : (netDevFile.text || "");
+            var content = netDevFile.text();
             if (!content) return;
 
             var now = Date.now();
