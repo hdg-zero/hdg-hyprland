@@ -572,6 +572,35 @@ PanelWindow {
                         onTextChanged: {
                             root.searchQuery = text;
                             root.selectedIndex = 0;
+                            if (root.isCommandMode) {
+                                root.selectedIndexCmd = -1;
+                            }
+                        }
+
+                        onAccepted: {
+                            root.launchSelected();
+                        }
+
+                        Keys.onUpPressed: function(event) {
+                            if (root.isCommandMode) {
+                                root.selectedIndexCmd = Math.max(-1, root.selectedIndexCmd - 1);
+                                event.accepted = true;
+                            } else if (root.filteredApps.length > 0) {
+                                root.selectedIndex = Math.max(0, root.selectedIndex - 5);
+                                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
+                                event.accepted = true;
+                            }
+                        }
+
+                        Keys.onDownPressed: function(event) {
+                            if (root.isCommandMode) {
+                                root.selectedIndexCmd = Math.min(root.topCommands.length - 1, root.selectedIndexCmd + 1);
+                                event.accepted = true;
+                            } else if (root.filteredApps.length > 0) {
+                                root.selectedIndex = Math.min(root.filteredApps.length - 1, root.selectedIndex + 5);
+                                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
+                                event.accepted = true;
+                            }
                         }
                     }
 
@@ -652,21 +681,13 @@ PanelWindow {
 
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 2
 
                             Text {
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeMedium
                                 font.bold: true
                                 color: Theme.textPrimary
-                                text: "Exécuter dans Kitty"
-                            }
-
-                            Text {
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                                color: Theme.textSecondary
-                                text: root.commandString !== "" ? "Commande Shell POSIX" : "Tapez la commande à exécuter après le '>'"
+                                text: "Exécuter dans le terminal"
                             }
                         }
 
@@ -749,16 +770,6 @@ PanelWindow {
                                 root.launchSelected();
                             }
                         }
-                    }
-
-                    // Explication
-                    Text {
-                        Layout.fillWidth: true
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textSecondary
-                        text: "Ouvre une nouvelle fenêtre Kitty, exécute la commande et conserve le shell interactif."
-                        wrapMode: Text.WordWrap
                     }
 
                     // ==========================================
