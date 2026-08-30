@@ -34,6 +34,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: (LauncherService.launcherVisible && isCurrentMonitor) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.namespace: "qs-launcher"
 
     // Maintient la fenêtre active pendant l'animation de fermeture
     visible: LauncherService.launcherVisible || animProgress > 0.01
@@ -63,16 +64,28 @@ PanelWindow {
     property var appHistory: ({})
 
     // Résolution robuste et exhaustive des icônes d'applications
+    property var iconCache: ({})
+
     function resolveAppIcon(app) {
         if (!app) return "";
+        var appId = app.id || app.name || "";
+        if (appId && root.iconCache[appId] !== undefined) {
+            return root.iconCache[appId];
+        }
+
         var iconName = app.icon || "";
-        var appId = (app.id || "").replace(/\.desktop$/i, "");
         var appName = (app.name || "").toLowerCase();
         var execStr = (app.execString || app.command || "").toString().toLowerCase();
 
         // 1. Si chemin absolu direct
-        if (iconName.indexOf("/") === 0) return "file://" + iconName;
-        if (iconName.indexOf("file://") === 0) return iconName;
+        if (iconName.indexOf("/") === 0) {
+            if (appId) root.iconCache[appId] = "file://" + iconName;
+            return "file://" + iconName;
+        }
+        if (iconName.indexOf("file://") === 0) {
+            if (appId) root.iconCache[appId] = iconName;
+            return iconName;
+        }
 
         // 2. Ensemble de termes candidats ordonnés
         var candidates = [];
@@ -154,17 +167,27 @@ PanelWindow {
 
             // Résolution Quickshell
             var resolved = Quickshell.iconPath(clean, true);
-            if (resolved) return resolved;
+            if (resolved) {
+                if (appId) root.iconCache[appId] = resolved;
+                return resolved;
+            }
             resolved = Quickshell.iconPath(clean.toLowerCase(), true);
-            if (resolved) return resolved;
+            if (resolved) {
+                if (appId) root.iconCache[appId] = resolved;
+                return resolved;
+            }
 
             // Formats symboliques Adwaita
             if (clean.indexOf("-symbolic") === -1) {
                 resolved = Quickshell.iconPath(clean + "-symbolic", true);
-                if (resolved) return resolved;
+                if (resolved) {
+                    if (appId) root.iconCache[appId] = resolved;
+                    return resolved;
+                }
             }
         }
 
+        if (appId) root.iconCache[appId] = "";
         return "";
     }
 
@@ -278,12 +301,12 @@ PanelWindow {
 
         LauncherService.close();
 
-        if (typeof app.execute === "function") {
-            app.execute();
-        } else if (app.command && app.command.length > 0) {
+        if (app.command && app.command.length > 0) {
             Quickshell.execDetached(["uwsm", "app", "--"].concat(app.command));
         } else if (app.execString) {
             Quickshell.execDetached(["uwsm", "app", "--", app.execString]);
+        } else if (typeof app.execute === "function") {
+            app.execute();
         }
     }
 
