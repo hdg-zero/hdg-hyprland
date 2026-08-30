@@ -32,6 +32,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    WlrLayershell.namespace: "qs-panel"
 
     Shortcut {
         sequence: "Escape"
@@ -84,11 +85,6 @@ PanelWindow {
         border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
         border.width: 1
         clip: true
-
-        Keys.onEscapePressed: function(event) {
-            NotificationService.panelVisible = false;
-            event.accepted = true;
-        }
 
         ColumnLayout {
             id: panelCol

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Widgets
 import Quickshell.Wayland
 import Quickshell.Services.Notifications as Notifs
 import "../theme"
@@ -102,12 +103,29 @@ PanelWindow {
                         Layout.fillWidth: true
                         spacing: Theme.spacingSm
 
+                        IconImage {
+                            id: toastAppIcon
+                            width: 16
+                            height: 16
+                            source: {
+                                if (!toastCard.notif) return "";
+                                if (toastCard.notif.appIcon) {
+                                    return Quickshell.iconPath(toastCard.notif.appIcon, true) || toastCard.notif.appIcon;
+                                }
+                                if (toastCard.notif.image) {
+                                    return toastCard.notif.image;
+                                }
+                                return "";
+                            }
+                            visible: source !== "" && status === Image.Ready
+                        }
+
                         Text {
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeMedium
                             color: toastCard.isCritical ? Theme.destructive : Theme.accent
-                            text: toastCard.notif && toastCard.notif.appIcon ? "" : "󰂚"
-                            visible: text !== ""
+                            text: "󰂚"
+                            visible: !toastAppIcon.visible
                         }
 
                         Text {
