@@ -63,6 +63,9 @@ PanelWindow {
     property int selectedIndex: 0
     property var appHistory: ({})
 
+    readonly property bool isCommandMode: root.searchQuery.trim().indexOf(">") === 0
+    readonly property string commandString: isCommandMode ? root.searchQuery.trim().substring(1).trim() : ""
+
     // Résolution robuste et exhaustive des icônes d'applications
     property var iconCache: ({})
 
@@ -310,7 +313,20 @@ PanelWindow {
         }
     }
 
+    function launchCommand(cmd) {
+        LauncherService.close();
+        if (cmd && cmd.length > 0) {
+            Quickshell.execDetached(["uwsm", "app", "--", "kitty", "sh", "-c", cmd + "; exec ${SHELL:-bash}"]);
+        } else {
+            Quickshell.execDetached(["uwsm", "app", "--", "kitty"]);
+        }
+    }
+
     function launchSelected() {
+        if (root.isCommandMode) {
+            launchCommand(root.commandString);
+            return;
+        }
         if (filteredApps.length > 0 && selectedIndex >= 0 && selectedIndex < filteredApps.length) {
             launchApp(filteredApps[selectedIndex]);
         }
@@ -453,12 +469,12 @@ PanelWindow {
                     }
                     spacing: Theme.spacingSm
 
-                    // Icône de recherche Glacier Blue
+                    // Icône de recherche Glacier Blue (ou terminal si mode commande)
                     Text {
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeMedium
                         color: Theme.accent
-                        text: "󰍉"
+                        text: root.isCommandMode ? "󰆍" : "󰍉"
                     }
 
                     // Champ de saisie texte
@@ -479,7 +495,7 @@ PanelWindow {
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeMedium
                             color: Theme.textDisabled
-                            text: "Rechercher une application..."
+                            text: "Rechercher une application ou '>' pour une commande..."
                         }
 
                         onTextChanged: {
@@ -519,10 +535,163 @@ PanelWindow {
             }
 
             // ==========================================
-            // 2. GRILLE D'APPLICATIONS (5 COLONNES, ANTI-CLIPPING & CENTRAGE DYNAMIQUE)
+            // 2. MODE COMMANDE TERMINAL (PRÉFIXE '>')
+            // ==========================================
+            Rectangle {
+                id: commandCard
+                visible: root.isCommandMode
+                Layout.fillWidth: true
+                implicitHeight: cmdCol.implicitHeight + Theme.spacingLg * 2
+                radius: Theme.radiusLarge
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.04)
+                border.color: Theme.accent
+                border.width: 1
+
+                ColumnLayout {
+                    id: cmdCol
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        top: parent.top
+                        margins: Theme.spacingLg
+                    }
+                    spacing: Theme.spacingMd
+
+                    // En-tête de la carte terminal
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingSm
+
+                        Rectangle {
+                            width: 36
+                            height: 36
+                            radius: Theme.radiusSmall
+                            color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
+                            border.color: Theme.accent
+                            border.width: 1
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeLarge
+                                color: Theme.accent
+                                text: "󰆍"
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMedium
+                                font.bold: true
+                                color: Theme.textPrimary
+                                text: "Exécuter dans Kitty"
+                            }
+
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.textSecondary
+                                text: root.commandString !== "" ? "Commande Shell POSIX" : "Tapez la commande à exécuter après le '>'"
+                            }
+                        }
+
+                        // Badge Touche Entrée
+                        Rectangle {
+                            height: 24
+                            implicitWidth: enterRow.implicitWidth + Theme.spacingSm * 2
+                            radius: Theme.radiusSmall
+                            color: Qt.rgba(1, 1, 1, 0.08)
+                            border.color: Qt.rgba(1, 1, 1, 0.15)
+                            border.width: 1
+
+                            RowLayout {
+                                id: enterRow
+                                anchors.centerIn: parent
+                                spacing: 4
+
+                                Text {
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    color: Theme.accent
+                                    text: "󰌑"
+                                }
+
+                                Text {
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeTiny
+                                    font.bold: true
+                                    color: Theme.textPrimary
+                                    text: "Entrée"
+                                }
+                            }
+                        }
+                    }
+
+                    // Boîte de prévisualisation du prompt terminal
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: 44
+                        radius: Theme.radiusSmall
+                        color: Qt.rgba(0.02, 0.03, 0.05, 0.90)
+                        border.color: Qt.rgba(1, 1, 1, 0.12)
+                        border.width: 1
+
+                        RowLayout {
+                            anchors {
+                                fill: parent
+                                leftMargin: Theme.spacingMd
+                                rightMargin: Theme.spacingMd
+                            }
+                            spacing: Theme.spacingSm
+
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMedium
+                                font.bold: true
+                                color: Theme.accent
+                                text: "$"
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                font.family: "Monospace"
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: root.commandString !== "" ? Theme.textPrimary : Theme.textDisabled
+                                text: root.commandString !== "" ? root.commandString : "echo \"Bonjour monde\""
+                                elide: Text.ElideMiddle
+                            }
+                        }
+                    }
+
+                    // Explication
+                    Text {
+                        Layout.fillWidth: true
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.textSecondary
+                        text: "Ouvre une nouvelle fenêtre Kitty, exécute la commande et conserve le shell interactif."
+                        wrapMode: Text.WordWrap
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.launchSelected()
+                }
+            }
+
+            // ==========================================
+            // 3. GRILLE D'APPLICATIONS (5 COLONNES, ANTI-CLIPPING & CENTRAGE DYNAMIQUE)
             // ==========================================
             Item {
                 id: gridContainer
+                visible: !root.isCommandMode
                 Layout.fillWidth: true
                 implicitHeight: Math.min(Math.round(Theme.relHeight(0.55, root.screen)), Math.max(140, Math.ceil(Math.min(10, root.filteredApps.length) / 5.0) * 140))
                 clip: true
