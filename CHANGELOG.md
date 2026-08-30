@@ -42,7 +42,8 @@ et ce projet adhère au versionnage sémantique.
 - Suppression définitive du script shell obsolète `monitor.sh`.
 
 ### Corrigé
-- Définition explicite de la hauteur de fenêtre `height` et de la zone exclusive Wayland `WlrLayershell.exclusiveZone: height` dans `BarWindow.qml`, sécurisation des propriétés d'écran et simplification de l'instanciation des fenêtres dans les blocs `Variants` de `shell.qml`.
+- Élimination des avertissements de dépréciation `Setting height is deprecated. Set implicitHeight instead` en définissant exclusivement `implicitHeight` sur `BarWindow.qml` et son contenu `BarContent.qml`.
+- Définition explicite de la hauteur de fenêtre et de la zone exclusive Wayland dans `BarWindow.qml`, sécurisation des propriétés d'écran et simplification de l'instanciation des fenêtres dans les blocs `Variants` de `shell.qml`.
 - Adoption du type natif `Singleton` (`import Quickshell`) pour tous les singletons du projet (`Theme.qml`, `NotificationService.qml`, `SessionService.qml`), garantissant le bon chargement des tokens de couleur, styles et services.
 - Correction de la syntaxe de liaison QML de la propriété `player` dans `MprisPopup.qml` éliminant l'erreur de chargement de configuration.
 - Centralisation de la fonction utilitaire de calcul et formatage des débits réseau dans `Theme.qml` (`formatSpeed`), éliminant les duplications dans `NetworkModule.qml` et `NetworkPopup.qml`.

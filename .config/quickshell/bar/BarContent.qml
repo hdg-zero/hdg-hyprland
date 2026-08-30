@@ -8,6 +8,7 @@ Item {
     anchors.fill: parent
 
     property var parentWindow: null
+    implicitHeight: parentWindow ? parentWindow.implicitHeight : 26
 
     // Fond de la barre collée aux bords de l'écran avec bordure inférieure
     Rectangle {
