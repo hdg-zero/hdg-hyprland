@@ -83,10 +83,12 @@ PanelWindow {
         }
     }
 
-    // Carte principale centrée au milieu de l'écran en Glassmorphism Obsidian Glass
+    // Carte principale centrée horizontalement en haut de l'écran en Glassmorphism Obsidian Glass
     Rectangle {
         id: panelCard
-        anchors.centerIn: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + Theme.spacingSm)
         width: Theme.notificationPanelWidth
         implicitHeight: panelCol.implicitHeight + Theme.spacingMd * 2
         radius: Theme.radiusXLarge
