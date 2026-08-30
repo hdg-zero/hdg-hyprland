@@ -2,7 +2,6 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Services.Notifications as Notifs
 
 Singleton {
@@ -131,12 +130,8 @@ Singleton {
         }
     }
 
-    // Raccourci global natif Hyprland
-    GlobalShortcut {
-        name: "toggleNotificationCenter"
-        description: "Bascule l'affichage du centre de contrôle et de notifications"
-        onPressed: function() {
-            root.togglePanel();
-        }
-    }
+    // Raccourci global natif Hyprland (« GlobalShortcut ») retiré : le centre est déjà piloté
+    // par les cibles IPC (« qs ipc call notifications toggle », binds.lua SUPER+F). Un
+    // GlobalShortcut sans bind Hyprland correspondant (bind ..., global, quickshell:nom)
+    // ne se déclencherait jamais : code mort supprimé.
 }

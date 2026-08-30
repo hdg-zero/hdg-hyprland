@@ -130,6 +130,10 @@ graph TD
     │   └── bar/                         # Barre d'état supérieure
     │       ├── BarWindow.qml            # Surface Layer-Shell Top avec zone exclusive
     │       ├── BarContent.qml           # Disposition des sections Gauche, Centre, Droite
+    │       ├── sections/                # Sous-sections modulaires de la barre
+    │       │   ├── LeftSection.qml      # Lanceur, Workspaces, CPU/RAM/Réseau, MPRIS
+    │       │   ├── CenterSection.qml    # Titre de la fenêtre active
+    │       │   └── RightSection.qml     # Tâches, tray, jauges, notifications, horloge, power
     │       ├── modules/                 # Modules visibles de la barre
     │       │   ├── LauncherButton.qml   # Bouton déclencheur du lanceur Quickshell
     │       │   ├── Workspaces.qml       # Sélecteur réactif de bureaux virtuels

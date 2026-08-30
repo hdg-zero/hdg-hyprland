@@ -161,26 +161,34 @@ PanelWindow {
         return "󰘔";
     }
 
-    // Chargement de l'historique d'utilisation des applications (fréquence MRU)
-    Process {
-        id: loadHistoryProc
-        command: ["sh", "-c", "mkdir -p \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell\" && cat \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/launcher_history.json\" 2>/dev/null || echo '{}'"]
-        stdout: StdioCollector { id: histOut }
-        onExited: {
-            try {
-                var json = histOut.text.trim();
-                if (json) {
-                    root.appHistory = JSON.parse(json);
-                }
-            } catch (e) {
-                root.appHistory = {};
+    // Chargement de l'historique d'utilisation des applications (fréquence MRU).
+    // Persistance native via FileView + Quickshell.statePath() (doc Quickshell.Io/FileView &
+    // Quickshell/Quickshell v0.3.x) : écriture atomique setText(), plus aucun processus externe.
+    FileView {
+        id: historyFile
+        path: Quickshell.statePath("launcher_history.json")
+        blockLoading: true   // fichier minuscule : lecture bloquante acceptable, évite les courses
+        printErrors: false   // premier lancement : fichier absent, ne pas polluer les logs
+
+        onLoaded: root.loadHistoryFromView()
+        onFileChanged: root.loadHistoryFromView()
+    }
+
+    function loadHistoryFromView() {
+        var json = historyFile.text();
+        if (!json) return;
+        try {
+            var parsed = JSON.parse(json);
+            if (parsed && typeof parsed === "object") {
+                root.appHistory = parsed;
             }
+        } catch (e) {
+            root.appHistory = {};
         }
     }
 
     function saveHistory() {
-        var str = JSON.stringify(root.appHistory);
-        Quickshell.execDetached(["sh", "-c", "mkdir -p \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell\" && printf '%s' \"$1\" > \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/launcher_history.json\"", "--", str]);
+        historyFile.setText(JSON.stringify(root.appHistory));
     }
 
     // Liste filtrée et triée par fréquence d'utilisation (MRU) et pertinence
@@ -267,9 +275,9 @@ PanelWindow {
             root.selectedIndex = 0;
             searchInput.text = "";
             searchInput.forceActiveFocus();
-            if (!loadHistoryProc.running) {
-                loadHistoryProc.running = true;
-            }
+            // L'historique est chargé par FileView (blockLoading) ; re-synchro défensive
+            // au cas où le fichier aurait changé en dehors du shell depuis l'ouverture.
+            root.loadHistoryFromView();
         }
     }
 

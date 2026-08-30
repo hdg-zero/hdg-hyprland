@@ -31,7 +31,10 @@ ModulePopup {
     readonly property bool isWifi: activeDevice && activeDevice.type === DeviceType.Wifi
     readonly property bool isWired: activeDevice && activeDevice.type === DeviceType.Ethernet
     readonly property string ssid: (isWifi && activeDevice.network) ? activeDevice.network.ssid : "Filaire"
-    readonly property int signal: (isWifi && activeDevice.network) ? activeDevice.network.signalStrength : 100
+    // Doc Quickshell.Networking/WifiNetwork v0.3.x : signalStrength est 0.0–1.0 → conversion en %
+    readonly property int signal: (isWifi && activeDevice.network)
+        ? Math.round(Math.max(0, Math.min(1, activeDevice.network.signalStrength)) * 100)
+        : 100
 
     property var lastRx: 0
     property var lastTx: 0

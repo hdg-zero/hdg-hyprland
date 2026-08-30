@@ -36,8 +36,10 @@ RowLayout {
 
             readonly property int wsId: modelData
             readonly property bool isFocused: Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id === wsId
+            // Doc Quickshell.Hyprland/HyprlandWorkspace v0.3.x : pas de propriété « windows » ;
+            // les fenêtres du workspace sont exposées par « toplevels » (ObjectModel → .values).
             readonly property var wsObj: Hyprland.workspaces ? Hyprland.workspaces.values.find(function(w) { return w.id === wsId; }) : null
-            readonly property bool hasWindows: wsObj !== null && wsObj !== undefined && (wsObj.windows > 0 || (wsObj.toplevels && wsObj.toplevels.length > 0))
+            readonly property bool hasWindows: !!wsObj && !!wsObj.toplevels && wsObj.toplevels.values.length > 0
 
             implicitWidth: 20
             implicitHeight: 20

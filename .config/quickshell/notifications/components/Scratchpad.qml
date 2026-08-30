@@ -12,14 +12,16 @@ ColumnLayout {
     property bool notesLoaded: false
     spacing: Theme.spacingSm
 
-    // Chargement persistant des notes
-    Process {
-        id: loadNotesProc
-        command: ["sh", "-c", "mkdir -p \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell\" && cat \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/scratchpad.txt\" 2>/dev/null || echo ''"]
-        stdout: StdioCollector { id: notesOut }
-        onExited: {
+    // Chargement persistant des notes via FileView (doc Quickshell.Io/FileView v0.3.x :
+    // setText() est atomique ; statePath() fournit le répertoire d'état par shell).
+    FileView {
+        id: notesFile
+        path: Quickshell.statePath("scratchpad.txt")
+        printErrors: false   // premier lancement : fichier absent, ne pas polluer les logs
+
+        onLoaded: {
             if (!root.notesLoaded) {
-                notesEdit.text = notesOut.text;
+                notesEdit.text = notesFile.text();
                 root.notesLoaded = true;
             }
         }
@@ -31,14 +33,18 @@ ColumnLayout {
         interval: 400
         repeat: false
         onTriggered: {
-            var txt = notesEdit.text;
-            Quickshell.execDetached(["sh", "-c", "mkdir -p \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell\" && printf '%s' \"$1\" > \"${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/scratchpad.txt\"", "--", txt]);
+            notesFile.setText(notesEdit.text);
         }
     }
 
     function loadNotes() {
-        if (!root.notesLoaded && !loadNotesProc.running) {
-            loadNotesProc.running = true;
+        // Déclenche un (re)chargement du fichier si le contenu n'a pas encore été hydraté.
+        if (!root.notesLoaded) {
+            notesFile.reload();
+            if (notesFile.loaded) {
+                notesEdit.text = notesFile.text();
+                root.notesLoaded = true;
+            }
         }
     }
 

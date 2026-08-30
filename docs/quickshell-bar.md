@@ -8,7 +8,7 @@ Documentation technique de la barre d'état supérieure et des fenêtres flottan
 
 La barre d'état Quickshell est déployée dynamiquement sur tous les moniteurs connectés via `Quickshell.screens`.
 
-- **Sobriété énergétique :** 0% CPU au repos, horloge cadencée à la minute (`SystemClock.Minutes`), zéro polling sur PipeWire (`PwObjectTracker`) et lazy-loading des processus lourds dans les popups (`running: root.visible`).
+- **Sobriété énergétique :** 0% CPU au repos sur tous les indicateurs perceptibles, horloge cadencée à la minute (`SystemClock.Minutes`), zéro polling sur PipeWire (`PwObjectTracker`) et lazy-loading des processus lourds dans les popups (`running: root.visible`). La persistance (historique du lanceur, bloc-notes) passe par `FileView` + `Quickshell.statePath()` — aucun processus externe.
 - **Design Obsidian Glass & Glacier Blue :** Fond sombre translucide (`Theme.background`), fine bordure inférieure (`Theme.glassBorder`) et dimensionnement 100% relatif (`Theme.barHeightRatio`, `Theme.relWidth`).
 - **Découpage modulaire :** [`BarContent.qml`](file:///Projets/github/hdg-hyprland/.config/quickshell/bar/BarContent.qml) structure 3 sous-sections indépendantes sous `.config/quickshell/bar/sections/` :
   - **`LeftSection.qml`** : Lanceur, Workspaces, métriques matérielles (CPU, RAM, Réseau) et lecteur multimédia MPRIS.

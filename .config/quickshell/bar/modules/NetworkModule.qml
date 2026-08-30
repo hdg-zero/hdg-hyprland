@@ -40,7 +40,10 @@ PillButton {
         if (!isConnected) return "󰌙";
         if (isWired) return "󰌘";
         if (isWifi) {
-            var signal = (activeDevice && activeDevice.network) ? activeDevice.network.signalStrength : 100;
+            // Doc Quickshell.Networking/WifiNetwork v0.3.x : signalStrength est un réel
+            // 0.0–1.0. On repasse sur une échelle 0–100 pour les seuils d'icônes.
+            var strength = (activeDevice && activeDevice.network) ? activeDevice.network.signalStrength : 1.0;
+            var signal = Math.round(Math.max(0, Math.min(1, strength)) * 100);
             if (signal >= 80) return "󰤨";
             if (signal >= 60) return "󰤥";
             if (signal >= 40) return "󰤢";

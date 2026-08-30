@@ -1,8 +1,7 @@
+pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
-
-pragma Singleton
 
 Singleton {
     id: root
@@ -21,19 +20,22 @@ Singleton {
         launcherVisible = false;
     }
 
-    // Gestionnaire IPC dédié pour le lanceur
+    // Gestionnaire IPC dédié pour le lanceur.
+    // NOTE (doc Quickshell Io/IpcHandler v0.3.x) : "Argument and return types must be
+    // explicitly specified or they will not be registered." Sans « : void », les fonctions
+    // ne sont pas enregistrées et `qs ipc call launcher toggle` échoue silencieusement.
     IpcHandler {
         target: "launcher"
 
-        function toggle() {
+        function toggle(): void {
             root.toggle();
         }
 
-        function open() {
+        function open(): void {
             root.open();
         }
 
-        function close() {
+        function close(): void {
             root.close();
         }
     }

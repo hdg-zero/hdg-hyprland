@@ -32,7 +32,12 @@ PopupWindow {
     anchor.margins.top: Theme.spacingSm
 
     color: "transparent"
-    visible: false
+
+    // La fenêtre reste affichée pendant le fondu de sortie (opacité de la carte), puis se
+    // masque dès que l'opacité atteint 0. Si open()/close() sont appelés dans la même frame,
+    // l'opacité ne quitte jamais 0 et la fenêtre se masque immédiatement (aucune popup fantôme).
+    // NB : ne plus assigner `visible` de façon impérative, cela casserait ce binding.
+    visible: root.isOpen || card.opacity > 0.0
 
     implicitWidth: effectiveWidth
     implicitHeight: Math.round(card.implicitHeight)
@@ -47,7 +52,6 @@ PopupWindow {
 
     function open() {
         isOpen = true;
-        visible = true;
     }
 
     function close() {
@@ -110,11 +114,6 @@ PopupWindow {
             NumberAnimation {
                 duration: Theme.animDurationFast
                 easing.type: Theme.easingType
-                onRunningChanged: {
-                    if (!running && !root.isOpen) {
-                        root.visible = false;
-                    }
-                }
             }
         }
 

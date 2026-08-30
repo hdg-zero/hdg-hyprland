@@ -16,7 +16,13 @@ ModulePopup {
     }
     readonly property bool isCharging: bat ? (bat.state === UPowerDeviceState.Charging) : false
     readonly property bool isFull: bat ? (bat.state === UPowerDeviceState.FullyCharged) : false
-    readonly property string energyRateFormatted: bat && bat.energyRate > 0 ? (bat.energyRate.toFixed(1) + " W") : ""
+    // Doc Quickshell.Services.UPower/UPowerDevice v0.3.x : le débit énergétique s'appelle
+    // « changeRate » (watts, positif en charge, négatif en décharge) ; « energyRate » n'existe pas.
+    // Seuil de 0,05 W pour éviter l'affichage d'un chiffre tremblant au repos.
+    readonly property real changeRateW: (bat && bat.changeRate) ? bat.changeRate : 0
+    readonly property string changeRateFormatted: Math.abs(changeRateW) > 0.05
+        ? ((changeRateW > 0 ? "+" : "") + changeRateW.toFixed(1) + " W")
+        : ""
 
     readonly property string timeRemainingFormatted: {
         if (!bat) return "";
@@ -95,7 +101,7 @@ ModulePopup {
 
         // Temps restant & Puissance
         RowLayout {
-            visible: root.timeRemainingFormatted !== "" || root.energyRateFormatted !== ""
+            visible: root.timeRemainingFormatted !== "" || root.changeRateFormatted !== ""
             Layout.fillWidth: true
 
             Text {
@@ -109,11 +115,11 @@ ModulePopup {
             Item { Layout.fillWidth: true }
 
             Text {
-                visible: root.energyRateFormatted !== ""
+                visible: root.changeRateFormatted !== ""
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.textDisabled
-                text: root.energyRateFormatted
+                text: root.changeRateFormatted
             }
         }
 
