@@ -31,7 +31,10 @@ Item {
         targetWindow: root.parentWindow
         anchor: pill
         popupComponent: Component {
-            BatteryPopup {}
+            BatteryPopup {
+                parentWindow: root.parentWindow
+                anchorItem: pill
+            }
         }
     }
 

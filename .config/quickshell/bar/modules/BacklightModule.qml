@@ -32,6 +32,8 @@ PillButton {
         anchor: root
         popupComponent: Component {
             BacklightPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
                 brightnessPercent: root.brightnessPercent
             }
         }

@@ -27,6 +27,8 @@ PillButton {
         anchor: root
         popupComponent: Component {
             MemoryPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
                 ramPercent: root.memPercent
             }
         }

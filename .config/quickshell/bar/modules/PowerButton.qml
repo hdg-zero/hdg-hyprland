@@ -15,7 +15,10 @@ PillButton {
         targetWindow: root.parentWindow
         anchor: root
         popupComponent: Component {
-            PowerPopup {}
+            PowerPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+            }
         }
     }
 

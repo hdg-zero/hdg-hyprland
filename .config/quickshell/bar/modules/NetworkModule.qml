@@ -21,7 +21,10 @@ PillButton {
         targetWindow: root.parentWindow
         anchor: root
         popupComponent: Component {
-            NetworkPopup {}
+            NetworkPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+            }
         }
     }
 

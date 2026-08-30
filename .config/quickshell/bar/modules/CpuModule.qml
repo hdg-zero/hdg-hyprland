@@ -28,6 +28,8 @@ PillButton {
         anchor: root
         popupComponent: Component {
             CpuPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
                 cpuPercent: root.cpuUsage
             }
         }

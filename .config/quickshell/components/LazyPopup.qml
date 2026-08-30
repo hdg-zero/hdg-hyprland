@@ -67,6 +67,14 @@ Loader {
         }
     }
 
+    function close() {
+        hoverRequested = false;
+        clickRequested = false;
+        if (item) {
+            item.close();
+        }
+    }
+
     /**
      * Réconcilie l'état du curseur avec la temporisation de fermeture : démarre le délai de
      * 320 ms si ni l'ancre ni la popup ne sont survolées, l'arrête sinon (réplique exacte de
@@ -83,9 +91,11 @@ Loader {
 
     // Câblage de la popup fraîchement instanciée puis ouverture immédiate.
     onLoaded: {
-        item.parentWindow = loaderRoot.targetWindow;
-        item.anchorItem = loaderRoot.anchor;
-        item.open();
+        if (item) {
+            if (!item.parentWindow) item.parentWindow = loaderRoot.targetWindow;
+            if (!item.anchorItem) item.anchorItem = loaderRoot.anchor;
+            item.open();
+        }
         scheduleCloseIfIdle();
     }
 
@@ -102,9 +112,8 @@ Loader {
         function onFullyClosed() {
             loaderRoot.clickRequested = false;
             loaderRoot.hoverRequested = false;
-            loaderRoot.active = false;
-            // Si le curseur se trouve encore sur l'icône/bouton au moment de la destruction,
-            // on relance le délai de survol pour permettre une réouverture fluide et immédiate !
+            // NB : Ne JAMAIS assigner active=false de façon impérative car cela brise le binding QML !
+            // La mise à 0 de clickRequested et hoverRequested réévalue active automatiquement.
             if (loaderRoot.anchorHovered && loaderRoot.openOnHover) {
                 hoverDelay.restart();
             }

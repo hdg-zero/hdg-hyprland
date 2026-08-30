@@ -19,6 +19,8 @@ Item {
         openOnHover: false
         popupComponent: Component {
             MprisPopup {
+                parentWindow: root.parentWindow
+                anchorItem: pill
                 targetPlayer: root.activePlayer
             }
         }

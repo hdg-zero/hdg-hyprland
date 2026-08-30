@@ -53,6 +53,8 @@ PillButton {
         anchor: root
         popupComponent: Component {
             VolumePopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
                 volumePercent: root.volumePercent
                 isMuted: root.isMuted
                 isBluetooth: root.isBluetooth

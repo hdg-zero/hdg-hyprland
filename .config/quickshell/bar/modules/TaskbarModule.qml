@@ -118,6 +118,8 @@ RowLayout {
                 anchor: taskItem
                 popupComponent: Component {
                     AppPopup {
+                        parentWindow: root.parentWindow
+                        anchorItem: taskItem
                         toplevel: taskItem.toplevel
                         appClass: taskItem.appClass
                         iconSource: taskItem.iconSource
