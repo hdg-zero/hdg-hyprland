@@ -53,16 +53,8 @@ PillButton {
         }
     }
 
-    Timer {
-        interval: 3000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            if (!getBrightness.running) {
-                getBrightness.running = true;
-            }
-        }
+    Component.onCompleted: {
+        getBrightness.running = true;
     }
 
     onScrolled: function(wheel) {

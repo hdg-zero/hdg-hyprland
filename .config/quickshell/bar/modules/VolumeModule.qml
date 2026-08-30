@@ -121,12 +121,20 @@ PillButton {
             ? wheel.angleDelta.y
             : ((wheel && wheel.delta !== undefined) ? wheel.delta : 0);
 
-        if (dy > 0) {
-            Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%+"]);
-        } else if (dy < 0) {
-            Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-"]);
+        if (root.audio && root.audio.volume !== undefined) {
+            if (dy > 0) {
+                root.audio.volume = Math.min(1.5, root.audio.volume + 0.05);
+            } else if (dy < 0) {
+                root.audio.volume = Math.max(0.0, root.audio.volume - 0.05);
+            }
+        } else {
+            if (dy > 0) {
+                Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%+"]);
+            } else if (dy < 0) {
+                Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-"]);
+            }
+            syncTimer.restart();
         }
-        syncTimer.restart();
     }
 
     Timer {
