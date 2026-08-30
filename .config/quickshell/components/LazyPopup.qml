@@ -45,8 +45,8 @@ Loader {
     // temporisation de fermeture (320 ms), exactement comme les anciens timers de ModulePopup.
     onAnchorHoveredChanged: {
         if (anchorHovered) {
+            closeDelay.stop();
             if (openOnHover) {
-                closeDelay.stop();
                 hoverDelay.restart();
             }
         } else {
@@ -57,10 +57,13 @@ Loader {
 
     /** Bascule ouverte/fermée — point d'entrée des clics du module. */
     function toggle() {
-        if (active && item) {
-            item.toggle();          // popup déjà instanciée : simple bascule
+        if (active && item && item.isOpen) {
+            item.close();
         } else {
-            clickRequested = true;  // instanciation à la demande, ouverte dans onLoaded
+            clickRequested = true;
+            if (item) {
+                item.open();
+            }
         }
     }
 
@@ -78,20 +81,11 @@ Loader {
         }
     }
 
-    // Câblage de la popup fraîchement instanciée puis ouverture demandée.
+    // Câblage de la popup fraîchement instanciée puis ouverture immédiate.
     onLoaded: {
         item.parentWindow = loaderRoot.targetWindow;
         item.anchorItem = loaderRoot.anchor;
-        // Ouverture immédiate si la popup a été créée par un survol déjà actif ou un clic
-        // (sinon la popup existerait en fermée, condamnée à être détruite par fullyClosed).
-        if (anchorHovered || clickRequested) {
-            item.open();
-        } else {
-            // Garde anti-fuite : le survol a expiré entre la fin du délai et la création
-            // (fenêtre jamais ouverte → fullyClosed ne partirait jamais) → destruction.
-            loaderRoot.clickRequested = false;
-            loaderRoot.hoverRequested = false;
-        }
+        item.open();
         scheduleCloseIfIdle();
     }
 
@@ -109,6 +103,11 @@ Loader {
             loaderRoot.clickRequested = false;
             loaderRoot.hoverRequested = false;
             loaderRoot.active = false;
+            // Si le curseur se trouve encore sur l'icône/bouton au moment de la destruction,
+            // on relance le délai de survol pour permettre une réouverture fluide et immédiate !
+            if (loaderRoot.anchorHovered && loaderRoot.openOnHover) {
+                hoverDelay.restart();
+            }
         }
     }
 
@@ -117,7 +116,14 @@ Loader {
         id: hoverDelay
         interval: 140
         repeat: false
-        onTriggered: loaderRoot.hoverRequested = true
+        onTriggered: {
+            if (loaderRoot.anchorHovered) {
+                loaderRoot.hoverRequested = true;
+                if (loaderRoot.item) {
+                    loaderRoot.item.open();
+                }
+            }
+        }
     }
 
     // Délai de grâce pour atteindre la popup (identique à l'ancien ModulePopup : 320 ms).
