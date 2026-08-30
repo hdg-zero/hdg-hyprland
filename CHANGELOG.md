@@ -14,7 +14,7 @@ et ce projet adhère au versionnage sémantique.
 - **Flou matériel Wayland et Glassmorphism natif** : attribution des namespaces `qs-bar`, `qs-panel`, `qs-launcher`, `qs-session`, `qs-popup` sur toutes les surfaces Quickshell et enregistrement de `hl.layer_rule` avec `blur = true` et `ignorezero = true` dans `hyprland.lua`.
 
 ### Modifié
-- **Dimensions et opacité standardisées du panneau de notifications** (`Theme.qml`, `NotificationCenter.qml`, `NotificationToastWindow.qml`, composants) : fixation déterministe de la largeur du panneau à 420 px et des toasts à 380 px indépendamment du ratio d'écran, augmentation de l'opacité à 94% Obsidian Glass (`Theme.glassBorder`), et extension des hauteurs de la liste de notifications (360 px max) et du bloc-notes (130 px).
+- **Centrage et proportions du panneau de notifications** (`Theme.qml`, `NotificationCenter.qml`, composants) : positionnement au centre de l'écran avec fond assombri dismissible au clic (`backdrop`), largeur portée à 480 px, toggles rapides plus hauts et carrés (64 px) avec icônes agrandies, curseurs à 42 px, actions à 40 px et bloc-notes à 150 px.
 
 ### Corrigé
 - **Exécution des commandes clavier dans le lanceur** (`LauncherWindow.qml`) : exécution prioritaire et immédiate de `Quickshell.execDetached`, isolation non-bloquante de la persistance de l'historique (`try/catch`), câblage direct de `onAccepted` sur `TextInput` et suppression des labels descriptifs superflus.

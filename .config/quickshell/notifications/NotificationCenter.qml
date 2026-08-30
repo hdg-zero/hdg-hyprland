@@ -17,16 +17,10 @@ PanelWindow {
 
     anchors {
         top: true
+        bottom: true
+        left: true
         right: true
     }
-
-    margins {
-        top: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + Theme.spacingSm)
-        right: Math.round(Theme.spacingSm + Theme.spacingXs)
-    }
-
-    implicitWidth: Theme.notificationPanelWidth
-    implicitHeight: Math.min((root.screen ? root.screen.height : 1080) - margins.top - Theme.spacingLg, panelCard.implicitHeight)
 
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -75,10 +69,25 @@ PanelWindow {
         }
     }
 
-    // Carte principale en Glassmorphism Frost & Obsidian Glass
+    // Fond assombri dismissible au clic
+    Rectangle {
+        id: backdrop
+        anchors.fill: parent
+        color: Qt.rgba(0.02, 0.03, 0.05, 0.50)
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                NotificationService.panelVisible = false;
+            }
+        }
+    }
+
+    // Carte principale centrée au milieu de l'écran en Glassmorphism Obsidian Glass
     Rectangle {
         id: panelCard
-        width: parent.width
+        anchors.centerIn: parent
+        width: Theme.notificationPanelWidth
         implicitHeight: panelCol.implicitHeight + Theme.spacingMd * 2
         radius: Theme.radiusXLarge
         color: Qt.rgba(0.043, 0.059, 0.078, 0.94) // Obsidian Glass haute opacité

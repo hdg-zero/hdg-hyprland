@@ -72,7 +72,7 @@ Singleton {
     readonly property real popupWidthPercentWide: 0.16        // MPRIS
 
     // Dimensions fixes standardisées pour les panneaux d'overlay (indépendantes du ratio d'écran)
-    readonly property int notificationPanelWidth: 420
+    readonly property int notificationPanelWidth: 480
     readonly property int notificationToastWidth: 380
 
     // Fonctions d'aide au dimensionnement relatif
