@@ -31,6 +31,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: (visible && isCurrentMonitor) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.namespace: "qs-session"
 
     visible: SessionService.sessionVisible
 
@@ -43,6 +44,7 @@ PanelWindow {
         id: procUptime
         path: "/proc/uptime"
         watchChanges: false
+        blockAllReads: true
     }
 
     function formatUptime(seconds) {
@@ -67,7 +69,7 @@ PanelWindow {
         root.currentDate = d.charAt(0).toUpperCase() + d.slice(1);
 
         procUptime.reload();
-        var txt = typeof procUptime.text === "function" ? procUptime.text() : (procUptime.text || "");
+        var txt = procUptime.text();
         if (txt) {
             var firstVal = parseFloat(txt.trim().split(/\s+/)[0]);
             if (!isNaN(firstVal)) {
@@ -101,17 +103,11 @@ PanelWindow {
     // Raccourcis clavier directs
     Shortcut { sequence: "Escape"; enabled: root.visible; onActivated: SessionService.closeSession() }
     Shortcut { sequence: "L"; enabled: root.visible; onActivated: SessionService.lock() }
-    Shortcut { sequence: "l"; enabled: root.visible; onActivated: SessionService.lock() }
     Shortcut { sequence: "U"; enabled: root.visible; onActivated: SessionService.suspend() }
-    Shortcut { sequence: "u"; enabled: root.visible; onActivated: SessionService.suspend() }
     Shortcut { sequence: "E"; enabled: root.visible; onActivated: SessionService.logout() }
-    Shortcut { sequence: "e"; enabled: root.visible; onActivated: SessionService.logout() }
     Shortcut { sequence: "H"; enabled: root.visible; onActivated: SessionService.hibernate() }
-    Shortcut { sequence: "h"; enabled: root.visible; onActivated: SessionService.hibernate() }
     Shortcut { sequence: "R"; enabled: root.visible; onActivated: SessionService.reboot() }
-    Shortcut { sequence: "r"; enabled: root.visible; onActivated: SessionService.reboot() }
     Shortcut { sequence: "S"; enabled: root.visible; onActivated: SessionService.shutdown() }
-    Shortcut { sequence: "s"; enabled: root.visible; onActivated: SessionService.shutdown() }
 
     // Fond en verre dépoli sombre plein écran
     Rectangle {
