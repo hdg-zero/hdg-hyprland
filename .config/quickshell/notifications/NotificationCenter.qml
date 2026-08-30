@@ -25,8 +25,8 @@ PanelWindow {
         right: Math.round(Theme.spacingSm + Theme.spacingXs)
     }
 
-    implicitWidth: Math.round(Theme.relWidth(0.125, root.screen))
-    implicitHeight: Math.min(Math.round(Theme.relHeight(0.85, root.screen)), panelCard.implicitHeight)
+    implicitWidth: Theme.notificationPanelWidth
+    implicitHeight: Math.min((root.screen ? root.screen.height : 1080) - margins.top - Theme.spacingLg, panelCard.implicitHeight)
 
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -107,9 +107,9 @@ PanelWindow {
 
                 // Bouton Ne Pas Déranger (DND)
                 Rectangle {
-                    width: Math.round(Theme.relHeight(0.030, root.screen))
-                    height: width
-                    radius: width / 2
+                    width: 30
+                    height: 30
+                    radius: 15
                     color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.3) : (dndMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08))
                     border.color: NotificationService.dnd ? Theme.warning : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
@@ -134,9 +134,9 @@ PanelWindow {
                 // Bouton Effacer tout
                 Rectangle {
                     visible: NotificationService.unreadCount > 0
-                    width: Math.round(Theme.relHeight(0.030, root.screen))
-                    height: width
-                    radius: width / 2
+                    width: 30
+                    height: 30
+                    radius: 15
                     color: clearMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.3) : Qt.rgba(1, 1, 1, 0.08)
                     border.color: clearMouse.containsMouse ? Theme.destructive : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
@@ -160,9 +160,9 @@ PanelWindow {
 
                 // Bouton Fermer le panneau
                 Rectangle {
-                    width: Math.round(Theme.relHeight(0.030, root.screen))
-                    height: width
-                    radius: width / 2
+                    width: 30
+                    height: 30
+                    radius: 15
                     color: closePanelMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.20) : Qt.rgba(1, 1, 1, 0.08)
                     border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1

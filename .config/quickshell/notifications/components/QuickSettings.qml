@@ -62,7 +62,7 @@ ColumnLayout {
         // Toggle 1 : Wi-Fi
         Rectangle {
             Layout.fillWidth: true
-            height: Math.round(Theme.relHeight(0.048, root.targetScreen))
+            height: 44
             radius: Theme.radiusLarge
             color: root.wifiEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (wifiMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.08))
             border.color: root.wifiEnabled ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
@@ -94,7 +94,7 @@ ColumnLayout {
         // Toggle 2 : Bluetooth
         Rectangle {
             Layout.fillWidth: true
-            height: Math.round(Theme.relHeight(0.048, root.targetScreen))
+            height: 44
             radius: Theme.radiusLarge
             color: root.btEnabled ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (btMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.08))
             border.color: root.btEnabled ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
@@ -126,7 +126,7 @@ ColumnLayout {
         // Toggle 3 : Micro
         Rectangle {
             Layout.fillWidth: true
-            height: Math.round(Theme.relHeight(0.048, root.targetScreen))
+            height: 44
             radius: Theme.radiusLarge
             color: !root.micMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (micMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.35) : Qt.rgba(1.0, 0.42, 0.42, 0.22))
             border.color: !root.micMuted ? Theme.accent : Theme.destructive
@@ -158,7 +158,7 @@ ColumnLayout {
         // Toggle 4 : Mute Audio
         Rectangle {
             Layout.fillWidth: true
-            height: Math.round(Theme.relHeight(0.048, root.targetScreen))
+            height: 44
             radius: Theme.radiusLarge
             color: !root.audioMuted ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (audioMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.35) : Qt.rgba(1.0, 0.42, 0.42, 0.22))
             border.color: !root.audioMuted ? Theme.accent : Theme.destructive
@@ -198,7 +198,7 @@ ColumnLayout {
         // Verrouiller
         Rectangle {
             Layout.fillWidth: true
-            height: Math.round(Theme.relHeight(0.034, root.targetScreen))
+            height: 34
             radius: Theme.radiusMedium
             color: lockMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08)
             border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
@@ -237,7 +237,7 @@ ColumnLayout {
         // Éteindre / Menu Session
         Rectangle {
             Layout.fillWidth: true
-            height: Math.round(Theme.relHeight(0.034, root.targetScreen))
+            height: 34
             radius: Theme.radiusMedium
             color: pwrMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.28) : Qt.rgba(1, 1, 1, 0.08)
             border.color: pwrMouse.containsMouse ? Theme.destructive : Qt.rgba(1.0, 1.0, 1.0, 0.12)

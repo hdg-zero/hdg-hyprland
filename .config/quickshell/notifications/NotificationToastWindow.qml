@@ -24,7 +24,7 @@ PanelWindow {
         right: Theme.spacingMd
     }
 
-    implicitWidth: Theme.relWidth(0.18, root.screen)
+    implicitWidth: Theme.notificationToastWidth
     implicitHeight: toastCol.implicitHeight
 
     color: "transparent"
