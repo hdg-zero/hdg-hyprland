@@ -147,7 +147,7 @@ ModulePopup {
                         var addr = root.toplevel.address || "";
                         if (addr && addr.indexOf("0x") !== 0) addr = "0x" + addr;
                         if (root.toplevel.wayland) root.toplevel.wayland.activate();
-                        if (addr) Hyprland.dispatch("focuswindow address:" + addr);
+                        if (addr) Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr]);
                         root.close();
                     }
                 }
@@ -184,7 +184,7 @@ ModulePopup {
                         var addr = root.toplevel.address || "";
                         if (addr && addr.indexOf("0x") !== 0) addr = "0x" + addr;
                         if (root.toplevel.wayland) root.toplevel.wayland.close();
-                        if (addr) Hyprland.dispatch("closewindow address:" + addr);
+                        if (addr) Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
                         root.close();
                     }
                 }
