@@ -14,7 +14,7 @@ et ce projet adhère au versionnage sémantique.
 - **Flou matériel Wayland et Glassmorphism natif** : attribution des namespaces `qs-bar`, `qs-panel`, `qs-launcher`, `qs-session`, `qs-popup` sur toutes les surfaces Quickshell et enregistrement de `hl.layer_rule` avec `blur = true` et `ignorezero = true` dans `hyprland.lua`.
 
 ### Modifié
-- **Dimensions et ratio standardisés du panneau de notifications** (`Theme.qml`, `NotificationCenter.qml`, `NotificationToastWindow.qml`, composants) : fixation déterministe de la largeur du panneau à 380 px et des toasts à 360 px indépendamment du ratio ou de la résolution d'écran (1080p, 1440p, 4K, Ultrawide), et remplacement des hauteurs relatives (`relHeight`) par des dimensions fixes stables sur les toggles (44 px), sliders capsules (38 px), boutons système (34 px) et zone de notes (110 px).
+- **Dimensions et opacité standardisées du panneau de notifications** (`Theme.qml`, `NotificationCenter.qml`, `NotificationToastWindow.qml`, composants) : fixation déterministe de la largeur du panneau à 420 px et des toasts à 380 px indépendamment du ratio d'écran, augmentation de l'opacité à 94% Obsidian Glass (`Theme.glassBorder`), et extension des hauteurs de la liste de notifications (360 px max) et du bloc-notes (130 px).
 
 ### Corrigé
 - **Réouverture des popups flottantes de la barre** (`LazyPopup.qml`, `ModulePopup.qml`, modules de barre) : préservation du binding QML déclaratif sur `active` (suppression des assignations impératives destructrices de binding), passage direct de `parentWindow` et `anchorItem` dans les déclarations de composants et fiabilisation du signal `fullyClosed` éliminant tout blocage lors de la réouverture au survol ou au clic.

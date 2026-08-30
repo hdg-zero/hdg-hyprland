@@ -81,8 +81,8 @@ PanelWindow {
         width: parent.width
         implicitHeight: panelCol.implicitHeight + Theme.spacingMd * 2
         radius: Theme.radiusXLarge
-        color: Qt.rgba(0.06, 0.08, 0.12, 0.75)
-        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
+        color: Qt.rgba(0.043, 0.059, 0.078, 0.94) // Obsidian Glass haute opacité
+        border.color: Theme.glassBorder
         border.width: 1
         clip: true
 

@@ -53,7 +53,7 @@ ColumnLayout {
     // Liste défilante des notifications
     Item {
         Layout.fillWidth: true
-        implicitHeight: NotificationService.unreadCount === 0 ? 32 : Math.min(280, Math.max(60, notifList.contentHeight))
+        implicitHeight: NotificationService.unreadCount === 0 ? 32 : Math.min(360, Math.max(60, notifList.contentHeight))
         clip: true
 
         // État vide minimaliste
