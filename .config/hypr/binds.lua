@@ -3,7 +3,7 @@ return function(programs)
 
     hl.bind(main_mod .. " + Q", hl.dsp.exec_cmd(programs.terminal), { description = "Ouvrir le terminal" })
     hl.bind(main_mod .. " + C", hl.dsp.window.close(), { description = "Fermer la fenêtre active" })
-    hl.bind(main_mod .. " + M", hl.dsp.exec_cmd("wlogout --protocol layer-shell"), { description = "Ouvrir le menu de session" })
+    hl.bind(main_mod .. " + M", hl.dsp.exec_cmd("quickshell ipc call session toggle || qs ipc call session toggle"), { description = "Ouvrir le menu de session" })
     hl.bind(main_mod .. " + E", hl.dsp.exec_cmd(programs.file_manager), { description = "Ouvrir le gestionnaire de fichiers" })
     hl.bind(main_mod .. " + V", hl.dsp.window.float({ action = "toggle" }), { description = "Basculer la fenêtre en flottant" })
     hl.bind(main_mod .. " + SPACE", hl.dsp.exec_cmd(programs.menu), { description = "Ouvrir le lanceur d'applications" })
@@ -97,26 +97,24 @@ return function(programs)
 
     hl.bind(main_mod .. " + SHIFT + l", hl.dsp.exec_cmd("hyprlock"), { locked = true, description = "Verrouiller la session" })
 
-    hl.bind(main_mod .. " + i", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m output -o "$HOME/Pictures/Screenshots"'), {
+    local SCREENSHOT_DIR = "$HOME/Pictures/Screenshots"
+
+    hl.bind(main_mod .. " + i", hl.dsp.exec_cmd('mkdir -p "' .. SCREENSHOT_DIR .. '" && hyprshot -m output -o "' .. SCREENSHOT_DIR .. '"'), {
         description = "Capture écran de la sortie",
     })
-    hl.bind(main_mod .. " + y", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m window -o "$HOME/Pictures/Screenshots"'), {
+    hl.bind(main_mod .. " + y", hl.dsp.exec_cmd('mkdir -p "' .. SCREENSHOT_DIR .. '" && hyprshot -m window -o "' .. SCREENSHOT_DIR .. '"'), {
         description = "Capture écran de la fenêtre",
     })
-    hl.bind(main_mod .. " + u", hl.dsp.exec_cmd('mkdir -p "$HOME/Pictures/Screenshots" && hyprshot -m region -o "$HOME/Pictures/Screenshots"'), {
+    hl.bind(main_mod .. " + u", hl.dsp.exec_cmd('mkdir -p "' .. SCREENSHOT_DIR .. '" && hyprshot -m region -o "' .. SCREENSHOT_DIR .. '"'), {
         description = "Capture écran d'une région",
     })
 
-    hl.bind(main_mod .. " + f", hl.dsp.exec_cmd("swaync-client -op"), {
-        description = "Ouvrir le centre de notifications",
+    hl.bind(main_mod .. " + f", hl.dsp.exec_cmd("quickshell ipc call notifications toggle || qs ipc call notifications toggle"), {
+        description = "Basculer le centre de contrôle et notifications",
     })
 
     hl.bind(main_mod .. " + a", hl.dsp.exec_cmd("hyprctl switchxkblayout all next"), {
         locked = true,
         description = "Basculer le layout clavier",
-    })
-
-    hl.bind(main_mod .. " + W", hl.dsp.exec_cmd("cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"), {
-        description = "Ouvrir l'historique clipboard",
     })
 end

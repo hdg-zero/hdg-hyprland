@@ -9,10 +9,7 @@ case "${1:-}" in
     workspace-next)
         hyprctl eval 'hl.dispatch(hl.dsp.focus({ workspace = "e+1" }))'
         ;;
-    fullscreen-window)
-        hyprctl eval "hl.dispatch(hl.dsp.window.fullscreen({ action = 'toggle' }))"
-        ;;
-    fullscreen-output)
+    fullscreen-window|fullscreen-output)
         hyprctl eval "hl.dispatch(hl.dsp.window.fullscreen({ action = 'toggle' }))"
         ;;
     close-window)

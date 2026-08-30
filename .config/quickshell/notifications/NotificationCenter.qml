@@ -1,0 +1,234 @@
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import Quickshell
+import Quickshell.Wayland
+import "../theme"
+import "../components"
+import "../session"
+import "./components"
+
+PanelWindow {
+    id: root
+
+    property var modelData: null
+    property var targetScreen: null
+    screen: targetScreen || modelData
+
+    anchors {
+        top: true
+        right: true
+    }
+
+    margins {
+        top: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + Theme.spacingSm)
+        right: Math.round(Theme.spacingSm + Theme.spacingXs)
+    }
+
+    implicitWidth: Math.round(Theme.relWidth(0.125, root.screen))
+    implicitHeight: Math.min(Math.round(Theme.relHeight(0.85, root.screen)), panelCard.implicitHeight)
+
+    color: "transparent"
+    exclusionMode: ExclusionMode.Ignore
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.visible
+        onActivated: {
+            NotificationService.panelVisible = false;
+        }
+    }
+
+    visible: NotificationService.panelVisible
+
+    function refreshStatus() {
+        quickSettings.refresh();
+        sliders.refresh();
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            refreshStatus();
+            scratchpad.loadNotes();
+        }
+    }
+
+    Timer {
+        interval: 3000
+        running: root.visible
+        repeat: true
+        onTriggered: {
+            root.refreshStatus();
+        }
+    }
+
+    // Carte principale en Glassmorphism Frost & Obsidian Glass
+    Rectangle {
+        id: panelCard
+        width: parent.width
+        implicitHeight: panelCol.implicitHeight + Theme.spacingMd * 2
+        radius: Theme.radiusXLarge
+        color: Qt.rgba(0.06, 0.08, 0.12, 0.75)
+        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
+        border.width: 1
+        clip: true
+
+        Keys.onEscapePressed: function(event) {
+            NotificationService.panelVisible = false;
+            event.accepted = true;
+        }
+
+        ColumnLayout {
+            id: panelCol
+            anchors {
+                left: parent.left
+                right: parent.right
+                top: parent.top
+                margins: Theme.spacingMd
+            }
+            spacing: Theme.spacingSm
+
+            // ==========================================
+            // 1. BOUTONS D'ACTION HAUT (DND, Effacer, Fermer)
+            // ==========================================
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingSm
+
+                Item { Layout.fillWidth: true }
+
+                // Bouton Ne Pas Déranger (DND)
+                Rectangle {
+                    width: Math.round(Theme.relHeight(0.030, root.screen))
+                    height: width
+                    radius: width / 2
+                    color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.3) : (dndMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08))
+                    border.color: NotificationService.dnd ? Theme.warning : Qt.rgba(1.0, 1.0, 1.0, 0.12)
+                    border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
+                        text: NotificationService.dnd ? "󰂛" : "󰂚"
+                    }
+
+                    MouseArea {
+                        id: dndMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: { NotificationService.toggleDnd(); }
+                    }
+                }
+
+                // Bouton Effacer tout
+                Rectangle {
+                    visible: NotificationService.unreadCount > 0
+                    width: Math.round(Theme.relHeight(0.030, root.screen))
+                    height: width
+                    radius: width / 2
+                    color: clearMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.3) : Qt.rgba(1, 1, 1, 0.08)
+                    border.color: clearMouse.containsMouse ? Theme.destructive : Qt.rgba(1.0, 1.0, 1.0, 0.12)
+                    border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: clearMouse.containsMouse ? Theme.destructive : Theme.textSecondary
+                        text: "󰃢"
+                    }
+
+                    MouseArea {
+                        id: clearMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: { NotificationService.clearAll(); }
+                    }
+                }
+
+                // Bouton Fermer le panneau
+                Rectangle {
+                    width: Math.round(Theme.relHeight(0.030, root.screen))
+                    height: width
+                    radius: width / 2
+                    color: closePanelMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.20) : Qt.rgba(1, 1, 1, 0.08)
+                    border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
+                    border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: closePanelMouse.containsMouse ? Theme.textPrimary : Theme.textSecondary
+                        text: "󰅖"
+                    }
+
+                    MouseArea {
+                        id: closePanelMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: { NotificationService.panelVisible = false; }
+                    }
+                }
+            }
+
+            // ==========================================
+            // 2. TOGGLES RAPIDES & ACTIONS SYSTÈME
+            // ==========================================
+            QuickSettings {
+                id: quickSettings
+                targetScreen: root.screen
+                Layout.fillWidth: true
+            }
+
+            // ==========================================
+            // 3. CURSEURS EN CAPSULE (Volume & Luminosité)
+            // ==========================================
+            VolumeBrightnessSliders {
+                id: sliders
+                targetScreen: root.screen
+                Layout.fillWidth: true
+                audioMuted: quickSettings.audioMuted
+            }
+
+            // Séparateur fin
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.10)
+            }
+
+            // ==========================================
+            // 4. HISTORIQUE DES NOTIFICATIONS
+            // ==========================================
+            NotificationList {
+                id: notifList
+                targetScreen: root.screen
+                Layout.fillWidth: true
+            }
+
+            // Séparateur fin
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.10)
+            }
+
+            // ==========================================
+            // 5. MINI BLOC-NOTES RAPIDE (Scratchpad)
+            // ==========================================
+            Scratchpad {
+                id: scratchpad
+                targetScreen: root.screen
+                Layout.fillWidth: true
+            }
+        }
+    }
+}

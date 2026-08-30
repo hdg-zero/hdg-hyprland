@@ -6,8 +6,8 @@ if ! command -v acpi >/dev/null 2>&1 || ! command -v notify-send >/dev/null 2>&1
     exit 0
 fi
 
-battery_info=$(acpi -b | head -n 1)
-battery_percentage=$(printf '%s\n' "$battery_info" | grep -o '[0-9]\+%' | head -n 1 | tr -d '%')
+battery_info=$(acpi -b 2>/dev/null | head -n 1 || true)
+battery_percentage=$(printf '%s\n' "$battery_info" | grep -o '[0-9]\+%' | head -n 1 | tr -d '%' || true)
 
 if [ -z "$battery_percentage" ] || printf '%s\n' "$battery_info" | grep -Eq 'Charging|Full'; then
     exit 0
@@ -18,5 +18,3 @@ if [ "$battery_percentage" -lt 10 ]; then
 elif [ "$battery_percentage" -lt 20 ]; then
     notify-send -u normal -a "Battery" "Batterie faible" "Batterie à ${battery_percentage} %. Charge recommandée."
 fi
-
-# systemctl --user enable --now battery-notifier.timer
