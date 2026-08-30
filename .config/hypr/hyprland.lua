@@ -114,3 +114,9 @@ hl.window_rule({
     },
     no_focus = true,
 })
+
+hl.layer_rule({
+    name = "quickshell-blur",
+    match = { namespace = "qs-.*" },
+    blur = true,
+})
