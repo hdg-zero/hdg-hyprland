@@ -11,11 +11,19 @@ Item {
 
     property var parentWindow: null
 
-    MprisPopup {
-        id: mprisPopup
-        parentWindow: root.parentWindow
-        anchorItem: pill
-        targetPlayer: root.activePlayer
+    // Popup paresseuse (clic droit uniquement — pas d'ouverture au survol sur ce module).
+    LazyPopup {
+        id: mprisLazy
+        targetWindow: root.parentWindow
+        anchor: pill
+        openOnHover: false
+        popupComponent: Component {
+            MprisPopup {
+                parentWindow: root.parentWindow
+                anchorItem: pill
+                targetPlayer: root.activePlayer
+            }
+        }
     }
 
     readonly property var activePlayer: {
@@ -73,7 +81,7 @@ Item {
         }
 
         onRightClicked: {
-            mprisPopup.toggle();
+            mprisLazy.toggle();
         }
 
         onMiddleClicked: {

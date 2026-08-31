@@ -25,10 +25,17 @@ Item {
     readonly property bool isCritical: rawPercentage <= 15
     readonly property bool isWarning: rawPercentage <= 30
 
-    BatteryPopup {
-        id: batPopup
-        parentWindow: root.parentWindow
-        anchorItem: pill
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: batLazy
+        targetWindow: root.parentWindow
+        anchor: pill
+        popupComponent: Component {
+            BatteryPopup {
+                parentWindow: root.parentWindow
+                anchorItem: pill
+            }
+        }
     }
 
     PillButton {
@@ -56,7 +63,7 @@ Item {
         customPaddingV: 1
 
         onClicked: {
-            batPopup.toggle();
+            batLazy.toggle();
         }
     }
 }

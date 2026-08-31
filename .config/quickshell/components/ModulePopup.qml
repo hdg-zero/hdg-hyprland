@@ -10,6 +10,7 @@ PopupWindow {
     property var anchorItem: null
     property bool autoHover: true
     property bool isOpen: false
+    signal fullyClosed()
     
     property real widthPercent: 0
     property alias cardWidth: card.implicitWidth
@@ -58,47 +59,6 @@ PopupWindow {
         isOpen = false;
     }
 
-    Timer {
-        id: hoverOpenTimer
-        interval: 140
-        repeat: false
-        onTriggered: {
-            if (root.autoHover && root.anchorItem && root.anchorItem.isHovered) {
-                root.open();
-            }
-        }
-    }
-
-    Timer {
-        id: hoverCloseTimer
-        interval: 320
-        repeat: false
-        onTriggered: {
-            if (root.autoHover && !root.isHovered) {
-                root.close();
-            }
-        }
-    }
-
-    Connections {
-        target: root.anchorItem
-        ignoreUnknownSignals: true
-        function onEntered() {
-            if (root.autoHover) {
-                hoverCloseTimer.stop();
-                hoverOpenTimer.restart();
-            }
-        }
-        function onExited() {
-            if (root.autoHover) {
-                hoverOpenTimer.stop();
-                if (!cardHoverHandler.hovered) {
-                    hoverCloseTimer.restart();
-                }
-            }
-        }
-    }
-
     GlassCard {
         id: card
         anchors.fill: parent
@@ -112,8 +72,14 @@ PopupWindow {
 
         Behavior on opacity {
             NumberAnimation {
+                id: opacityAnim
                 duration: Theme.animDurationFast
                 easing.type: Theme.easingType
+                onRunningChanged: {
+                    if (!running && !root.isOpen && card.opacity <= 0.0) {
+                        root.fullyClosed();
+                    }
+                }
             }
         }
 
@@ -126,15 +92,6 @@ PopupWindow {
 
         HoverHandler {
             id: cardHoverHandler
-            onHoveredChanged: {
-                if (hovered) {
-                    hoverCloseTimer.stop();
-                } else {
-                    if (root.autoHover && (!root.anchorItem || !root.anchorItem.isHovered)) {
-                        hoverCloseTimer.restart();
-                    }
-                }
-            }
         }
 
         Item {

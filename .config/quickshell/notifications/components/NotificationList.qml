@@ -53,7 +53,7 @@ ColumnLayout {
     // Liste défilante des notifications
     Item {
         Layout.fillWidth: true
-        implicitHeight: NotificationService.unreadCount === 0 ? Math.round(Theme.relHeight(0.030, root.targetScreen)) : Math.min(Math.round(Theme.relHeight(0.20, root.targetScreen)), notifList.contentHeight)
+        implicitHeight: NotificationService.unreadCount === 0 ? 32 : Math.min(360, Math.max(60, notifList.contentHeight))
         clip: true
 
         // État vide minimaliste
@@ -76,6 +76,7 @@ ColumnLayout {
             id: notifList
             anchors.fill: parent
             visible: NotificationService.unreadCount > 0
+            boundsBehavior: Flickable.StopAtBounds
             model: {
                 if (!NotificationService.trackedNotifications || !NotificationService.trackedNotifications.values) return [];
                 return NotificationService.trackedNotifications.values.filter(function(n) {
@@ -193,7 +194,7 @@ ColumnLayout {
                             delegate: Rectangle {
                                 required property var modelData
                                 implicitWidth: actLabel.implicitWidth + Theme.spacingMd * 2
-                                implicitHeight: Math.round(Theme.relHeight(0.024, root.targetScreen))
+                                implicitHeight: 24
                                 radius: Theme.radiusSmall
                                 color: actBtnMouse.containsMouse ? Theme.accent : Qt.rgba(1, 1, 1, 0.12)
                                 border.color: Qt.rgba(1.0, 1.0, 1.0, 0.14)

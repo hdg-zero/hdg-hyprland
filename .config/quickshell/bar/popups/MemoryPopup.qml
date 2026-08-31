@@ -23,11 +23,12 @@ ModulePopup {
         id: meminfoFile
         path: "/proc/meminfo"
         watchChanges: false
+        blockAllReads: true
     }
 
     function updateMemoryStats() {
         meminfoFile.reload();
-        var txt = typeof meminfoFile.text === "function" ? meminfoFile.text() : (meminfoFile.text || "");
+        var txt = meminfoFile.text();
         if (!txt) return;
 
         var lines = txt.split("\n");

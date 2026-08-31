@@ -20,17 +20,26 @@ PillButton {
     customPaddingV: 1
     widthPercent: Theme.moduleWidthPercentMetrics
 
-    CpuPopup {
-        id: cpuPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
-        cpuPercent: root.cpuUsage
+    // Popup paresseuse : instanciée au premier survol (140 ms) ou clic, détruite après
+    // l'animation de fermeture (économie de RAM : pas de surface Wayland/GPU au repos).
+    LazyPopup {
+        id: cpuLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            CpuPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+                cpuPercent: root.cpuUsage
+            }
+        }
     }
 
     FileView {
         id: procStat
         path: "/proc/stat"
         watchChanges: false
+        blockAllReads: true
     }
 
     Timer {
@@ -41,7 +50,7 @@ PillButton {
 
         onTriggered: {
             procStat.reload();
-            var content = typeof procStat.text === "function" ? procStat.text() : (procStat.text || "");
+            var content = procStat.text();
             if (!content) return;
 
             var firstLine = content.split("\n")[0];
@@ -75,7 +84,7 @@ PillButton {
     }
 
     onClicked: {
-        cpuPopup.toggle();
+        cpuLazy.toggle();
     }
 
     onRightClicked: {

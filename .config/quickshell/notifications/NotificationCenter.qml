@@ -17,21 +17,16 @@ PanelWindow {
 
     anchors {
         top: true
+        bottom: true
+        left: true
         right: true
     }
-
-    margins {
-        top: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + Theme.spacingSm)
-        right: Math.round(Theme.spacingSm + Theme.spacingXs)
-    }
-
-    implicitWidth: Math.round(Theme.relWidth(0.125, root.screen))
-    implicitHeight: Math.min(Math.round(Theme.relHeight(0.85, root.screen)), panelCard.implicitHeight)
 
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    WlrLayershell.namespace: "qs-panel"
 
     Shortcut {
         sequence: "Escape"
@@ -55,6 +50,16 @@ PanelWindow {
         }
     }
 
+    // Lazy loading : à la recréation par le Loader, la fenêtre naît déjà visible —
+    // onVisibleChanged(false→true) ne part pas toujours. On rafraîchit donc aussi à la fin
+    // de l'instanciation (états Wi-Fi/BT/micro, curseurs, notes du scratchpad).
+    Component.onCompleted: {
+        if (visible) {
+            refreshStatus();
+            scratchpad.loadNotes();
+        }
+    }
+
     Timer {
         interval: 3000
         running: root.visible
@@ -64,21 +69,33 @@ PanelWindow {
         }
     }
 
-    // Carte principale en Glassmorphism Frost & Obsidian Glass
+    // Fond assombri dismissible au clic
+    Rectangle {
+        id: backdrop
+        anchors.fill: parent
+        color: Qt.rgba(0.02, 0.03, 0.05, 0.50)
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                NotificationService.panelVisible = false;
+            }
+        }
+    }
+
+    // Carte principale centrée horizontalement en haut de l'écran en Glassmorphism Obsidian Glass
     Rectangle {
         id: panelCard
-        width: parent.width
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + Theme.spacingSm)
+        width: Theme.notificationPanelWidth
         implicitHeight: panelCol.implicitHeight + Theme.spacingMd * 2
         radius: Theme.radiusXLarge
-        color: Qt.rgba(0.06, 0.08, 0.12, 0.75)
-        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
+        color: Qt.rgba(0.043, 0.059, 0.078, 0.94) // Obsidian Glass haute opacité
+        border.color: Theme.glassBorder
         border.width: 1
         clip: true
-
-        Keys.onEscapePressed: function(event) {
-            NotificationService.panelVisible = false;
-            event.accepted = true;
-        }
 
         ColumnLayout {
             id: panelCol
@@ -101,9 +118,9 @@ PanelWindow {
 
                 // Bouton Ne Pas Déranger (DND)
                 Rectangle {
-                    width: Math.round(Theme.relHeight(0.030, root.screen))
-                    height: width
-                    radius: width / 2
+                    width: 30
+                    height: 30
+                    radius: 15
                     color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.3) : (dndMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08))
                     border.color: NotificationService.dnd ? Theme.warning : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
@@ -128,9 +145,9 @@ PanelWindow {
                 // Bouton Effacer tout
                 Rectangle {
                     visible: NotificationService.unreadCount > 0
-                    width: Math.round(Theme.relHeight(0.030, root.screen))
-                    height: width
-                    radius: width / 2
+                    width: 30
+                    height: 30
+                    radius: 15
                     color: clearMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.3) : Qt.rgba(1, 1, 1, 0.08)
                     border.color: clearMouse.containsMouse ? Theme.destructive : Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1
@@ -154,9 +171,9 @@ PanelWindow {
 
                 // Bouton Fermer le panneau
                 Rectangle {
-                    width: Math.round(Theme.relHeight(0.030, root.screen))
-                    height: width
-                    radius: width / 2
+                    width: 30
+                    height: 30
+                    radius: 15
                     color: closePanelMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.20) : Qt.rgba(1, 1, 1, 0.08)
                     border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
                     border.width: 1

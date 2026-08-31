@@ -22,7 +22,7 @@ Singleton {
 
     function lock() {
         root.closeSession();
-        Quickshell.execDetached(["hyprlock"]);
+        Quickshell.execDetached(["loginctl", "lock-session"]);
     }
 
     function suspend() {

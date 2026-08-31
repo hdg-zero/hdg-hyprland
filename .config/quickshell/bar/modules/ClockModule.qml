@@ -12,10 +12,17 @@ PillButton {
         precision: SystemClock.Minutes
     }
 
-    ClockPopup {
-        id: clockPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: clockLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            ClockPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+            }
+        }
     }
 
     icon: "󰥔"
@@ -26,6 +33,6 @@ PillButton {
     customPaddingV: 1
 
     onClicked: {
-        clockPopup.toggle();
+        clockLazy.toggle();
     }
 }

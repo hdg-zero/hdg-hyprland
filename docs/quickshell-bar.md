@@ -73,9 +73,10 @@ La barre d'état Quickshell est déployée dynamiquement sur tous les moniteurs 
 | `accent` | `#5dade2` | Couleur d'accent principale (Glacier Blue) |
 | `accentSecondary` | `#85c1e9` | Couleur d'accent secondaire (Glacier Light Blue) |
 | `barHeightRatio` | `0.024` | Ratio de hauteur relative de la barre (~25px en 1080p, ~34px en 1440p) |
+| `notificationPanelWidth` | `480` | Largeur fixe standardisée du Centre de Contrôle (haut-centré) |
+| `notificationToastWidth` | `380` | Largeur fixe standardisée des toasts de notifications OSD |
 | `moduleWidthPercentMetrics` | `0.038` | Largeur relative des modules CPU / RAM / Réseau (3.8% écran) |
 | `moduleWidthPercentMpris` | `0.12` | Largeur relative du lecteur multimédia (12% écran) |
-
 ---
 
 ## 🕹️ 4. Détail des Sections & Popups
@@ -103,9 +104,11 @@ La barre d'état Quickshell est déployée dynamiquement sur tous les moniteurs 
 
 ---
 
-## ⚡ 5. Modèle d'Interaction & Survol Intelligent
+## ⚡ 5. Modèle d'Interaction, Lazy Loading & Destroy-on-Close
 
-Dans [`ModulePopup.qml`](file:///Projets/github/hdg-hyprland/.config/quickshell/components/ModulePopup.qml) :
-- **Délai d'ouverture (`140 ms`) :** Évite les ouvertures accidentelles lors du survol rapide.
-- **Délai de fermeture (`320 ms`) :** Permet la transition fluide du curseur de la barre vers la popup.
-- **Animations cubiques réactives :** Fondu d'opacité `0.0 ➔ 1.0` en 150ms (`Easing.OutCubic`) et micro-zoom d'apparition `0.95 ➔ 1.0`.
+Dans [`LazyPopup.qml`](file:///Projets/github/hdg-hyprland/.config/quickshell/components/LazyPopup.qml) et [`ModulePopup.qml`](file:///Projets/github/hdg-hyprland/.config/quickshell/components/ModulePopup.qml) :
+- **Instanciation Paresseuse & Destroy-on-Close :** Les 10 popups de la barre ne sont pas maintenues en mémoire vive. Le composant `LazyPopup` n'instancie la surface `PopupWindow` et ses vues QML qu'à l'entrée du curseur (`hoverRequested`) ou au clic (`clickRequested`), et détruit immédiatement l'instance dès la fin de l'animation de fermeture (`onFullyClosed`).
+- **Délai d'ouverture anti-spam (`140 ms`) :** Évite les instanciations et ouvertures accidentelles lors d'un simple balayage rapide du curseur.
+- **Délai de fermeture fluide (`320 ms`) :** Permet la transition naturelle du curseur entre le bouton de la barre et la popup flottante sans rupture d'ancrage.
+- **Animations cubiques fluides :** Fondu d'opacité `0.0 ➔ 1.0` en 150ms (`Easing.OutCubic`) et micro-zoom d'apparition `0.95 ➔ 1.0`.
+- **Flou Matériel Natif Hyprland :** Surfaces associées au namespace `qs-popup` avec `layerrule = blur, ignorezero` dans `hyprland.lua`.

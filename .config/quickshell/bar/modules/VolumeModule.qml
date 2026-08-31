@@ -46,13 +46,20 @@ PillButton {
     readonly property real volumeLevel: (audio && audio.volume !== undefined) ? audio.volume : (wpVolumePercent / 100.0)
     readonly property int volumePercent: (audio && audio.volume !== undefined) ? Math.round(audio.volume * 100) : wpVolumePercent
 
-    VolumePopup {
-        id: volPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
-        volumePercent: root.volumePercent
-        isMuted: root.isMuted
-        isBluetooth: root.isBluetooth
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: volLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            VolumePopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+                volumePercent: root.volumePercent
+                isMuted: root.isMuted
+                isBluetooth: root.isBluetooth
+            }
+        }
     }
 
     Process {
@@ -104,7 +111,7 @@ PillButton {
     customPaddingV: 1
 
     onClicked: {
-        volPopup.toggle();
+        volLazy.toggle();
     }
 
     onRightClicked: {
@@ -116,12 +123,20 @@ PillButton {
             ? wheel.angleDelta.y
             : ((wheel && wheel.delta !== undefined) ? wheel.delta : 0);
 
-        if (dy > 0) {
-            Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%+"]);
-        } else if (dy < 0) {
-            Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-"]);
+        if (root.audio && root.audio.volume !== undefined) {
+            if (dy > 0) {
+                root.audio.volume = Math.min(1.5, root.audio.volume + 0.05);
+            } else if (dy < 0) {
+                root.audio.volume = Math.max(0.0, root.audio.volume - 0.05);
+            }
+        } else {
+            if (dy > 0) {
+                Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%+"]);
+            } else if (dy < 0) {
+                Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-"]);
+            }
+            syncTimer.restart();
         }
-        syncTimer.restart();
     }
 
     Timer {

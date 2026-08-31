@@ -34,12 +34,23 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: (LauncherService.launcherVisible && isCurrentMonitor) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.namespace: "qs-launcher"
 
     // Maintient la fenêtre active pendant l'animation de fermeture
     visible: LauncherService.launcherVisible || animProgress > 0.01
 
-    // Progression d'animation d'ouverture/fermeture style Apple
-    property real animProgress: LauncherService.launcherVisible ? 1.0 : 0.0
+    // Progression d'animation d'ouverture/fermeture style Apple.
+    // Lazy loading : la fenêtre n'existe désormais que quand le service demande l'ouverture
+    // (ou pendant les 300 ms de keepalive post-fermeture). Pour que le ressort d'ouverture
+    // (Easing.OutBack) se voie à chaque création, la progression démarre à 0 et le binding
+    // n'est établi qu'une fois le fenêtre montée (Component.onCompleted) — sinon
+    // animProgress s'initialiserait directement à 1 et l'animation d'entrée serait perdue.
+    property real animProgress: 0.0
+    Component.onCompleted: {
+        animProgress = Qt.binding(function() {
+            return LauncherService.launcherVisible ? 1.0 : 0.0;
+        });
+    }
     Behavior on animProgress {
         NumberAnimation {
             duration: LauncherService.launcherVisible ? 220 : 160
@@ -52,17 +63,32 @@ PanelWindow {
     property int selectedIndex: 0
     property var appHistory: ({})
 
+    readonly property bool isCommandMode: root.searchQuery.trim().indexOf(">") === 0
+    readonly property string commandString: isCommandMode ? root.searchQuery.trim().substring(1).trim() : ""
+
     // Résolution robuste et exhaustive des icônes d'applications
+    property var iconCache: ({})
+
     function resolveAppIcon(app) {
         if (!app) return "";
+        var appId = app.id || app.name || "";
+        if (appId && root.iconCache[appId] !== undefined) {
+            return root.iconCache[appId];
+        }
+
         var iconName = app.icon || "";
-        var appId = (app.id || "").replace(/\.desktop$/i, "");
         var appName = (app.name || "").toLowerCase();
         var execStr = (app.execString || app.command || "").toString().toLowerCase();
 
         // 1. Si chemin absolu direct
-        if (iconName.indexOf("/") === 0) return "file://" + iconName;
-        if (iconName.indexOf("file://") === 0) return iconName;
+        if (iconName.indexOf("/") === 0) {
+            if (appId) root.iconCache[appId] = "file://" + iconName;
+            return "file://" + iconName;
+        }
+        if (iconName.indexOf("file://") === 0) {
+            if (appId) root.iconCache[appId] = iconName;
+            return iconName;
+        }
 
         // 2. Ensemble de termes candidats ordonnés
         var candidates = [];
@@ -114,10 +140,24 @@ PanelWindow {
             "manage printing": "cups"
         };
 
+        // Expansion des alias en UNE passe bornée : chaque candidat est traité au plus une
+        // fois (Set de déduplication). L'ancienne boucle poussait dans le tableau PENDANT son
+        // parcours : toute clé auto-référentielle de la table (« vscodium » → « vscodium »,
+        // « distrobox » → « distrobox ») provoquait une boucle infinie qui figeait le thread
+        // QML à l'ouverture du lanceur jusqu'au crash de Quickshell.
+        var seen = {};
+        var expanded = [];
         for (var i = 0; i < candidates.length; i++) {
             var c = candidates[i];
-            if (aliasMap[c]) candidates.push(aliasMap[c]);
+            if (!c || seen[c]) continue;
+            seen[c] = true;
+            expanded.push(c);
+            if (aliasMap[c] && !seen[aliasMap[c]]) {
+                seen[aliasMap[c]] = true;
+                expanded.push(aliasMap[c]);
+            }
         }
+        candidates = expanded;
 
         // Recherche via Quickshell et chemins standards
         for (var k = 0; k < candidates.length; k++) {
@@ -130,17 +170,27 @@ PanelWindow {
 
             // Résolution Quickshell
             var resolved = Quickshell.iconPath(clean, true);
-            if (resolved) return resolved;
+            if (resolved) {
+                if (appId) root.iconCache[appId] = resolved;
+                return resolved;
+            }
             resolved = Quickshell.iconPath(clean.toLowerCase(), true);
-            if (resolved) return resolved;
+            if (resolved) {
+                if (appId) root.iconCache[appId] = resolved;
+                return resolved;
+            }
 
             // Formats symboliques Adwaita
             if (clean.indexOf("-symbolic") === -1) {
                 resolved = Quickshell.iconPath(clean + "-symbolic", true);
-                if (resolved) return resolved;
+                if (resolved) {
+                    if (appId) root.iconCache[appId] = resolved;
+                    return resolved;
+                }
             }
         }
 
+        if (appId) root.iconCache[appId] = "";
         return "";
     }
 
@@ -189,6 +239,62 @@ PanelWindow {
 
     function saveHistory() {
         historyFile.setText(JSON.stringify(root.appHistory));
+    }
+
+    // Persistance de l'historique des commandes shell exécutées via le préfixe '>'
+    property var cmdHistory: ({})
+    property int selectedIndexCmd: -1
+
+    FileView {
+        id: cmdHistoryFile
+        path: Quickshell.statePath("cmd_history.json")
+        blockLoading: true
+        printErrors: false
+
+        onLoaded: root.loadCmdHistoryFromView()
+        onFileChanged: root.loadCmdHistoryFromView()
+    }
+
+    function loadCmdHistoryFromView() {
+        var json = cmdHistoryFile.text();
+        if (!json) return;
+        try {
+            var parsed = JSON.parse(json);
+            if (parsed && typeof parsed === "object") {
+                root.cmdHistory = parsed;
+            }
+        } catch (e) {
+            root.cmdHistory = {};
+        }
+    }
+
+    function saveCmdHistory() {
+        cmdHistoryFile.setText(JSON.stringify(root.cmdHistory));
+    }
+
+    // Calcul dynamique du Top 5 des commandes les plus fréquentes (filtrables par la saisie)
+    readonly property var topCommands: {
+        var entries = [];
+        if (root.cmdHistory) {
+            for (var k in root.cmdHistory) {
+                if (k && k.trim() !== "") {
+                    entries.push({ command: k, count: root.cmdHistory[k] });
+                }
+            }
+        }
+
+        var filter = root.commandString.toLowerCase();
+        if (filter) {
+            entries = entries.filter(function(item) {
+                return item.command.toLowerCase().indexOf(filter) !== -1;
+            });
+        }
+
+        entries.sort(function(a, b) {
+            return b.count - a.count;
+        });
+
+        return entries.slice(0, 5);
     }
 
     // Liste filtrée et triée par fréquence d'utilisation (MRU) et pertinence
@@ -254,16 +360,50 @@ PanelWindow {
 
         LauncherService.close();
 
-        if (typeof app.execute === "function") {
-            app.execute();
-        } else if (app.command && app.command.length > 0) {
+        if (app.command && app.command.length > 0) {
             Quickshell.execDetached(["uwsm", "app", "--"].concat(app.command));
         } else if (app.execString) {
             Quickshell.execDetached(["uwsm", "app", "--", app.execString]);
+        } else if (typeof app.execute === "function") {
+            app.execute();
+        }
+    }
+
+    function launchCommand(cmd) {
+        LauncherService.close();
+        var targetCmd = (cmd !== undefined && cmd !== null) ? cmd.toString().trim() : "";
+
+        // 1. Exécution immédiate du processus dans Kitty
+        if (targetCmd.length > 0) {
+            Quickshell.execDetached(["uwsm", "app", "--", "kitty", "sh", "-c", targetCmd + "; exec ${SHELL:-bash}"]);
+        } else {
+            Quickshell.execDetached(["uwsm", "app", "--", "kitty"]);
+        }
+
+        // 2. Persistance de l'historique isolée et non-bloquante
+        if (targetCmd.length > 0) {
+            try {
+                var updated = Object.assign({}, root.cmdHistory);
+                updated[targetCmd] = (updated[targetCmd] || 0) + 1;
+                root.cmdHistory = updated;
+                if (cmdHistoryFile && typeof cmdHistoryFile.setText === "function") {
+                    cmdHistoryFile.setText(JSON.stringify(updated));
+                }
+            } catch (e) {
+                // Ignore storage errors to avoid breaking execution
+            }
         }
     }
 
     function launchSelected() {
+        if (root.isCommandMode) {
+            if (root.selectedIndexCmd >= 0 && root.selectedIndexCmd < root.topCommands.length) {
+                launchCommand(root.topCommands[root.selectedIndexCmd].command);
+            } else {
+                launchCommand(root.commandString);
+            }
+            return;
+        }
         if (filteredApps.length > 0 && selectedIndex >= 0 && selectedIndex < filteredApps.length) {
             launchApp(filteredApps[selectedIndex]);
         }
@@ -273,11 +413,13 @@ PanelWindow {
         if (visible && LauncherService.launcherVisible) {
             root.searchQuery = "";
             root.selectedIndex = 0;
+            root.selectedIndexCmd = -1;
             searchInput.text = "";
             searchInput.forceActiveFocus();
             // L'historique est chargé par FileView (blockLoading) ; re-synchro défensive
             // au cas où le fichier aurait changé en dehors du shell depuis l'ouverture.
             root.loadHistoryFromView();
+            root.loadCmdHistoryFromView();
         }
     }
 
@@ -344,7 +486,9 @@ PanelWindow {
         }
 
         Keys.onUpPressed: function(event) {
-            if (filteredApps.length > 0) {
+            if (root.isCommandMode) {
+                root.selectedIndexCmd = Math.max(-1, root.selectedIndexCmd - 1);
+            } else if (filteredApps.length > 0) {
                 root.selectedIndex = Math.max(0, root.selectedIndex - 5);
                 appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
             }
@@ -352,7 +496,9 @@ PanelWindow {
         }
 
         Keys.onDownPressed: function(event) {
-            if (filteredApps.length > 0) {
+            if (root.isCommandMode) {
+                root.selectedIndexCmd = Math.min(root.topCommands.length - 1, root.selectedIndexCmd + 1);
+            } else if (filteredApps.length > 0) {
                 root.selectedIndex = Math.min(filteredApps.length - 1, root.selectedIndex + 5);
                 appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
             }
@@ -406,12 +552,12 @@ PanelWindow {
                     }
                     spacing: Theme.spacingSm
 
-                    // Icône de recherche Glacier Blue
+                    // Icône de recherche Glacier Blue (ou terminal si mode commande)
                     Text {
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeMedium
                         color: Theme.accent
-                        text: "󰍉"
+                        text: root.isCommandMode ? "󰆍" : "󰍉"
                     }
 
                     // Champ de saisie texte
@@ -432,12 +578,41 @@ PanelWindow {
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeMedium
                             color: Theme.textDisabled
-                            text: "Rechercher une application..."
+                            text: "Rechercher une application ou '>' pour une commande..."
                         }
 
                         onTextChanged: {
                             root.searchQuery = text;
                             root.selectedIndex = 0;
+                            if (root.isCommandMode) {
+                                root.selectedIndexCmd = -1;
+                            }
+                        }
+
+                        onAccepted: {
+                            root.launchSelected();
+                        }
+
+                        Keys.onUpPressed: function(event) {
+                            if (root.isCommandMode) {
+                                root.selectedIndexCmd = Math.max(-1, root.selectedIndexCmd - 1);
+                                event.accepted = true;
+                            } else if (root.filteredApps.length > 0) {
+                                root.selectedIndex = Math.max(0, root.selectedIndex - 5);
+                                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
+                                event.accepted = true;
+                            }
+                        }
+
+                        Keys.onDownPressed: function(event) {
+                            if (root.isCommandMode) {
+                                root.selectedIndexCmd = Math.min(root.topCommands.length - 1, root.selectedIndexCmd + 1);
+                                event.accepted = true;
+                            } else if (root.filteredApps.length > 0) {
+                                root.selectedIndex = Math.min(root.filteredApps.length - 1, root.selectedIndex + 5);
+                                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
+                                event.accepted = true;
+                            }
                         }
                     }
 
@@ -472,10 +647,253 @@ PanelWindow {
             }
 
             // ==========================================
-            // 2. GRILLE D'APPLICATIONS (5 COLONNES, ANTI-CLIPPING & CENTRAGE DYNAMIQUE)
+            // 2. MODE COMMANDE TERMINAL (PRÉFIXE '>')
+            // ==========================================
+            Rectangle {
+                id: commandCard
+                visible: root.isCommandMode
+                Layout.fillWidth: true
+                implicitHeight: cmdCol.implicitHeight + Theme.spacingLg * 2
+                radius: Theme.radiusLarge
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.04)
+                border.color: Theme.accent
+                border.width: 1
+
+                ColumnLayout {
+                    id: cmdCol
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        top: parent.top
+                        margins: Theme.spacingLg
+                    }
+                    spacing: Theme.spacingMd
+
+                    // En-tête de la carte terminal
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingSm
+
+                        Rectangle {
+                            width: 36
+                            height: 36
+                            radius: Theme.radiusSmall
+                            color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
+                            border.color: Theme.accent
+                            border.width: 1
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeLarge
+                                color: Theme.accent
+                                text: "󰆍"
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMedium
+                                font.bold: true
+                                color: Theme.textPrimary
+                                text: "Exécuter dans le terminal"
+                            }
+                        }
+
+                        // Badge Touche Entrée
+                        Rectangle {
+                            height: 24
+                            implicitWidth: enterRow.implicitWidth + Theme.spacingSm * 2
+                            radius: Theme.radiusSmall
+                            color: Qt.rgba(1, 1, 1, 0.08)
+                            border.color: Qt.rgba(1, 1, 1, 0.15)
+                            border.width: 1
+
+                            RowLayout {
+                                id: enterRow
+                                anchors.centerIn: parent
+                                spacing: 4
+
+                                Text {
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    color: Theme.accent
+                                    text: "󰌑"
+                                }
+
+                                Text {
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeTiny
+                                    font.bold: true
+                                    color: Theme.textPrimary
+                                    text: "Entrée"
+                                }
+                            }
+                        }
+                    }
+
+                    // Boîte de prévisualisation du prompt terminal
+                    Rectangle {
+                        Layout.fillWidth: true
+                        implicitHeight: 44
+                        radius: Theme.radiusSmall
+                        color: Qt.rgba(0.02, 0.03, 0.05, 0.90)
+                        border.color: (root.selectedIndexCmd === -1 || promptMouse.containsMouse) ? Theme.accent : Qt.rgba(1, 1, 1, 0.12)
+                        border.width: 1
+
+                        Behavior on border.color { ColorAnimation { duration: Theme.animDurationFast } }
+
+                        RowLayout {
+                            anchors {
+                                fill: parent
+                                leftMargin: Theme.spacingMd
+                                rightMargin: Theme.spacingMd
+                            }
+                            spacing: Theme.spacingSm
+
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeMedium
+                                font.bold: true
+                                color: Theme.accent
+                                text: "$"
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                font.family: "Monospace"
+                                font.pixelSize: Theme.fontSizeMedium
+                                color: root.commandString !== "" ? Theme.textPrimary : Theme.textDisabled
+                                text: root.commandString !== "" ? root.commandString : "echo \"Bonjour monde\""
+                                elide: Text.ElideMiddle
+                            }
+                        }
+
+                        MouseArea {
+                            id: promptMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                root.selectedIndexCmd = -1;
+                                root.launchSelected();
+                            }
+                        }
+                    }
+
+                    // ==========================================
+                    // HISTORIQUE DES COMMANDES (TOP 5)
+                    // ==========================================
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingXs
+                        visible: root.topCommands.length > 0
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: Theme.spacingXs
+
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.accent
+                                text: "󰋚"
+                            }
+
+                            Text {
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeTiny
+                                font.bold: true
+                                color: Theme.textSecondary
+                                text: "COMMANDES FRÉQUENTES (TOP 5)"
+                            }
+                        }
+
+                        Repeater {
+                            model: root.topCommands
+
+                            delegate: Rectangle {
+                                id: historyItem
+                                required property var modelData
+                                required property int index
+
+                                Layout.fillWidth: true
+                                height: 34
+                                radius: Theme.radiusSmall
+                                color: (root.selectedIndexCmd === index || itemMouse.containsMouse)
+                                    ? Qt.rgba(0.365, 0.678, 0.886, 0.18)
+                                    : Qt.rgba(1.0, 1.0, 1.0, 0.03)
+                                border.color: (root.selectedIndexCmd === index || itemMouse.containsMouse)
+                                    ? Theme.accent
+                                    : Qt.rgba(1.0, 1.0, 1.0, 0.08)
+                                border.width: 1
+
+                                Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
+                                Behavior on border.color { ColorAnimation { duration: Theme.animDurationFast } }
+
+                                RowLayout {
+                                    anchors {
+                                        fill: parent
+                                        leftMargin: Theme.spacingMd
+                                        rightMargin: Theme.spacingMd
+                                    }
+                                    spacing: Theme.spacingSm
+
+                                    Text {
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        color: (root.selectedIndexCmd === index || itemMouse.containsMouse) ? Theme.accent : Theme.textDisabled
+                                        text: "󰘳"
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        font.family: "Monospace"
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        color: (root.selectedIndexCmd === index || itemMouse.containsMouse) ? Theme.textPrimary : Theme.textSecondary
+                                        text: modelData.command
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Rectangle {
+                                        height: 18
+                                        implicitWidth: countTxt.implicitWidth + 10
+                                        radius: 9
+                                        color: Qt.rgba(1, 1, 1, 0.06)
+
+                                        Text {
+                                            id: countTxt
+                                            anchors.centerIn: parent
+                                            font.family: Theme.fontFamily
+                                            font.pixelSize: Theme.fontSizeTiny
+                                            color: Theme.textDisabled
+                                            text: modelData.count + "x"
+                                        }
+                                    }
+                                }
+
+                                MouseArea {
+                                    id: itemMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.launchCommand(modelData.command)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ==========================================
+            // 3. GRILLE D'APPLICATIONS (5 COLONNES, ANTI-CLIPPING & CENTRAGE DYNAMIQUE)
             // ==========================================
             Item {
                 id: gridContainer
+                visible: !root.isCommandMode
                 Layout.fillWidth: true
                 implicitHeight: Math.min(Math.round(Theme.relHeight(0.55, root.screen)), Math.max(140, Math.ceil(Math.min(10, root.filteredApps.length) / 5.0) * 140))
                 clip: true

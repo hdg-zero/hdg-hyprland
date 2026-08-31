@@ -80,7 +80,10 @@ graph TD
 ├── LICENSE                              # Licence MIT
 ├── README.md                            # Documentation d'architecture principale
 ├── docs/                                # Documentations techniques détaillées
-│   └── quickshell-bar.md                # Guide exhaustif de l'écosystème Quickshell
+│   ├── quickshell-bar.md                # Guide de la barre d'état et popups (LazyPopup)
+│   ├── quickshell-launcher.md           # Guide du lanceur d'applications & mode terminal '>'
+│   ├── quickshell-notifications.md      # Guide du serveur de notifications & Centre de Contrôle
+│   └── quickshell-session.md           # Guide du menu de session plein écran (Power Menu)
 └── .config/
     ├── hypr/
     │   ├── hyprland.lua                 # Point d'entrée de configuration Hyprland (Lua)
@@ -89,7 +92,7 @@ graph TD
     │   ├── programs.lua                 # Déclaration des applications et autostart sécurisé
     │   ├── hypridle.conf                # Démon d'inactivité avec inhibit_sleep
     │   ├── hyprlock.conf                # Écran de verrouillage graphique
-    │   ├── hyprpaper.conf               # Gestionnaire de fond d'écran (syntaxe plate + preload)
+    │   ├── hyprpaper.conf               # Gestionnaire de fond d'écran (bloc wallpaper{})
     │   ├── picture/                     # Fonds d'écran officiels
     │   ├── profiles/                    # Profils de configuration matérielle
     │   │   └── default.lua              # Profil écran principal (2.8K 90Hz, scale 1.25, 10-bit)
@@ -99,7 +102,7 @@ graph TD
     ├── kitty/
     │   └── kitty.conf                   # Émulateur de terminal GPU Kitty
     ├── quickshell/                      # Écosystème complet Quickshell v0.3.1
-    │   ├── shell.qml                    # Point d'entrée ShellRoot (déploiement multi-écrans)
+    │   ├── shell.qml                    # Point d'entrée ShellRoot (lazy loading des fenêtres)
     │   ├── theme/                       # Design tokens & Thème
     │   │   ├── Theme.qml                # Singleton de couleurs, typographie, espacements et ratios
     │   │   └── qmldir                   # Déclaration de module
@@ -108,20 +111,21 @@ graph TD
     │   │   ├── PillButton.qml           # Bouton pilule interactif avec animation
     │   │   ├── IconLabel.qml            # Label réactif icône + texte
     │   │   ├── ModulePopup.qml          # Fenêtre popup flottante avec survol intelligent
+    │   │   ├── LazyPopup.qml            # Loader paresseux avec cycle de vie destroy-on-close
     │   │   └── qmldir                   # Déclaration de module
     │   ├── launcher/                    # Lanceur d'applications natif (Obsidian Glass)
     │   │   ├── LauncherService.qml      # Singleton IPC et gestionnaire de visibilité
-    │   │   ├── LauncherWindow.qml       # Fenêtre overlay 33%, grille 5 colonnes, tri MRU
+    │   │   ├── LauncherWindow.qml       # Fenêtre overlay 33%, mode terminal '>', Top 5 MRU
     │   │   └── qmldir                   # Déclaration de module
     │   ├── notifications/               # Serveur D-Bus & Centre de Contrôle
     │   │   ├── NotificationService.qml  # Démon D-Bus, filtrage des alertes vides, état DND
-    │   │   ├── NotificationToastWindow.qml # Toasts flottants avec jauge fluide à 60fps
-    │   │   ├── NotificationCenter.qml   # Conteneur principal du Centre de Contrôle
+    │   │   ├── NotificationToastWindow.qml # Toasts flottants 380px avec jauge fluide à 60fps
+    │   │   ├── NotificationCenter.qml   # Centre de Contrôle haut-centré (480px, 94% opacité)
     │   │   ├── components/              # Sous-composants modulaires du centre
-    │   │   │   ├── QuickSettings.qml    # Toggles Wi-Fi, Bluetooth, Audio, Micro & Actions
-    │   │   │   ├── VolumeBrightnessSliders.qml # Curseurs horizontaux en capsule de verre
-    │   │   │   ├── NotificationList.qml # Liste des notifications, actions et état vide
-    │   │   │   └── Scratchpad.qml       # Mini bloc-notes persistant (scratchpad.txt)
+    │   │   │   ├── QuickSettings.qml    # Toggles 64px carrés (Wi-Fi, BT, Micro, Audio) & Actions
+    │   │   │   ├── VolumeBrightnessSliders.qml # Curseurs 42px en capsule de verre
+    │   │   │   ├── NotificationList.qml # Liste des notifications (360px max) et état vide
+    │   │   │   └── Scratchpad.qml       # Mini bloc-notes 150px persistant (scratchpad.txt)
     │   │   └── qmldir                   # Déclaration de module
     │   ├── session/                     # Menu de session plein écran (Power Menu)
     │   │   ├── SessionService.qml       # Singleton d'actions système et IpcHandler
@@ -170,8 +174,9 @@ graph TD
 
 ## 🗄️ 3. Modélisation des Données & Persistance
 
-- **Tokens & Ratios Globaux (`Theme.qml`) :** Singleton centralisant les palettes de couleurs (`Qt.rgba`), les polices typographiques, les constantes d'animation et les fonctions de calcul proportionnel d'écran (`relWidth`, `relHeight`, `relFontSize`).
+- **Tokens & Ratios Globaux (`Theme.qml`) :** Singleton centralisant les palettes de couleurs (`Qt.rgba`), les polices typographiques, les constantes d'animation, les dimensions fixes standardisées (`notificationPanelWidth: 480`, `notificationToastWidth: 380`) et les fonctions de calcul proportionnel d'écran (`relWidth`, `relHeight`, `relFontSize`).
 - **Historique de Fréquence des Applications (`launcher_history.json`) :** Suivi persistant du nombre de lancements par application sous `$XDG_STATE_HOME/quickshell/launcher_history.json` pour garantir un tri MRU (Most Recently/Frequently Used) instantané.
+- **Historique des Commandes Terminal (`cmd_history.json`) :** Suivi persistant de la fréquence des commandes shell lancées via le préfixe `>` dans `$XDG_STATE_HOME/quickshell/cmd_history.json` pour alimenter le Top 5 interactif.
 - **Bloc-Notes Persistant (`scratchpad.txt`) :** Sauvegarde asynchrone débouncée des notes rapides du Centre de Contrôle sous `$XDG_STATE_HOME/quickshell/scratchpad.txt`.
 - **Profils Matériels d'Écran (`profiles/*.lua`) :** Modélisation déclarative des écrans (nom, résolution, taux de rafraîchissement, position, échelle, profondeur de couleur 10-bit et variable de secours).
 
@@ -194,7 +199,7 @@ graph TD
 ## 🛡️ 5. Stratégie de Sécurité & Robustesse
 
 1. **Isolation des Processus & Sandboxing UWSM :**
-   - Toutes les applications lancées depuis le lanceur Quickshell, la barre des tâches ou les raccourcis Hyprland sont exécutées dans leur propre unité Systemd via `uwsm app -- <commande>`.
+   - Toutes les applications et commandes terminal lancées depuis le lanceur Quickshell, la barre des tâches ou les raccourcis Hyprland sont exécutées dans leur propre unité Systemd via `uwsm app -- <commande>`.
 2. **Gestion Sécurisée de la Veille (`hypridle.conf`) :**
    - Directive `inhibit_sleep = true` activée pour empêcher la mise en veille avant que le verrouillage par `hyprlock` ne soit effectif, éliminant tout risque de session visible lors de la reprise.
 3. **Idempotence & Sécurité des Scripts Shell :**
@@ -219,6 +224,10 @@ graph TD
 
 ## 🚀 7. Performance, Scalabilité & Caching
 
+- **Lazy Loading des Fenêtres Secondaires :**
+  - Le lanceur, le menu de session, le centre de contrôle et les toasts ne sont pas préchargés en mémoire. Ils sont instanciés via des `Loader` déclaratifs dans `shell.qml` uniquement lors de leur activation et détruits à la fermeture.
+- **Cycle de Vie Destroy-on-Close des Popups (`LazyPopup.qml`) :**
+  - Les 10 popups de la barre d'état détruisent leur surface Wayland et buffers GPU dès l'animation de fermeture terminée, libérant intégralement la mémoire vive.
 - **Élimination Intégrale du Polling :**
   - Volume audio PipeWire suivi réactivement par `PwObjectTracker`.
   - Horloge cadencée à la minute (`SystemClock.Minutes`).
@@ -267,11 +276,11 @@ done
 
 | Raccourci | Action |
 |:---|:---|
-| <kbd>SUPER</kbd> + <kbd>Espace</kbd> | Lanceur d'applications Quickshell (Obsidian Glass 5 colonnes) |
+| <kbd>SUPER</kbd> + <kbd>Espace</kbd> | Lanceur d'applications Quickshell (Obsidian Glass 5 colonnes / Mode `>`) |
 | <kbd>SUPER</kbd> + <kbd>Entrée</kbd> | Terminal Kitty |
 | <kbd>SUPER</kbd> + <kbd>E</kbd> | Gestionnaire de fichiers Nautilus |
 | <kbd>SUPER</kbd> + <kbd>M</kbd> | Menu de session plein écran (Power Menu) |
-| <kbd>SUPER</kbd> + <kbd>F</kbd> | Centre de Contrôle & Notifications |
+| <kbd>SUPER</kbd> + <kbd>F</kbd> | Centre de Contrôle & Notifications (Haut-centré) |
 | <kbd>SUPER</kbd> + <kbd>Q</kbd> | Fermer la fenêtre active |
 | <kbd>SUPER</kbd> + <kbd>V</kbd> | Basculer en mode flottant |
 | <kbd>SUPER</kbd> + <kbd>P</kbd> | Capture d'écran zone interactive (`hyprshot`) |
@@ -281,11 +290,11 @@ done
 
 ## 🔮 9. Dette Technique & Vision Moyen Terme
 
-- [x] Barre d'état Quickshell interactive multi-écrans et popups détaillées.
-- [x] Serveur de notifications D-Bus et Centre de Contrôle natif Quickshell.
-- [x] Menu de Session plein écran natif Quickshell.
-- [x] Lanceur d'applications natif Quickshell Obsidian Glass (grille 5 colonnes, tri MRU).
-- [x] Découpage modulaire du Centre de Contrôle en 4 sous-composants dédiés.
+- [x] Barre d'état Quickshell interactive multi-écrans et popups détaillées avec `LazyPopup.qml`.
+- [x] Serveur de notifications D-Bus et Centre de Contrôle haut-centré (480px, 94% opacité, toggles 64px carrés).
+- [x] Menu de Session plein écran natif Quickshell sous UWSM.
+- [x] Lanceur d'applications natif Quickshell avec mode terminal `>` et Top 5 des commandes shell.
+- [x] Lazy loading intégral et cycle de vie destroy-on-close sur toutes les fenêtres secondaires et popups.
 - [ ] Support d'un sélecteur graphique de fonds d'écran intégré à Quickshell.
 - [ ] Module de gestion de profils d'affichage multi-écrans à la volée depuis le Centre de Contrôle.
 

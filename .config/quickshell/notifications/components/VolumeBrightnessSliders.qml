@@ -43,7 +43,7 @@ ColumnLayout {
     Rectangle {
         id: volCapsule
         Layout.fillWidth: true
-        height: Math.round(Theme.relHeight(0.038, root.targetScreen))
+        height: 42
         radius: height / 2
         color: Qt.rgba(1, 1, 1, 0.08)
         border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
@@ -109,7 +109,7 @@ ColumnLayout {
     Rectangle {
         id: brightCapsule
         Layout.fillWidth: true
-        height: Math.round(Theme.relHeight(0.038, root.targetScreen))
+        height: 42
         radius: height / 2
         color: Qt.rgba(1, 1, 1, 0.08)
         border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)

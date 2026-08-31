@@ -71,6 +71,10 @@ Singleton {
     readonly property real popupWidthPercentStandard: 0.14    // Network, Clock, App
     readonly property real popupWidthPercentWide: 0.16        // MPRIS
 
+    // Dimensions fixes standardisées pour les panneaux d'overlay (indépendantes du ratio d'écran)
+    readonly property int notificationPanelWidth: 480
+    readonly property int notificationToastWidth: 380
+
     // Fonctions d'aide au dimensionnement relatif
     function relWidth(ratio, screen) {
         var w = (screen && screen.width > 0) ? screen.width : 1920;

@@ -20,17 +20,25 @@ PillButton {
     customPaddingV: 1
     widthPercent: Theme.moduleWidthPercentMetrics
 
-    MemoryPopup {
-        id: memPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
-        ramPercent: root.memPercent
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: memLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            MemoryPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+                ramPercent: root.memPercent
+            }
+        }
     }
 
     FileView {
         id: procMeminfo
         path: "/proc/meminfo"
         watchChanges: false
+        blockAllReads: true
     }
 
     Timer {
@@ -40,7 +48,7 @@ PillButton {
         triggeredOnStart: true
         onTriggered: {
             procMeminfo.reload();
-            var content = typeof procMeminfo.text === "function" ? procMeminfo.text() : (procMeminfo.text || "");
+            var content = procMeminfo.text();
             if (!content) return;
 
             var totalKb = 0;
@@ -69,7 +77,7 @@ PillButton {
     }
 
     onClicked: {
-        memPopup.toggle();
+        memLazy.toggle();
     }
 
     onRightClicked: {

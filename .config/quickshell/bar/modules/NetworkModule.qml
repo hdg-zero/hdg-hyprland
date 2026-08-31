@@ -15,10 +15,17 @@ PillButton {
     property var lastTime: 0
     property string totalSpeedFormatted: "0 o/s"
 
-    NetworkPopup {
-        id: netPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: netLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            NetworkPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+            }
+        }
     }
 
     readonly property var activeDevice: {
@@ -57,6 +64,7 @@ PillButton {
         id: netDevFile
         path: "/proc/net/dev"
         watchChanges: false
+        blockAllReads: true
     }
 
     Timer {
@@ -67,7 +75,7 @@ PillButton {
 
         onTriggered: {
             netDevFile.reload();
-            var content = typeof netDevFile.text === "function" ? netDevFile.text() : (netDevFile.text || "");
+            var content = netDevFile.text();
             if (!content) return;
 
             var now = Date.now();
@@ -116,7 +124,7 @@ PillButton {
     widthPercent: Theme.moduleWidthPercentMetrics
 
     onClicked: {
-        netPopup.toggle();
+        netLazy.toggle();
     }
 
     onRightClicked: {

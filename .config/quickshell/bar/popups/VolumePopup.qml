@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Services.Pipewire
 import "../../theme"
 import "../../components"
 
@@ -11,16 +12,27 @@ ModulePopup {
     property bool isMuted: false
     property bool isBluetooth: false
 
+    readonly property var sink: Pipewire.defaultAudioSink ?? Pipewire.preferredDefaultAudioSink
+    readonly property var audio: sink ? sink.audio : null
+
     widthPercent: Theme.popupWidthPercentCompact
     cardHeight: volCol.implicitHeight + Theme.spacingMd * 2
 
     function setVolume(pct) {
-        var frac = (pct / 100.0).toFixed(2);
-        Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", frac]);
+        if (audio && audio.volume !== undefined) {
+            audio.volume = Math.min(1.5, Math.max(0.0, pct / 100.0));
+        } else {
+            var frac = (pct / 100.0).toFixed(2);
+            Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", frac]);
+        }
     }
 
     function toggleMute() {
-        Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]);
+        if (audio && audio.muted !== undefined) {
+            audio.muted = !audio.muted;
+        } else {
+            Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]);
+        }
     }
 
     ColumnLayout {

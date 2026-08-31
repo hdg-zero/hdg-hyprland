@@ -25,11 +25,18 @@ PillButton {
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
 
-    BacklightPopup {
-        id: lightPopup
-        parentWindow: root.parentWindow
-        anchorItem: root
-        brightnessPercent: root.brightnessPercent
+    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    LazyPopup {
+        id: lightLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        popupComponent: Component {
+            BacklightPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+                brightnessPercent: root.brightnessPercent
+            }
+        }
     }
 
     Process {
@@ -48,16 +55,8 @@ PillButton {
         }
     }
 
-    Timer {
-        interval: 3000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            if (!getBrightness.running) {
-                getBrightness.running = true;
-            }
-        }
+    Component.onCompleted: {
+        getBrightness.running = true;
     }
 
     onScrolled: function(wheel) {
@@ -75,6 +74,6 @@ PillButton {
     }
 
     onClicked: {
-        lightPopup.toggle();
+        lightLazy.toggle();
     }
 }
