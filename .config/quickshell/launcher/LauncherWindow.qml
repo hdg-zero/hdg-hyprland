@@ -395,7 +395,12 @@ PanelWindow {
         }
     }
 
+    property bool isLaunching: false
+
     function launchSelected() {
+        if (root.isLaunching) return;
+        root.isLaunching = true;
+
         if (root.isCommandMode) {
             if (root.selectedIndexCmd >= 0 && root.selectedIndexCmd < root.topCommands.length) {
                 launchCommand(root.topCommands[root.selectedIndexCmd].command);
@@ -411,6 +416,7 @@ PanelWindow {
 
     onVisibleChanged: {
         if (visible && LauncherService.launcherVisible) {
+            root.isLaunching = false;
             root.searchQuery = "";
             root.selectedIndex = 0;
             root.selectedIndexCmd = -1;
@@ -420,6 +426,8 @@ PanelWindow {
             // au cas où le fichier aurait changé en dehors du shell depuis l'ouverture.
             root.loadHistoryFromView();
             root.loadCmdHistoryFromView();
+        } else if (!visible) {
+            root.isLaunching = false;
         }
     }
 
@@ -456,16 +464,6 @@ PanelWindow {
         // Événements clavier globaux
         Keys.onEscapePressed: function(event) {
             LauncherService.close();
-            event.accepted = true;
-        }
-
-        Keys.onReturnPressed: function(event) {
-            launchSelected();
-            event.accepted = true;
-        }
-
-        Keys.onEnterPressed: function(event) {
-            launchSelected();
             event.accepted = true;
         }
 
@@ -591,6 +589,16 @@ PanelWindow {
 
                         onAccepted: {
                             root.launchSelected();
+                        }
+
+                        Keys.onReturnPressed: function(event) {
+                            root.launchSelected();
+                            event.accepted = true;
+                        }
+
+                        Keys.onEnterPressed: function(event) {
+                            root.launchSelected();
+                            event.accepted = true;
                         }
 
                         Keys.onUpPressed: function(event) {
