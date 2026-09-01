@@ -181,19 +181,35 @@ RowLayout {
                         addr = "0x" + addr;
                     }
 
-                    // Activation et fermeture directes sans fork de sous-processus `hyprctl`.
-                    // Priorité au socket IPC direct Hyprland.dispatch() avec repli Wayland natif.
                     if (mouse.button === Qt.LeftButton) {
-                        if (addr) {
-                            Hyprland.dispatch("focuswindow address:" + addr);
-                        } else if (taskItem.toplevel.wayland) {
+                        // 1. Déplacement automatique vers le bureau virtuel (workspace) de l'application
+                        if (taskItem.toplevel.workspace) {
+                            if (typeof taskItem.toplevel.workspace.activate === "function") {
+                                taskItem.toplevel.workspace.activate();
+                            } else if (taskItem.toplevel.workspace.id !== undefined) {
+                                Hyprland.dispatch("workspace " + taskItem.toplevel.workspace.id);
+                                Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "" + taskItem.toplevel.workspace.id]);
+                            }
+                        }
+
+                        // 2. Activation native Wayland via wlr-foreign-toplevel
+                        if (taskItem.toplevel.wayland && typeof taskItem.toplevel.wayland.activate === "function") {
                             taskItem.toplevel.wayland.activate();
                         }
+
+                        // 3. Focus explicite Hyprland par adresse mémoire
+                        if (addr) {
+                            Hyprland.dispatch("focuswindow address:" + addr);
+                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr]);
+                        }
                     } else if (mouse.button === Qt.MiddleButton) {
+                        // Fermeture au clic milieu
+                        if (taskItem.toplevel.wayland && typeof taskItem.toplevel.wayland.close === "function") {
+                            taskItem.toplevel.wayland.close();
+                        }
                         if (addr) {
                             Hyprland.dispatch("closewindow address:" + addr);
-                        } else if (taskItem.toplevel.wayland) {
-                            taskItem.toplevel.wayland.close();
+                            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
                         }
                     }
                 }

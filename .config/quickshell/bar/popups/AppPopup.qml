@@ -146,10 +146,26 @@ ModulePopup {
                         if (!root.toplevel) return;
                         var addr = root.toplevel.address || "";
                         if (addr && addr.indexOf("0x") !== 0) addr = "0x" + addr;
+
+                        // 1. Déplacement vers le bureau virtuel de l'application
+                        if (root.toplevel.workspace) {
+                            if (typeof root.toplevel.workspace.activate === "function") {
+                                root.toplevel.workspace.activate();
+                            } else if (root.toplevel.workspace.id !== undefined) {
+                                Hyprland.dispatch("workspace " + root.toplevel.workspace.id);
+                                Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "" + root.toplevel.workspace.id]);
+                            }
+                        }
+
+                        // 2. Activation Wayland
+                        if (root.toplevel.wayland && typeof root.toplevel.wayland.activate === "function") {
+                            root.toplevel.wayland.activate();
+                        }
+
+                        // 3. Focus explicite
                         if (addr) {
                             Hyprland.dispatch("focuswindow address:" + addr);
-                        } else if (root.toplevel.wayland) {
-                            root.toplevel.wayland.activate();
+                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr]);
                         }
                         root.close();
                     }
@@ -186,10 +202,12 @@ ModulePopup {
                         if (!root.toplevel) return;
                         var addr = root.toplevel.address || "";
                         if (addr && addr.indexOf("0x") !== 0) addr = "0x" + addr;
+                        if (root.toplevel.wayland && typeof root.toplevel.wayland.close === "function") {
+                            root.toplevel.wayland.close();
+                        }
                         if (addr) {
                             Hyprland.dispatch("closewindow address:" + addr);
-                        } else if (root.toplevel.wayland) {
-                            root.toplevel.wayland.close();
+                            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
                         }
                         root.close();
                     }
