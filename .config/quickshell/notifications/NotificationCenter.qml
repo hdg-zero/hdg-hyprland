@@ -60,14 +60,8 @@ PanelWindow {
         }
     }
 
-    Timer {
-        interval: 3000
-        running: root.visible
-        repeat: true
-        onTriggered: {
-            root.refreshStatus();
-        }
-    }
+    // Rafraîchissement initial à l'ouverture : l'état audio/volume étant désormais réactif
+    // en direct via Quickshell.Services.Pipewire, tout polling périodique est éliminé.
 
     // Fond assombri dismissible au clic
     Rectangle {

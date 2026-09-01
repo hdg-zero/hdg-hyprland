@@ -14,16 +14,19 @@ Rectangle {
     border.color: Theme.glassBorderSubtle
     border.width: 1
 
+    // Changement d'espace de travail unifié via socket IPC direct Quickshell.Hyprland.
+    // L'utilisation de ws.activate() ou de Hyprland.dispatch() élimine tout fork de processus
+    // externe `hyprctl`, évitant les doubles événements et les saccades d'animation.
     function changeWorkspace(target) {
         var str = target.toString();
         if (typeof target === "number") {
             var ws = Hyprland.workspaces ? Hyprland.workspaces.values.find(function(w) { return w.id === target; }) : null;
             if (ws && typeof ws.activate === "function") {
                 ws.activate();
+                return;
             }
         }
         Hyprland.dispatch("workspace " + str);
-        Quickshell.execDetached(["hyprctl", "dispatch", "workspace", str]);
     }
 
     function handleWheel(wheel) {

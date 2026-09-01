@@ -373,25 +373,19 @@ PanelWindow {
         LauncherService.close();
         var targetCmd = (cmd !== undefined && cmd !== null) ? cmd.toString().trim() : "";
 
-        // 1. Exécution immédiate du processus dans Kitty
+        // 1. Exécution sous UWSM préservant le shell interactif
         if (targetCmd.length > 0) {
             Quickshell.execDetached(["uwsm", "app", "--", "kitty", "sh", "-c", targetCmd + "; exec ${SHELL:-bash}"]);
         } else {
             Quickshell.execDetached(["uwsm", "app", "--", "kitty"]);
         }
 
-        // 2. Persistance de l'historique isolée et non-bloquante
+        // 2. Persistance atomique de l'historique de commande
         if (targetCmd.length > 0) {
-            try {
-                var updated = Object.assign({}, root.cmdHistory);
-                updated[targetCmd] = (updated[targetCmd] || 0) + 1;
-                root.cmdHistory = updated;
-                if (cmdHistoryFile && typeof cmdHistoryFile.setText === "function") {
-                    cmdHistoryFile.setText(JSON.stringify(updated));
-                }
-            } catch (e) {
-                // Ignore storage errors to avoid breaking execution
-            }
+            var updated = Object.assign({}, root.cmdHistory);
+            updated[targetCmd] = (updated[targetCmd] || 0) + 1;
+            root.cmdHistory = updated;
+            saveCmdHistory();
         }
     }
 
@@ -411,6 +405,23 @@ PanelWindow {
         }
         if (filteredApps.length > 0 && selectedIndex >= 0 && selectedIndex < filteredApps.length) {
             launchApp(filteredApps[selectedIndex]);
+        }
+    }
+
+    // Fonctions unifiées de navigation clavier (grille et commandes shell)
+    function navigateHorizontal(delta) {
+        if (filteredApps.length === 0) return;
+        root.selectedIndex = (root.selectedIndex + delta + filteredApps.length) % filteredApps.length;
+        appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
+    }
+
+    function navigateVertical(delta) {
+        if (root.isCommandMode) {
+            var maxCmd = root.topCommands.length - 1;
+            root.selectedIndexCmd = Math.max(-1, Math.min(maxCmd, root.selectedIndexCmd + delta));
+        } else if (filteredApps.length > 0) {
+            root.selectedIndex = Math.max(0, Math.min(filteredApps.length - 1, root.selectedIndex + (delta * 5)));
+            appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
         }
     }
 
@@ -466,58 +477,10 @@ PanelWindow {
             LauncherService.close();
             event.accepted = true;
         }
-
-        Keys.onLeftPressed: function(event) {
-            if (filteredApps.length > 0) {
-                root.selectedIndex = Math.max(0, root.selectedIndex - 1);
-                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
-            }
-            event.accepted = true;
-        }
-
-        Keys.onRightPressed: function(event) {
-            if (filteredApps.length > 0) {
-                root.selectedIndex = Math.min(filteredApps.length - 1, root.selectedIndex + 1);
-                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
-            }
-            event.accepted = true;
-        }
-
-        Keys.onUpPressed: function(event) {
-            if (root.isCommandMode) {
-                root.selectedIndexCmd = Math.max(-1, root.selectedIndexCmd - 1);
-            } else if (filteredApps.length > 0) {
-                root.selectedIndex = Math.max(0, root.selectedIndex - 5);
-                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
-            }
-            event.accepted = true;
-        }
-
-        Keys.onDownPressed: function(event) {
-            if (root.isCommandMode) {
-                root.selectedIndexCmd = Math.min(root.topCommands.length - 1, root.selectedIndexCmd + 1);
-            } else if (filteredApps.length > 0) {
-                root.selectedIndex = Math.min(filteredApps.length - 1, root.selectedIndex + 5);
-                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
-            }
-            event.accepted = true;
-        }
-
-        Keys.onTabPressed: function(event) {
-            if (filteredApps.length > 0) {
-                root.selectedIndex = (root.selectedIndex + 1) % filteredApps.length;
-                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
-            }
-            event.accepted = true;
-        }
-
-        Keys.onBacktabPressed: function(event) {
-            if (filteredApps.length > 0) {
-                root.selectedIndex = (root.selectedIndex - 1 + filteredApps.length) % filteredApps.length;
-                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
-            }
-            event.accepted = true;
-        }
+        Keys.onLeftPressed: function(event) { root.navigateHorizontal(-1); event.accepted = true; }
+        Keys.onRightPressed: function(event) { root.navigateHorizontal(1); event.accepted = true; }
+        Keys.onTabPressed: function(event) { root.navigateHorizontal(1); event.accepted = true; }
+        Keys.onBacktabPressed: function(event) { root.navigateHorizontal(-1); event.accepted = true; }
 
         ColumnLayout {
             id: dialogLayout
@@ -587,40 +550,16 @@ PanelWindow {
                             }
                         }
 
-                        onAccepted: {
-                            root.launchSelected();
-                        }
-
-                        Keys.onReturnPressed: function(event) {
-                            root.launchSelected();
-                            event.accepted = true;
-                        }
-
-                        Keys.onEnterPressed: function(event) {
-                            root.launchSelected();
-                            event.accepted = true;
-                        }
+                        onAccepted: root.launchSelected()
 
                         Keys.onUpPressed: function(event) {
-                            if (root.isCommandMode) {
-                                root.selectedIndexCmd = Math.max(-1, root.selectedIndexCmd - 1);
-                                event.accepted = true;
-                            } else if (root.filteredApps.length > 0) {
-                                root.selectedIndex = Math.max(0, root.selectedIndex - 5);
-                                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
-                                event.accepted = true;
-                            }
+                            root.navigateVertical(-1);
+                            event.accepted = true;
                         }
 
                         Keys.onDownPressed: function(event) {
-                            if (root.isCommandMode) {
-                                root.selectedIndexCmd = Math.min(root.topCommands.length - 1, root.selectedIndexCmd + 1);
-                                event.accepted = true;
-                            } else if (root.filteredApps.length > 0) {
-                                root.selectedIndex = Math.min(root.filteredApps.length - 1, root.selectedIndex + 5);
-                                appGrid.positionViewAtIndex(root.selectedIndex, GridView.Contain);
-                                event.accepted = true;
-                            }
+                            root.navigateVertical(1);
+                            event.accepted = true;
                         }
                     }
 

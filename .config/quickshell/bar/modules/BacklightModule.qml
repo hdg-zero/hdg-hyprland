@@ -59,6 +59,25 @@ PillButton {
         getBrightness.running = true;
     }
 
+    // Rafraîchissement réactif : vérification immédiate à l'approche du curseur
+    // et vérification de fond pour capter les ajustements via touches de raccourci Fn
+    onIsHoveredChanged: {
+        if (isHovered && !getBrightness.running) {
+            getBrightness.running = true;
+        }
+    }
+
+    Timer {
+        interval: 10000
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!getBrightness.running) {
+                getBrightness.running = true;
+            }
+        }
+    }
+
     onScrolled: function(wheel) {
         var dy = (wheel && wheel.angleDelta && wheel.angleDelta.y !== undefined)
             ? wheel.angleDelta.y

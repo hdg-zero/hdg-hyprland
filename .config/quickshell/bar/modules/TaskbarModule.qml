@@ -181,23 +181,19 @@ RowLayout {
                         addr = "0x" + addr;
                     }
 
+                    // Activation et fermeture directes sans fork de sous-processus `hyprctl`.
+                    // Priorité au socket IPC direct Hyprland.dispatch() avec repli Wayland natif.
                     if (mouse.button === Qt.LeftButton) {
-                        // 1. Activation native Wayland via wlr-foreign-toplevel
-                        if (taskItem.toplevel.wayland) {
+                        if (addr) {
+                            Hyprland.dispatch("focuswindow address:" + addr);
+                        } else if (taskItem.toplevel.wayland) {
                             taskItem.toplevel.wayland.activate();
                         }
-                        // 2. Focus explicite hyprctl
-                        if (addr) {
-                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr]);
-                        }
                     } else if (mouse.button === Qt.MiddleButton) {
-                        // 1. Fermeture native Wayland
-                        if (taskItem.toplevel.wayland) {
-                            taskItem.toplevel.wayland.close();
-                        }
-                        // 2. Fermeture explicite hyprctl
                         if (addr) {
-                            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
+                            Hyprland.dispatch("closewindow address:" + addr);
+                        } else if (taskItem.toplevel.wayland) {
+                            taskItem.toplevel.wayland.close();
                         }
                     }
                 }
