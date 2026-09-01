@@ -47,6 +47,8 @@ PanelWindow {
         if (visible) {
             refreshStatus();
             scratchpad.loadNotes();
+        } else {
+            NotificationService.flushNotes();
         }
     }
 

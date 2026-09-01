@@ -130,8 +130,61 @@ Singleton {
         }
     }
 
-    // Raccourci global natif Hyprland (« GlobalShortcut ») retiré : le centre est déjà piloté
-    // par les cibles IPC (« qs ipc call notifications toggle », binds.lua SUPER+F). Un
-    // GlobalShortcut sans bind Hyprland correspondant (bind ..., global, quickshell:nom)
-    // ne se déclencherait jamais : code mort supprimé.
+    // ==========================================
+    // PERSISTANCE DU BLOC-NOTES (Scratchpad)
+    // ==========================================
+    // Maintenu dans le singleton pour survivre à la destruction/recréation du Loader
+    // dans shell.qml et garantir une écriture atomique sur disque même lors d'une fermeture rapide.
+    property string scratchpadText: ""
+
+    Process {
+        id: ensureStateDir
+        command: ["sh", "-c", "mkdir -p \"$(dirname \"$1\")\"", "--", Quickshell.statePath("scratchpad.txt")]
+        Component.onCompleted: running = true
+    }
+
+    FileView {
+        id: scratchpadFile
+        path: Quickshell.statePath("scratchpad.txt")
+        blockLoading: true
+        printErrors: false
+
+        onLoaded: root.loadNotesFromDisk()
+        onFileChanged: root.loadNotesFromDisk()
+    }
+
+    Timer {
+        id: saveNotesTimer
+        interval: 300
+        repeat: false
+        onTriggered: {
+            scratchpadFile.setText(root.scratchpadText);
+        }
+    }
+
+    function loadNotesFromDisk() {
+        var content = scratchpadFile.text();
+        if (content !== undefined && content !== null) {
+            root.scratchpadText = content;
+        }
+    }
+
+    function updateNotes(text) {
+        root.scratchpadText = text;
+        saveNotesTimer.restart();
+    }
+
+    function flushNotes(text) {
+        if (text !== undefined && text !== null) {
+            root.scratchpadText = text;
+        }
+        saveNotesTimer.stop();
+        scratchpadFile.setText(root.scratchpadText);
+    }
+
+    onPanelVisibleChanged: {
+        if (!panelVisible) {
+            root.flushNotes();
+        }
+    }
 }
