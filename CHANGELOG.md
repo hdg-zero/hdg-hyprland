@@ -14,6 +14,7 @@ et ce projet adhère au versionnage sémantique.
 - **Flou matériel Wayland et Glassmorphism natif** : attribution des namespaces `qs-bar`, `qs-panel`, `qs-launcher`, `qs-session`, `qs-popup` sur toutes les surfaces Quickshell et enregistrement de `hl.layer_rule` avec `blur = true` et `ignorezero = true` dans `hyprland.lua`.
 
 ### Modifié
+- **Épuration des popups d'applications de la barre** (`AppPopup.qml`) : suppression du bouton redondant « Se déplacer / Basculer » au profit du seul bouton « Fermer », le focus et le transport sur l'espace de travail étant assurés directement par le clic sur l'icône de la barre des tâches.
 - **Centrage horizontal et proportions du panneau de notifications** (`Theme.qml`, `NotificationCenter.qml`, composants) : positionnement en haut au milieu (centré axe X, début axe Y sous la barre) avec fond assombri dismissible au clic (`backdrop`), largeur portée à 480 px, toggles rapides plus hauts et carrés (64 px) avec icônes agrandies, curseurs à 42 px, actions à 40 px et bloc-notes à 150 px.
 
 ### Corrigé

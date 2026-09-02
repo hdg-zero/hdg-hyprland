@@ -156,7 +156,7 @@ graph TD
     │       │   ├── PowerButton.qml      # Bouton d'accès au menu énergie
     │       │   └── qmldir               # Déclaration de module
     │       └── popups/                  # Popups détaillées au survol / clic
-    │           ├── AppPopup.qml         # Aperçu de fenêtre, statut et actions Focus/Fermer
+    │           ├── AppPopup.qml         # Aperçu de fenêtre, statut et action Fermer
     │           ├── BacklightPopup.qml   # Curseur de luminosité et presets rapides
     │           ├── BatteryPopup.qml     # Débit Watts, autonomie estimée et profils UPower
     │           ├── ClockPopup.qml       # Calendrier dynamique du mois, secondes et uptime
