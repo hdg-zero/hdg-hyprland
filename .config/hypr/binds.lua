@@ -117,4 +117,9 @@ return function(programs)
         locked = true,
         description = "Basculer le layout clavier",
     })
+
+    hl.bind(main_mod .. " + SHIFT + C", hl.dsp.exec_cmd(programs.caffeine), {
+        description = "Basculer le mode caféine (anti-sommeil)",
+    })
 end
+

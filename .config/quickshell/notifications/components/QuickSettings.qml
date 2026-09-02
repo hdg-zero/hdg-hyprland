@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Services.Pipewire
 import "../../theme"
 import "../../session"
+import "../../caffeine"
 
 ColumnLayout {
     id: root
@@ -119,7 +120,37 @@ ColumnLayout {
             }
         }
 
-        // Toggle 3 : Micro
+        // Toggle 3 : Caféine (Anti-sommeil)
+        Rectangle {
+            Layout.fillWidth: true
+            height: 64
+            radius: Theme.radiusLarge
+            color: CaffeineService.active ? Qt.rgba(0.365, 0.678, 0.886, 0.85) : (caffeineMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.08))
+            border.color: CaffeineService.active ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
+            border.width: 1
+
+            Behavior on color { ColorAnimation { duration: Theme.animDurationFast } }
+
+            Text {
+                anchors.centerIn: parent
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSizeHeader
+                color: CaffeineService.active ? Theme.backgroundSolid : Theme.textDisabled
+                text: CaffeineService.active ? "󰅶" : "󰾪"
+            }
+
+            MouseArea {
+                id: caffeineMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    CaffeineService.toggle();
+                }
+            }
+        }
+
+        // Toggle 4 : Micro
         Rectangle {
             Layout.fillWidth: true
             height: 64
@@ -153,7 +184,7 @@ ColumnLayout {
             }
         }
 
-        // Toggle 4 : Mute Audio
+        // Toggle 5 : Mute Audio
         Rectangle {
             Layout.fillWidth: true
             height: 64

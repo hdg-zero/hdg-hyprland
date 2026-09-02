@@ -12,6 +12,7 @@ RowLayout {
 
     TaskbarModule { parentWindow: root.parentWindow }
     SystemTrayModule {}
+    CaffeineModule { parentWindow: root.parentWindow }
     BacklightModule { parentWindow: root.parentWindow }
     VolumeModule { parentWindow: root.parentWindow }
     BatteryModule { parentWindow: root.parentWindow }

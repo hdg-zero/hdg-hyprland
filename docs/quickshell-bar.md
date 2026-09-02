@@ -39,6 +39,7 @@ La barre d'état Quickshell est déployée dynamiquement sur tous les moniteurs 
 │   ├── ActiveWindow.qml     # Titre de la fenêtre active
 │   ├── TaskbarModule.qml    # Barre de tâches avec icônes d'applications ouvertes
 │   ├── SystemTrayModule.qml # Zone de notification système SNI filtrée
+│   ├── CaffeineModule.qml   # Module Caféine (anti-sommeil, inhibition Wayland)
 │   ├── BacklightModule.qml  # Jauge de rétroéclairage
 │   ├── VolumeModule.qml     # Jauge de volume PipeWire réactive
 │   ├── BatteryModule.qml    # Jauge de batterie UPower
@@ -50,6 +51,7 @@ La barre d'état Quickshell est déployée dynamiquement sur tous les moniteurs 
     ├── AppPopup.qml         # Aperçu d'application, badges d'état et action Fermer
     ├── BacklightPopup.qml   # Curseur de luminosité et presets rapides
     ├── BatteryPopup.qml     # Débit Watts, autonomie estimée et profils UPower
+    ├── CaffeinePopup.qml    # État anti-sommeil et contrôle d'inhibition
     ├── ClockPopup.qml       # Calendrier dynamique du mois, secondes et uptime
     ├── CpuPopup.qml         # Charge globale, charge par cœur et température
     ├── MemoryPopup.qml      # RAM et Swap détaillés (Go et pourcentages)
@@ -95,6 +97,7 @@ La barre d'état Quickshell est déployée dynamiquement sur tous les moniteurs 
 ### 📌 Section Droite (`RightSection.qml`)
 - **Barre des Tâches (`TaskbarModule` + `AppPopup`) :** Icônes des fenêtres ouvertes avec rendu thread-safe `IconImage`. Popup au survol avec statut plein écran/flottant, workspace assigné et boutons Focus/Fermer.
 - **System Tray (`SystemTrayModule`) :** Zone de notification SNI native Wayland filtrée.
+- **󰅶 Mode Caféine (`CaffeineModule` + `CaffeinePopup`) :** Bascule directe au clic du maintien de l'écran allumé (inhibition Wayland native `idle-inhibit-unstable-v1`), popup au clic droit avec état détaillé et contrôle d'inhibition.
 - **󰃠 Luminosité (`BacklightModule` + `BacklightPopup`) :** Réglage à la molette (pas de 3%), popup avec slider 1-100% et presets.
 - **󰕾 Volume Audio (`VolumeModule` + `VolumePopup`) :** Réglage à la molette (pas de 5%), popup avec slider 0-150% PipeWire et mixeur Pavucontrol.
 - **󰁹 Batterie (`BatteryModule` + `BatteryPopup`) :** Détection automatique (masqué sur PC fixe), popup avec autonomie, débit en Watts et profils UPower (**Éco**, **Équilibré**, **Max**).

@@ -7,6 +7,7 @@ import "./bar"
 import "./notifications"
 import "./session"
 import "./launcher"
+import "./caffeine"
 
 ShellRoot {
     id: root
