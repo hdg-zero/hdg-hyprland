@@ -14,27 +14,35 @@ Rectangle {
     border.color: Theme.glassBorderSubtle
     border.width: 1
 
-    // Changement d'espace de travail unifié via socket IPC direct Quickshell.Hyprland.
-    // L'utilisation de ws.activate() ou de Hyprland.dispatch() élimine tout fork de processus
-    // externe `hyprctl`, évitant les doubles événements et les saccades d'animation.
+    // Changement d'espace de travail résilient : activation d'objet Quickshell native
+    // et dispatch Hyprland socket / hyprctl garantissant le basculement même lors du défilement molette.
     function changeWorkspace(target) {
         var str = target.toString();
         if (typeof target === "number") {
             var ws = Hyprland.workspaces ? Hyprland.workspaces.values.find(function(w) { return w.id === target; }) : null;
             if (ws && typeof ws.activate === "function") {
                 ws.activate();
-                return;
             }
         }
         Hyprland.dispatch("workspace " + str);
+        Quickshell.execDetached(["hyprctl", "dispatch", "workspace", str]);
     }
 
     function handleWheel(wheel) {
-        var dy = wheel.angleDelta.y !== 0 ? wheel.angleDelta.y : (wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : 0);
-        if (dy > 0) {
-            changeWorkspace("e-1");
-        } else if (dy < 0) {
-            changeWorkspace("e+1");
+        var dy = (wheel && wheel.angleDelta && wheel.angleDelta.y !== 0)
+            ? wheel.angleDelta.y
+            : ((wheel && wheel.pixelDelta && wheel.pixelDelta.y !== 0) ? wheel.pixelDelta.y : 0);
+
+        if (dy === 0) return;
+
+        // Calcul dynamique de l'espace cible à partir du workspace actuellement actif
+        var currentId = (Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id) ? Hyprland.focusedWorkspace.id : 1;
+        var targetId = dy > 0 ? Math.max(1, currentId - 1) : (currentId + 1);
+
+        changeWorkspace(targetId);
+
+        if (wheel && wheel.accepted !== undefined) {
+            wheel.accepted = true;
         }
     }
 
