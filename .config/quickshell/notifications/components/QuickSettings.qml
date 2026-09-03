@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Pipewire
 import "../../theme"
 import "../../session"
 
@@ -11,11 +12,22 @@ ColumnLayout {
     property var targetScreen: null
     spacing: Theme.spacingSm
 
-    // États matériels
+    // Suivi réactif natif PipeWire (zéro polling, synchronisation instantanée avec le système)
+    PwObjectTracker {
+        objects: [
+            Pipewire.defaultAudioSink,
+            Pipewire.defaultAudioSource
+        ]
+    }
+
+    readonly property var sink: Pipewire.defaultAudioSink
+    readonly property var source: Pipewire.defaultAudioSource
+
+    // États matériels réactifs
     property bool wifiEnabled: true
     property bool btEnabled: true
-    property bool micMuted: false
-    property bool audioMuted: false
+    readonly property bool micMuted: (source && source.audio && source.audio.muted !== undefined) ? source.audio.muted : false
+    readonly property bool audioMuted: (sink && sink.audio && sink.audio.muted !== undefined) ? sink.audio.muted : false
 
     Process {
         id: getWifiStatus
@@ -31,25 +43,9 @@ ColumnLayout {
         onExited: { root.btEnabled = (btOut.text.trim() === "true"); }
     }
 
-    Process {
-        id: getMicStatus
-        command: ["sh", "-c", "wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null | grep -q MUTED && echo true || echo false"]
-        stdout: StdioCollector { id: micOut }
-        onExited: { root.micMuted = (micOut.text.trim() === "true"); }
-    }
-
-    Process {
-        id: getAudioStatus
-        command: ["sh", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | grep -q MUTED && echo true || echo false"]
-        stdout: StdioCollector { id: audioOut }
-        onExited: { root.audioMuted = (audioOut.text.trim() === "true"); }
-    }
-
     function refresh() {
         if (!getWifiStatus.running) getWifiStatus.running = true;
         if (!getBtStatus.running) getBtStatus.running = true;
-        if (!getMicStatus.running) getMicStatus.running = true;
-        if (!getAudioStatus.running) getAudioStatus.running = true;
     }
 
     // ==========================================
@@ -148,9 +144,11 @@ ColumnLayout {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"]);
-                    root.micMuted = !root.micMuted;
-                    getMicStatus.running = true;
+                    if (root.source && root.source.audio && root.source.audio.muted !== undefined) {
+                        root.source.audio.muted = !root.source.audio.muted;
+                    } else {
+                        Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"]);
+                    }
                 }
             }
         }
@@ -180,9 +178,11 @@ ColumnLayout {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]);
-                    root.audioMuted = !root.audioMuted;
-                    getAudioStatus.running = true;
+                    if (root.sink && root.sink.audio && root.sink.audio.muted !== undefined) {
+                        root.sink.audio.muted = !root.sink.audio.muted;
+                    } else {
+                        Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]);
+                    }
                 }
             }
         }

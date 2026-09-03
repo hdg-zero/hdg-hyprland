@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Pipewire
 import "../../theme"
 
 ColumnLayout {
@@ -10,17 +11,31 @@ ColumnLayout {
     property var targetScreen: null
     spacing: Theme.spacingSm
 
-    property int currentVolume: 50
+    // Suivi réactif natif PipeWire pour le volume
+    PwObjectTracker {
+        objects: [Pipewire.defaultAudioSink]
+    }
+
+    readonly property var sink: Pipewire.defaultAudioSink
+    readonly property var audio: sink ? sink.audio : null
+
+    // Volume synchronisé en temps réel avec PipeWire
+    readonly property int currentVolume: (audio && audio.volume !== undefined)
+        ? Math.round(audio.volume * 100)
+        : fallbackVolume
+    property int fallbackVolume: 50
+
     property int currentBrightness: 100
     property bool audioMuted: false
 
-    Process {
-        id: getVolumeVal
-        command: ["sh", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{print int($2 * 100)}'"]
-        stdout: StdioCollector { id: volOut }
-        onExited: {
-            var v = parseInt(volOut.text.trim());
-            if (!isNaN(v)) root.currentVolume = v;
+    // Debounce pour l'ajustement de luminosité (évite d'inonder le système de forks brightnessctl pendant le drag)
+    Timer {
+        id: brightDebounce
+        interval: 40
+        repeat: false
+        property int pendingPct: 100
+        onTriggered: {
+            Quickshell.execDetached(["brightnessctl", "set", pendingPct + "%"]);
         }
     }
 
@@ -35,7 +50,6 @@ ColumnLayout {
     }
 
     function refresh() {
-        if (!getVolumeVal.running) getVolumeVal.running = true;
         if (!getBrightVal.running) getBrightVal.running = true;
     }
 
@@ -97,8 +111,12 @@ ColumnLayout {
             cursorShape: Qt.PointingHandCursor
             function setVol(mouseX) {
                 var pct = Math.max(0, Math.min(100, Math.round((mouseX / width) * 100)));
-                root.currentVolume = pct;
-                Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", pct + "%"]);
+                if (root.audio && root.audio.volume !== undefined) {
+                    root.audio.volume = pct / 100.0;
+                } else {
+                    root.fallbackVolume = pct;
+                    Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", pct + "%"]);
+                }
             }
             onPressed: function(mouse) { setVol(mouse.x); }
             onPositionChanged: function(mouse) { if (pressed) setVol(mouse.x); }
@@ -164,7 +182,8 @@ ColumnLayout {
             function setBright(mouseX) {
                 var pct = Math.max(5, Math.min(100, Math.round((mouseX / width) * 100)));
                 root.currentBrightness = pct;
-                Quickshell.execDetached(["brightnessctl", "set", pct + "%"]);
+                brightDebounce.pendingPct = pct;
+                brightDebounce.restart();
             }
             onPressed: function(mouse) { setBright(mouse.x); }
             onPositionChanged: function(mouse) { if (pressed) setBright(mouse.x); }

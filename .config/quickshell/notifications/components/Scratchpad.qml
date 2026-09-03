@@ -9,43 +9,25 @@ ColumnLayout {
     id: root
 
     property var targetScreen: null
-    property bool notesLoaded: false
+    property bool isHydrating: false
     spacing: Theme.spacingSm
 
-    // Chargement persistant des notes via FileView (doc Quickshell.Io/FileView v0.3.x :
-    // setText() est atomique ; statePath() fournit le répertoire d'état par shell).
-    FileView {
-        id: notesFile
-        path: Quickshell.statePath("scratchpad.txt")
-        printErrors: false   // premier lancement : fichier absent, ne pas polluer les logs
-
-        onLoaded: {
-            if (!root.notesLoaded) {
-                notesEdit.text = notesFile.text();
-                root.notesLoaded = true;
-            }
-        }
-    }
-
-    // Sauvegarde automatique temporisée des notes
-    Timer {
-        id: saveNotesTimer
-        interval: 400
-        repeat: false
-        onTriggered: {
-            notesFile.setText(notesEdit.text);
-        }
-    }
-
+    // Synchronisation avec le singleton NotificationService (préservé en mémoire lors
+    // des destructions/recréations du Loader dans shell.qml)
     function loadNotes() {
-        // Déclenche un (re)chargement du fichier si le contenu n'a pas encore été hydraté.
-        if (!root.notesLoaded) {
-            notesFile.reload();
-            if (notesFile.loaded) {
-                notesEdit.text = notesFile.text();
-                root.notesLoaded = true;
-            }
+        if (notesEdit.text !== NotificationService.scratchpadText) {
+            root.isHydrating = true;
+            notesEdit.text = NotificationService.scratchpadText;
+            root.isHydrating = false;
         }
+    }
+
+    Component.onCompleted: {
+        loadNotes();
+    }
+
+    Component.onDestruction: {
+        NotificationService.flushNotes(notesEdit.text);
     }
 
     // ==========================================
@@ -112,7 +94,7 @@ ColumnLayout {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     notesEdit.text = "";
-                    saveNotesTimer.restart();
+                    NotificationService.flushNotes("");
                 }
             }
         }
@@ -176,8 +158,8 @@ ColumnLayout {
                 }
 
                 onTextChanged: {
-                    if (root.notesLoaded) {
-                        saveNotesTimer.restart();
+                    if (!root.isHydrating && notesEdit.text !== NotificationService.scratchpadText) {
+                        NotificationService.updateNotes(notesEdit.text);
                     }
                 }
             }

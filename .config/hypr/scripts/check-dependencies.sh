@@ -22,13 +22,16 @@ REQUIRED_DEPS=(
 
 OPTIONAL_DEPS=(
   acpi
+  bitwarden-desktop
   bluetoothctl
   btop
   gnome-system-monitor
   jq
   mullvad-gui
+  nm-connection-editor
   nmcli
   pavucontrol
+  powerprofilesctl
   starship
 )
 

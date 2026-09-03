@@ -156,12 +156,12 @@ graph TD
     │       │   ├── PowerButton.qml      # Bouton d'accès au menu énergie
     │       │   └── qmldir               # Déclaration de module
     │       └── popups/                  # Popups détaillées au survol / clic
-    │           ├── AppPopup.qml         # Aperçu de fenêtre, statut et actions Focus/Fermer
+    │           ├── AppPopup.qml         # Aperçu de fenêtre, statut et action Fermer
     │           ├── BacklightPopup.qml   # Curseur de luminosité et presets rapides
     │           ├── BatteryPopup.qml     # Débit Watts, autonomie estimée et profils UPower
     │           ├── ClockPopup.qml       # Calendrier dynamique du mois, secondes et uptime
-    │           ├── CpuPopup.qml         # Charge par cœur, température et Top 5 CPU
-    │           ├── MemoryPopup.qml      # RAM / Swap détaillé et Top 5 Mémoire
+    │           ├── CpuPopup.qml         # Charge globale, charge par cœur et température
+    │           ├── MemoryPopup.qml      # RAM et Swap détaillés (Go et pourcentages)
     │           ├── MprisPopup.qml       # Pochette HD centrée et contrôles multimédias
     │           ├── NetworkPopup.qml     # IP, passerelle, débits et boutons nmtui/VPN
     │           ├── PowerPopup.qml       # Menu compact d'extinction rapide

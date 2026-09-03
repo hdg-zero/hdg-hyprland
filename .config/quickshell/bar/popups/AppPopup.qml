@@ -110,89 +110,56 @@ ModulePopup {
             maximumLineCount: 1
         }
 
-        // Boutons d'actions compacts (Uniquement les icônes)
-        RowLayout {
+        // Bouton d'action unique : Fermer l'application (le déplacement se faisant directement au clic sur l'icône)
+        Rectangle {
             Layout.fillWidth: true
-            spacing: Theme.spacingSm
+            height: Theme.spacingLg * 1.6
+            radius: Theme.radiusSmall
+            color: closeBtnMouse.containsMouse ? Qt.rgba(0.906, 0.298, 0.235, 0.35) : Qt.rgba(1, 1, 1, 0.05)
+            border.color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.glassBorder
+            border.width: 1
 
-            // Bouton Basculer (Icône 󰘳)
-            Rectangle {
-                Layout.fillWidth: true
-                height: Theme.spacingLg * 1.6
-                radius: Theme.radiusSmall
-                color: focusMouse.containsMouse ? Theme.accentHover : Qt.rgba(0.365, 0.678, 0.886, 0.2)
-                border.color: Theme.accent
-                border.width: 1
-
-                Behavior on color {
-                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
-                }
-
-                Text {
-                    anchors.centerIn: parent
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.bold: true
-                    color: Theme.textPrimary
-                    text: "󰘳"
-                }
-
-                MouseArea {
-                    id: focusMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        if (!root.toplevel) return;
-                        var addr = root.toplevel.address || "";
-                        if (addr && addr.indexOf("0x") !== 0) addr = "0x" + addr;
-                        if (addr) {
-                            Hyprland.dispatch("focuswindow address:" + addr);
-                        } else if (root.toplevel.wayland) {
-                            root.toplevel.wayland.activate();
-                        }
-                        root.close();
-                    }
-                }
+            Behavior on color {
+                ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
             }
 
-            // Bouton Fermer (Icône 󰅖)
-            Rectangle {
-                Layout.fillWidth: true
-                height: Theme.spacingLg * 1.6
-                radius: Theme.radiusSmall
-                color: closeBtnMouse.containsMouse ? Qt.rgba(0.906, 0.298, 0.235, 0.4) : Qt.rgba(1, 1, 1, 0.05)
-                border.color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.glassBorder
-                border.width: 1
-
-                Behavior on color {
-                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
-                }
+            RowLayout {
+                anchors.centerIn: parent
+                spacing: Theme.spacingXs
 
                 Text {
-                    anchors.centerIn: parent
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeLarge
+                    font.pixelSize: Theme.fontSizeMedium
                     color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
                     text: "󰅖"
                 }
 
-                MouseArea {
-                    id: closeBtnMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        if (!root.toplevel) return;
-                        var addr = root.toplevel.address || "";
-                        if (addr && addr.indexOf("0x") !== 0) addr = "0x" + addr;
-                        if (addr) {
-                            Hyprland.dispatch("closewindow address:" + addr);
-                        } else if (root.toplevel.wayland) {
-                            root.toplevel.wayland.close();
-                        }
-                        root.close();
+                Text {
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeSmall
+                    font.bold: true
+                    color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
+                    text: "Fermer"
+                }
+            }
+
+            MouseArea {
+                id: closeBtnMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    if (!root.toplevel) return;
+                    var addr = root.toplevel.address || "";
+                    if (addr && addr.indexOf("0x") !== 0) addr = "0x" + addr;
+                    if (root.toplevel.wayland && typeof root.toplevel.wayland.close === "function") {
+                        root.toplevel.wayland.close();
                     }
+                    if (addr) {
+                        Hyprland.dispatch("closewindow address:" + addr);
+                        Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
+                    }
+                    root.close();
                 }
             }
         }
