@@ -13,3 +13,4 @@ NotificationButton 1.0 NotificationButton.qml
 ClockModule 1.0 ClockModule.qml
 SystemTrayModule 1.0 SystemTrayModule.qml
 PowerButton 1.0 PowerButton.qml
+CaffeineModule 1.0 CaffeineModule.qml

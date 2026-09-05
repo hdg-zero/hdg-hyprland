@@ -8,3 +8,4 @@ BatteryPopup 1.0 BatteryPopup.qml
 ClockPopup 1.0 ClockPopup.qml
 PowerPopup 1.0 PowerPopup.qml
 AppPopup 1.0 AppPopup.qml
+CaffeinePopup 1.0 CaffeinePopup.qml

@@ -2,6 +2,7 @@ local programs = {
     terminal = "kitty",
     file_manager = "nautilus",
     menu = "quickshell ipc call launcher toggle || qs ipc call launcher toggle",
+    caffeine = "quickshell ipc call caffeine toggle || qs ipc call caffeine toggle || $HOME/.config/hypr/scripts/caffeine.sh toggle",
 }
 
 local autostart_commands = {

@@ -98,6 +98,7 @@ graph TD
     │   │   └── default.lua              # Profil écran principal (2.8K 90Hz, scale 1.25, 10-bit)
     │   └── scripts/                     # Scripts utilitaires idempotents
     │       ├── battery-level.sh         # Surveillance batterie avec parsing sécurisé
+    │       ├── caffeine.sh              # Contrôle du mode caféine (anti-sommeil, inhibition Wayland)
     │       └── check-dependencies.sh    # Validation automatisée de l'environnement (exit code)
     ├── kitty/
     │   └── kitty.conf                   # Émulateur de terminal GPU Kitty
@@ -113,6 +114,9 @@ graph TD
     │   │   ├── ModulePopup.qml          # Fenêtre popup flottante avec survol intelligent
     │   │   ├── LazyPopup.qml            # Loader paresseux avec cycle de vie destroy-on-close
     │   │   └── qmldir                   # Déclaration de module
+    │   ├── caffeine/                    # Gestion du mode Caféine (Anti-sommeil)
+    │   │   ├── CaffeineService.qml      # Singleton d'inhibition Wayland et IPC
+    │   │   └── qmldir                   # Déclaration de module
     │   ├── launcher/                    # Lanceur d'applications natif (Obsidian Glass)
     │   │   ├── LauncherService.qml      # Singleton IPC et gestionnaire de visibilité
     │   │   ├── LauncherWindow.qml       # Fenêtre overlay 33%, mode terminal '>', Top 5 MRU
@@ -122,7 +126,7 @@ graph TD
     │   │   ├── NotificationToastWindow.qml # Toasts flottants 380px avec jauge fluide à 60fps
     │   │   ├── NotificationCenter.qml   # Centre de Contrôle haut-centré (480px, 94% opacité)
     │   │   ├── components/              # Sous-composants modulaires du centre
-    │   │   │   ├── QuickSettings.qml    # Toggles 64px carrés (Wi-Fi, BT, Micro, Audio) & Actions
+    │   │   │   ├── QuickSettings.qml    # Toggles 64px carrés (Wi-Fi, BT, Caféine, Micro, Audio) & Actions
     │   │   │   ├── VolumeBrightnessSliders.qml # Curseurs 42px en capsule de verre
     │   │   │   ├── NotificationList.qml # Liste des notifications (360px max) et état vide
     │   │   │   └── Scratchpad.qml       # Mini bloc-notes 150px persistant (scratchpad.txt)
@@ -132,7 +136,7 @@ graph TD
     │   │   ├── SessionWindow.qml        # Fenêtre plein écran Obsidian Glass avec touches directes
     │   │   └── qmldir                   # Déclaration de module
     │   └── bar/                         # Barre d'état supérieure
-    │       ├── BarWindow.qml            # Surface Layer-Shell Top avec zone exclusive
+    │       ├── BarWindow.qml            # Surface Layer-Shell Top avec zone exclusive et IdleInhibitor
     │       ├── BarContent.qml           # Disposition des sections Gauche, Centre, Droite
     │       ├── sections/                # Sous-sections modulaires de la barre
     │       │   ├── LeftSection.qml      # Lanceur, Workspaces, CPU/RAM/Réseau, MPRIS
@@ -148,6 +152,7 @@ graph TD
     │       │   ├── ActiveWindow.qml     # Titre de l'application active
     │       │   ├── TaskbarModule.qml    # Icônes des fenêtres ouvertes avec IconImage
     │       │   ├── SystemTrayModule.qml # Zone de notification système SNI filtrée
+    │       │   ├── CaffeineModule.qml   # Module Caféine (anti-sommeil)
     │       │   ├── BacklightModule.qml  # Jauge de luminosité
     │       │   ├── VolumeModule.qml     # Jauge de volume PipeWire réactive (sans polling)
     │       │   ├── BatteryModule.qml    # Jauge de batterie UPower
@@ -159,6 +164,7 @@ graph TD
     │           ├── AppPopup.qml         # Aperçu de fenêtre, statut et action Fermer
     │           ├── BacklightPopup.qml   # Curseur de luminosité et presets rapides
     │           ├── BatteryPopup.qml     # Débit Watts, autonomie estimée et profils UPower
+    │           ├── CaffeinePopup.qml    # État anti-sommeil et contrôle d'inhibition
     │           ├── ClockPopup.qml       # Calendrier dynamique du mois, secondes et uptime
     │           ├── CpuPopup.qml         # Charge globale, charge par cœur et température
     │           ├── MemoryPopup.qml      # RAM et Swap détaillés (Go et pourcentages)
@@ -285,6 +291,7 @@ done
 | <kbd>SUPER</kbd> + <kbd>V</kbd> | Basculer en mode flottant |
 | <kbd>SUPER</kbd> + <kbd>P</kbd> | Capture d'écran zone interactive (`hyprshot`) |
 | <kbd>SUPER</kbd> + <kbd>W</kbd> | Historique du presse-papier |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>C</kbd> | Mode Caféine (Anti-sommeil, écran maintenu allumé) |
 
 ---
 
