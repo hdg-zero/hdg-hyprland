@@ -16,24 +16,63 @@ ModulePopup {
     widthPercent: Theme.popupWidthPercentStandard
     cardHeight: netCol.implicitHeight + Theme.spacingMd * 2
 
+    // Sélection intelligente de l'interface réseau active :
+    // Priorité au Wi-Fi connecté (attente utilisateur pour ce module), puis au Filaire connecté,
+    // puis au Wi-Fi présent (même déconnecté), puis au premier périphérique disponible.
+    // Doc Quickshell v0.3.1 : Quickshell.Networking.DeviceType (Wifi, Wired, None).
     readonly property var activeDevice: {
         if (!Networking.devices || !Networking.devices.values) return null;
         var devs = Networking.devices.values;
+        var wifiDev = null;
+        var wiredDev = null;
+
         for (var i = 0; i < devs.length; i++) {
-            if (devs[i].state === ConnectionState.Connected) {
-                return devs[i];
+            var d = devs[i];
+            if (!d) continue;
+            var isConn = (d.connected || d.state === ConnectionState.Connected);
+            if (d.type === DeviceType.Wifi) {
+                if (isConn) return d;
+                if (!wifiDev) wifiDev = d;
+            } else if (d.type === DeviceType.Wired) {
+                if (isConn && !wiredDev) wiredDev = d;
             }
         }
+
+        if (wiredDev) return wiredDev;
+        if (wifiDev) return wifiDev;
         return devs.length > 0 ? devs[0] : null;
     }
 
-    readonly property bool isConnected: activeDevice && activeDevice.state === ConnectionState.Connected
+    readonly property bool isConnected: activeDevice && (activeDevice.connected || activeDevice.state === ConnectionState.Connected)
     readonly property bool isWifi: activeDevice && activeDevice.type === DeviceType.Wifi
-    readonly property bool isWired: activeDevice && activeDevice.type === DeviceType.Ethernet
-    readonly property string ssid: (isWifi && activeDevice.network) ? activeDevice.network.ssid : "Filaire"
-    // Doc Quickshell.Networking/WifiNetwork v0.3.x : signalStrength est 0.0–1.0 → conversion en %
-    readonly property int signal: (isWifi && activeDevice.network)
-        ? Math.round(Math.max(0, Math.min(1, activeDevice.network.signalStrength)) * 100)
+    // Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Networking/DeviceType/) :
+    // L'énumération est DeviceType.Wired (DeviceType.Ethernet n'existe pas dans Quickshell).
+    readonly property bool isWired: activeDevice && activeDevice.type === DeviceType.Wired
+
+    // Résolution du réseau Wi-Fi connecté via le modèle de réseaux Quickshell.
+    // Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Networking/NetworkDevice/) :
+    // Les réseaux sont exposés via l'ObjectModel `networks` (lire via `.values`).
+    readonly property var connectedWifiNetwork: {
+        if (!isWifi || !activeDevice || !activeDevice.networks || !activeDevice.networks.values) return null;
+        var nets = activeDevice.networks.values;
+        for (var i = 0; i < nets.length; i++) {
+            if (nets[i] && (nets[i].connected || nets[i].state === ConnectionState.Connected)) {
+                return nets[i];
+            }
+        }
+        return null;
+    }
+
+    // Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Networking/Network/) :
+    // Le nom du réseau Wi-Fi (SSID) est la propriété `name` sur l'objet Network.
+    readonly property string ssid: (isWifi && connectedWifiNetwork && connectedWifiNetwork.name)
+        ? connectedWifiNetwork.name
+        : (isWired ? "Filaire" : "Wi-Fi")
+
+    // Doc Quickshell.Networking/WifiNetwork v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Networking/WifiNetwork/) :
+    // signalStrength est un réel 0.0–1.0. Conversion sur une échelle 0–100 pour l'affichage en pourcentage.
+    readonly property int signal: (isWifi && connectedWifiNetwork)
+        ? Math.round(Math.max(0, Math.min(1, connectedWifiNetwork.signalStrength)) * 100)
         : 100
 
     property var lastRx: 0
@@ -135,7 +174,7 @@ ModulePopup {
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSizeMedium
                 color: root.isConnected ? Theme.accent : Theme.textDisabled
-                text: root.isWifi ? "󰤨" : (root.isWired ? "󰌘" : "󰌙")
+                text: root.isWifi ? (root.isConnected ? "󰤨" : "󰤮") : (root.isWired ? (root.isConnected ? "󰌘" : "󰌙") : "󰌙")
             }
 
             Text {
@@ -144,7 +183,7 @@ ModulePopup {
                 font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
                 color: Theme.textPrimary
-                text: root.isConnected ? (root.isWifi ? root.ssid : "Filaire") : "Déconnecté"
+                text: root.isConnected ? (root.isWifi ? root.ssid : (root.isWired ? "Filaire" : "Connecté")) : (root.isWifi ? "Non connecté" : "Déconnecté")
                 elide: Text.ElideRight
             }
 

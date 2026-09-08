@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Networking
 import Quickshell.Services.Pipewire
 import "../../theme"
 import "../../session"
@@ -25,17 +26,12 @@ ColumnLayout {
     readonly property var source: Pipewire.defaultAudioSource
 
     // États matériels réactifs
-    property bool wifiEnabled: true
+    // Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Networking/Networking/) :
+    // Networking.wifiEnabled est un booléen en lecture/écriture relié directement au commutateur logiciel rfkill.
+    readonly property bool wifiEnabled: Networking.wifiEnabled
     property bool btEnabled: true
     readonly property bool micMuted: (source && source.audio && source.audio.muted !== undefined) ? source.audio.muted : false
     readonly property bool audioMuted: (sink && sink.audio && sink.audio.muted !== undefined) ? sink.audio.muted : false
-
-    Process {
-        id: getWifiStatus
-        command: ["sh", "-c", "nmcli radio wifi 2>/dev/null | grep -q 'enabled' && echo true || echo false"]
-        stdout: StdioCollector { id: wifiOut }
-        onExited: { root.wifiEnabled = (wifiOut.text.trim() === "true"); }
-    }
 
     Process {
         id: getBtStatus
@@ -45,7 +41,6 @@ ColumnLayout {
     }
 
     function refresh() {
-        if (!getWifiStatus.running) getWifiStatus.running = true;
         if (!getBtStatus.running) getBtStatus.running = true;
     }
 
@@ -81,9 +76,10 @@ ColumnLayout {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    Quickshell.execDetached(["sh", "-c", "nmcli radio wifi " + (root.wifiEnabled ? "off" : "on")]);
-                    root.wifiEnabled = !root.wifiEnabled;
-                    getWifiStatus.running = true;
+                    var nextState = !Networking.wifiEnabled;
+                    Networking.wifiEnabled = nextState;
+                    // Repli défensif rfkill en tâche de fond si disponible
+                    Quickshell.execDetached(["sh", "-c", "command -v rfkill >/dev/null 2>&1 && rfkill " + (nextState ? "unblock" : "block") + " wifi || true"]);
                 }
             }
         }
