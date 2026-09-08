@@ -3,68 +3,39 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
+// Service centralisé des actions système de session (verrouillage, mise en veille, extinction).
+// Pilotable via Quickshell et via IPC (quickshell ipc call session lock/shutdown/...)
+// Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Io/IpcHandler/)
 Singleton {
     id: root
 
-    property bool sessionVisible: false
-
-    function toggleSession() {
-        root.sessionVisible = !root.sessionVisible;
-    }
-
-    function openSession() {
-        root.sessionVisible = true;
-    }
-
-    function closeSession() {
-        root.sessionVisible = false;
-    }
-
     function lock() {
-        root.closeSession();
         Quickshell.execDetached(["loginctl", "lock-session"]);
     }
 
     function suspend() {
-        root.closeSession();
         Quickshell.execDetached(["sh", "-c", "loginctl lock-session && systemctl suspend"]);
     }
 
     function logout() {
-        root.closeSession();
         Quickshell.execDetached(["uwsm", "stop"]);
     }
 
     function hibernate() {
-        root.closeSession();
         Quickshell.execDetached(["systemctl", "hibernate"]);
     }
 
     function reboot() {
-        root.closeSession();
         Quickshell.execDetached(["systemctl", "reboot"]);
     }
 
     function shutdown() {
-        root.closeSession();
         Quickshell.execDetached(["systemctl", "poweroff"]);
     }
 
-    // Gestionnaire IPC pour contrôle externe (scripts & raccourcis Hyprland) : quickshell ipc call session toggle
+    // Gestionnaire IPC typé pour contrôle externe (scripts & raccourcis Hyprland)
     IpcHandler {
         target: "session"
-
-        function toggle(): void {
-            root.toggleSession();
-        }
-
-        function open(): void {
-            root.openSession();
-        }
-
-        function close(): void {
-            root.closeSession();
-        }
 
         function lock(): void {
             root.lock();

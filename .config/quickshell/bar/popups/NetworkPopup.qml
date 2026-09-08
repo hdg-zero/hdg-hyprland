@@ -98,16 +98,24 @@ ModulePopup {
         blockAllReads: true
     }
 
+    // Rafraîchissement périodique de l'adresse IP espacé à 15s (l'adresse locale ne varie pas en continu)
+    Timer {
+        interval: 15000
+        running: root.visible
+        repeat: true
+        onTriggered: {
+            if (!getNetDetails.running) {
+                getNetDetails.running = true;
+            }
+        }
+    }
+
     Timer {
         interval: 1500
         running: root.visible
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            if (!getNetDetails.running) {
-                getNetDetails.running = true;
-            }
-
             netDevFile.reload();
             var content = netDevFile.text();
             if (!content) return;

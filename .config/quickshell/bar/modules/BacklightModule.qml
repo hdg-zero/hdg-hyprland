@@ -67,8 +67,9 @@ PillButton {
         }
     }
 
+    // Vérification de fond allégée (30s) pour capter les ajustements externes hors session
     Timer {
-        interval: 10000
+        interval: 30000
         running: true
         repeat: true
         onTriggered: {
