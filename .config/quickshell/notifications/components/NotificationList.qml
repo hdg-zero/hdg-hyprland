@@ -77,10 +77,11 @@ ColumnLayout {
             anchors.fill: parent
             visible: NotificationService.unreadCount > 0
             boundsBehavior: Flickable.StopAtBounds
+            // Filtrage strict : seules les notifications avec un contenu textuel réel sont affichées
             model: {
                 if (!NotificationService.trackedNotifications || !NotificationService.trackedNotifications.values) return [];
                 return NotificationService.trackedNotifications.values.filter(function(n) {
-                    return n && ((n.summary || "").trim() !== "" || (n.body || "").trim() !== "");
+                    return NotificationService.isValidNotification(n);
                 });
             }
             clip: true

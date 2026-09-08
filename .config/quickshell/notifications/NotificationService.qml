@@ -11,6 +11,26 @@ Singleton {
     property bool panelVisible: false
     property var activeToasts: []
 
+    // Validation stricte du contenu textuel d'une notification :
+    // Élimine les notifications vides, les balises HTML orphelines (<p></p>, <span>),
+    // les entités HTML (&nbsp;) et les espaces/séparateurs invisibles Unicode.
+    // Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Services.Notifications/Notification/) :
+    // summary et body sont des chaînes exposées par le serveur D-Bus.
+    function isValidNotification(notif): bool {
+        if (!notif) return false;
+        var stripText = function(str) {
+            if (!str) return "";
+            return str
+                .replace(/<[^>]*>/g, "")
+                .replace(/&[a-zA-Z0-9#]+;/g, " ")
+                .replace(/[\s\u200B\u00A0\uFEFF]+/g, " ")
+                .trim();
+        };
+        var sum = stripText(notif.summary);
+        var body = stripText(notif.body);
+        return sum.length > 0 || body.length > 0;
+    }
+
     readonly property var server: notifServer
     readonly property var trackedNotifications: notifServer.trackedNotifications
     readonly property int unreadCount: {
@@ -19,8 +39,7 @@ Singleton {
         if (!list) return 0;
         var count = 0;
         for (var i = 0; i < list.length; i++) {
-            var n = list[i];
-            if (n && ((n.summary || "").trim() !== "" || (n.body || "").trim() !== "")) {
+            if (root.isValidNotification(list[i])) {
                 count++;
             }
         }
@@ -38,14 +57,12 @@ Singleton {
         onNotification: function(notif) {
             if (!notif) return;
 
-            var sum = (notif.summary || "").trim();
-            var body = (notif.body || "").trim();
-
-            // Ignorer et rejeter les notifications complètement vides (aucun résumé et aucun message)
-            if (sum === "" && body === "") {
+            // Rejet immédiat de toute notification dépourvue de contenu textuel signifiant
+            if (!root.isValidNotification(notif)) {
                 if (typeof notif.dismiss === "function") {
                     notif.dismiss();
                 }
+                notif.tracked = false;
                 return;
             }
 
@@ -62,12 +79,22 @@ Singleton {
                 timeoutMs = 0; // Infini pour les alertes critiques
             }
 
+            var toastId = notif.id || (Date.now() + Math.random());
             var toastObj = {
-                id: notif.id || Date.now() + Math.random(),
+                id: toastId,
                 notification: notif,
                 timeout: timeoutMs,
                 createdAt: Date.now()
             };
+
+            // Surveillance de la fermeture de la notification (ex: fermée à distance par le client D-Bus
+            // ou expirée) : suppression immédiate du toast pour éviter toute carte orpheline vide.
+            // Doc Quickshell v0.3.1 : signal closed(reason) sur Notification.
+            if (typeof notif.closed !== "undefined" && typeof notif.closed.connect === "function") {
+                notif.closed.connect(function() {
+                    root.dismissToast(toastId);
+                });
+            }
 
             var list = root.activeToasts.slice();
             list.unshift(toastObj);
