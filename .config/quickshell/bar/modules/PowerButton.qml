@@ -32,6 +32,6 @@ PillButton {
     }
 
     onRightClicked: {
-        SessionService.toggleSession();
+        pwrLazy.toggle();
     }
 }

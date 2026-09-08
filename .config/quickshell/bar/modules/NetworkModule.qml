@@ -153,7 +153,7 @@ PillButton {
     text: isConnected ? totalSpeedFormatted : "Déconnecté"
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
-    widthPercent: Theme.moduleWidthPercentMetrics
+    widthPercent: Theme.moduleWidthPercentNetwork
 
     onClicked: {
         netLazy.toggle();

@@ -261,7 +261,7 @@ ColumnLayout {
             }
         }
 
-        // Éteindre / Menu Session
+        // Éteindre rapidement
         Rectangle {
             Layout.fillWidth: true
             height: 40
@@ -284,7 +284,7 @@ ColumnLayout {
                     font.pixelSize: Theme.fontSizeTiny
                     font.bold: true
                     color: Theme.textPrimary
-                    text: "Session"
+                    text: "Éteindre"
                 }
             }
 
@@ -295,7 +295,7 @@ ColumnLayout {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     NotificationService.panelVisible = false;
-                    SessionService.openSession();
+                    SessionService.shutdown();
                 }
             }
         }

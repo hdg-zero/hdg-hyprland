@@ -77,7 +77,8 @@ La barre d'état Quickshell est déployée dynamiquement sur tous les moniteurs 
 | `barHeightRatio` | `0.024` | Ratio de hauteur relative de la barre (~25px en 1080p, ~34px en 1440p) |
 | `notificationPanelWidth` | `480` | Largeur fixe standardisée du Centre de Contrôle (haut-centré) |
 | `notificationToastWidth` | `380` | Largeur fixe standardisée des toasts de notifications OSD |
-| `moduleWidthPercentMetrics` | `0.038` | Largeur relative des modules CPU / RAM / Réseau (3.8% écran) |
+| `moduleWidthPercentMetrics` | `0.038` | Largeur relative des modules CPU / RAM (3.8% écran) |
+| `moduleWidthPercentNetwork` | `0.068` | Largeur relative du module Réseau Wi-Fi/Filaire (6.8% écran, +3% pour débits) |
 | `moduleWidthPercentMpris` | `0.12` | Largeur relative du lecteur multimédia (12% écran) |
 ---
 

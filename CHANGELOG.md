@@ -7,6 +7,13 @@ et ce projet adhère au versionnage sémantique.
 
 ## [Unreleased]
 
+### Modifié
+- **Élargissement du module réseau dans la barre supérieure** (`Theme.qml`, `NetworkModule.qml`, `docs/quickshell-bar.md`) : passage de la largeur relative de 3.8% à 6.8% de l'écran (+3% de largeur d'écran, token `moduleWidthPercentNetwork`), offrant l'espace nécessaire pour afficher confortablement les débits réseau et le statut sans troncature.
+- **Épuration et allègement de la popup Caféine** (`CaffeinePopup.qml`) : suppression du sous-titre redondant « Anti-sommeil actif » et du paragraphe descriptif d'inhibition Hypridle, recentrant la popup sur son en-tête épuré et son bouton d'activation/désactivation immédiat.
+
+### Supprimé
+- **Suppression du menu de session plein écran et de son raccourci** (`binds.lua`, `shell.qml`, `PowerButton.qml`, `QuickSettings.qml`) : retrait du raccourci <kbd>SUPER</kbd> + <kbd>M</kbd>, suppression du Loader d'overlay `SessionWindow` dans `shell.qml`, réassignation du clic droit sur le bouton Power vers la popup rapide compacte, et remplacement du raccourci « Session » par un bouton direct « Éteindre » dans le centre de contrôle.
+
 ### Corrigé
 - **Élimination définitive des notifications vides et des toasts orphelins** (`NotificationService.qml`, `NotificationToastWindow.qml`, `NotificationList.qml`) :
   - *Filtrage sémantique strict* (`isValidNotification`) : assainissement des résumés et corps de messages via suppression des balises HTML (<p>, <span>), des entités (&nbsp;) et des séparateurs invisibles Unicode, avec rejet immédiat (`notif.dismiss()`, `notif.tracked = false`) de toute notification sans contenu textuel réel dès la réception D-Bus.

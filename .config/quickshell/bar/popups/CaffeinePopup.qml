@@ -20,7 +20,7 @@ ModulePopup {
         }
         spacing: Theme.spacingSm
 
-        // En-tête avec icône et titre
+        // En-tête avec icône et titre épuré
         RowLayout {
             Layout.fillWidth: true
             spacing: Theme.spacingSm
@@ -32,44 +32,14 @@ ModulePopup {
                 text: CaffeineService.active ? "󰅶" : "󰾪"
             }
 
-            ColumnLayout {
+            Text {
                 Layout.fillWidth: true
-                spacing: 1
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    font.bold: true
-                    color: Theme.textPrimary
-                    text: "Mode Caféine"
-                }
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeTiny
-                    color: CaffeineService.active ? Theme.accent : Theme.textSecondary
-                    text: CaffeineService.active ? "Anti-sommeil actif" : "Inactif (sommeil normal)"
-                }
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSizeSmall
+                font.bold: true
+                color: Theme.textPrimary
+                text: "Mode Caféine"
             }
-        }
-
-        // Séparateur subtil
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorderSubtle
-        }
-
-        // Description concise
-        Text {
-            Layout.fillWidth: true
-            wrapMode: Text.WordWrap
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeMicro
-            color: Theme.textSecondary
-            text: CaffeineService.active
-                ? "L'extinction d'écran, le verrouillage et la mise en veille automatique sont suspendus."
-                : "La gestion d'énergie automatique de Hypridle est active."
         }
 
         // Bouton d'action de bascule
