@@ -8,6 +8,7 @@ et ce projet adhère au versionnage sémantique.
 ## [Unreleased]
 
 ### Modifié
+- **Extension de la hauteur de la zone de texte du bloc-notes** (`Scratchpad.qml`, `docs/quickshell-notifications.md`, `README.md`) : quadruplement de la hauteur de la zone d'édition (passage de 150 px à 600 px), offrant une surface de saisie et de lecture considérablement étendue pour la prise de notes rapides dans le centre de contrôle.
 - **Élargissement du module réseau dans la barre supérieure** (`Theme.qml`, `NetworkModule.qml`, `docs/quickshell-bar.md`) : passage de la largeur relative de 3.8% à 6.8% de l'écran (+3% de largeur d'écran, token `moduleWidthPercentNetwork`), offrant l'espace nécessaire pour afficher confortablement les débits réseau et le statut sans troncature.
 - **Épuration et allègement de la popup Caféine** (`CaffeinePopup.qml`) : suppression du sous-titre redondant « Anti-sommeil actif » et du paragraphe descriptif d'inhibition Hypridle, recentrant la popup sur son en-tête épuré et son bouton d'activation/désactivation immédiat.
 - **Optimisation des sous-processus et timers périodiques** (`NetworkPopup.qml`, `BacklightModule.qml`) : espacement de la requête d'IP locale dans la popup réseau à 15s (au lieu de 1,5s), et allègement du timer d'arrière-plan de luminosité à 30s (au lieu de 10s), éliminant les réveils CPU et forks de processus superflus.
