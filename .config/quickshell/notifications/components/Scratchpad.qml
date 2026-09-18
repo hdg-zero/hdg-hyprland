@@ -114,7 +114,7 @@ ColumnLayout {
     // ==========================================
     Rectangle {
         Layout.fillWidth: true
-        height: 600
+        height: Theme.relHeight(Theme.scratchpadHeightRatio, root.targetScreen)
         radius: Theme.radiusMedium
         color: Qt.rgba(1, 1, 1, 0.05)
         border.color: notesEdit.activeFocus ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.10)

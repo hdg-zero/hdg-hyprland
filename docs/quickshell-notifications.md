@@ -15,7 +15,7 @@ Le sous-système de notifications réside dans `.config/quickshell/notifications
   - **Toggles tactiles rapides :** Pavés quasi carrés de 64 px de hauteur (Wi-Fi, Bluetooth, Micro, Audio) avec icônes agrandies (`Theme.fontSizeHeader`).
   - **Curseurs en capsule de verre :** Hauteur de 42 px avec pourcentages en direct et réglage instantané.
   - **Boutons d'action système :** Hauteur de 40 px (Verrouiller, Session).
-  - **Bloc-notes persistant (Scratchpad) :** Zone de saisie étendue à 600 px.
+  - **Bloc-notes persistant (Scratchpad) :** Zone de saisie proportionnelle à 40% de la hauteur d'écran (`Theme.scratchpadHeightRatio: 0.40`).
   - **Liste d'historique des notifications :** Défilement fluide jusqu'à 360 px de hauteur.
 - **Toasts OSD Éphémères :** Alertes visuelles animées de 380 px de large avec jauge de compte à rebours fluide à 60fps et pause au survol.
 - **Lazy Loading & Destructibilité :** Instanciation à la demande par `Loader` dans `shell.qml` et destruction à la fermeture pour une consommation mémoire nulle hors utilisation.
@@ -35,7 +35,7 @@ Le sous-système de notifications réside dans `.config/quickshell/notifications
     ├── QuickSettings.qml        # Toggles 64px carrés (Wi-Fi, BT, Micro, Audio) & Actions 40px
     ├── VolumeBrightnessSliders.qml # Curseurs 42px en capsule (Volume, Luminosité)
     ├── NotificationList.qml     # Liste défilante (360px max), actions et état vide
-    └── Scratchpad.qml           # Mini bloc-notes 600px persistant (scratchpad.txt)
+    └── Scratchpad.qml           # Mini bloc-notes persistant à hauteur relative 40% (scratchpad.txt)
 ```
 
 ---
@@ -62,4 +62,4 @@ Le sous-système de notifications réside dans `.config/quickshell/notifications
 - **`QuickSettings.qml` :** 4 pavés tactiles 64px à grandes icônes et boutons Verrouiller / Session (40px).
 - **`VolumeBrightnessSliders.qml` :** Curseurs horizontaux 42px en verre dépoli avec icônes intégrées et manipulation WirePlumber / brightnessctl.
 - **`NotificationList.qml` :** Cartes de notifications avec boutons d'actions interactifs et suppression globale (`󰃢`).
-- **`Scratchpad.qml` :** Bloc-notes 600px synchronisé automatiquement dans `$XDG_STATE_HOME/quickshell/scratchpad.txt` avec raccourci de copie instantanée dans le presse-papier (`wl-copy`).
+- **`Scratchpad.qml` :** Bloc-notes persistant à hauteur relative (40% de la hauteur d'écran via `Theme.scratchpadHeightRatio`) synchronisé automatiquement dans `$XDG_STATE_HOME/quickshell/scratchpad.txt` avec raccourci de copie instantanée dans le presse-papier (`wl-copy`).
