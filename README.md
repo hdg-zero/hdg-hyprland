@@ -76,10 +76,12 @@ graph TD
 
 ```
 .
+├── .bashrc                              # Configuration utilisateur du shell Bash interactif
 ├── CHANGELOG.md                         # Journal des modifications conforme à Keep a Changelog
 ├── LICENSE                              # Licence MIT
 ├── README.md                            # Documentation d'architecture principale
 ├── docs/                                # Documentations techniques détaillées
+│   ├── bash.md                          # Guide de configuration du shell Bash & intégration Wayland
 │   ├── quickshell-bar.md                # Guide de la barre d'état et popups (LazyPopup)
 │   ├── quickshell-launcher.md           # Guide du lanceur d'applications & mode terminal '>'
 │   ├── quickshell-notifications.md      # Guide du serveur de notifications & Centre de Contrôle
@@ -199,6 +201,7 @@ graph TD
 | **UPower** | Standard | Gestion énergétique & profils de batterie | API D-Bus standard pour suivi en temps réel et sélection de profils d'alimentation. |
 | **Kitty** | Standard | Émulateur de terminal GPU | Rendu OpenGL matériel, support étendu des polices Nerd Font et faible latence. |
 | **Starship** | Standard | Prompt de shell universel | Vitesse d'exécution en Rust, compatibilité multi-shell. |
+| **Bash** | Standard | Shell interactif & environnement utilisateur | Shell POSIX standard, gestion portable du PATH local, umask sécurisé et intégration portails Wayland. |
 
 ---
 
@@ -276,6 +279,12 @@ for file in starship.toml; do
   fi
   ln -sf "$REPO_PATH/.config/$file" "$HOME/.config/$file"
 done
+
+# 4. Créer le lien symbolique pour ~/.bashrc
+if [ -f "$HOME/.bashrc" ] && [ ! -L "$HOME/.bashrc" ]; then
+  mv "$HOME/.bashrc" "$HOME/.bashrc.bak"
+fi
+ln -sf "$REPO_PATH/.bashrc" "$HOME/.bashrc"
 ```
 
 ### Raccourcis Clavier Principaux

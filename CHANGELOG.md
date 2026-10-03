@@ -7,6 +7,9 @@ et ce projet adhère au versionnage sémantique.
 
 ## [Unreleased]
 
+### Ajouté
+- **Intégration et versionnement de la configuration utilisateur Bash** (`.bashrc`, `docs/bash.md`, `README.md`) : ajout de la configuration épurée du shell Bash interactif incluant le masque de permissions sécurisé (`umask 0002`), l'enrichissement portable du `$PATH` (`$HOME/.local/bin`), le démarrage conditionnel non bloquant du portail Wayland GTK (`xdg-desktop-portal-gtk`), la documentation technique dédiée et la procédure de déploiement par lien symbolique.
+
 ### Modifié
 - **Dimensionnement relatif en pourcentage de la zone de texte du bloc-notes** (`Theme.qml`, `Scratchpad.qml`, `docs/quickshell-notifications.md`, `README.md`) : remplacement de la hauteur fixe en pixels par un ratio adaptatif basé sur la hauteur de l'écran (40% via le token `scratchpadHeightRatio: 0.40`), garantissant une surface de saisie quadruple, ergonomique et proportionnelle sur toutes les résolutions d'écran (1080p, 1440p, 4K).
 - **Élargissement du module réseau dans la barre supérieure** (`Theme.qml`, `NetworkModule.qml`, `docs/quickshell-bar.md`) : passage de la largeur relative de 3.8% à 6.8% de l'écran (+3% de largeur d'écran, token `moduleWidthPercentNetwork`), offrant l'espace nécessaire pour afficher confortablement les débits réseau et le statut sans troncature.
