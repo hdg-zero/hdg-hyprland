@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import "../theme"
 import "../components"
 import "../session"
@@ -15,6 +16,16 @@ PanelWindow {
     property var targetScreen: null
     screen: targetScreen || modelData
 
+    // Détection de l'écran actuellement actif pour le routage exclusif du focus clavier.
+    // Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Hyprland/Hyprland/) :
+    // Hyprland.focusedMonitor renvoie le moniteur ciblé, monitorFor(screen) résout l'écran Quickshell.
+    readonly property bool isCurrentMonitor: {
+        if (!root.screen) return true;
+        var focused = Hyprland.focusedMonitor;
+        var current = Hyprland.monitorFor(root.screen);
+        return (focused && current) ? (focused.id === current.id) : true;
+    }
+
     anchors {
         top: true
         bottom: true
@@ -25,7 +36,10 @@ PanelWindow {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    // Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Wayland/WlrKeyboardFocus/) :
+    // WlrKeyboardFocus.Exclusive capture immédiatement les entrées clavier dès l'ouverture du panneau,
+    // évitant de devoir cliquer manuellement sur le panneau pour saisir du texte.
+    WlrLayershell.keyboardFocus: (visible && isCurrentMonitor) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     WlrLayershell.namespace: "qs-panel"
 
     Shortcut {
@@ -47,6 +61,7 @@ PanelWindow {
         if (visible) {
             refreshStatus();
             scratchpad.loadNotes();
+            Qt.callLater(scratchpad.focusEditor);
         } else {
             NotificationService.flushNotes();
         }
@@ -54,11 +69,12 @@ PanelWindow {
 
     // Lazy loading : à la recréation par le Loader, la fenêtre naît déjà visible —
     // onVisibleChanged(false→true) ne part pas toujours. On rafraîchit donc aussi à la fin
-    // de l'instanciation (états Wi-Fi/BT/micro, curseurs, notes du scratchpad).
+    // de l'instanciation (états Wi-Fi/BT/micro, curseurs, notes et focus immédiat du scratchpad).
     Component.onCompleted: {
         if (visible) {
             refreshStatus();
             scratchpad.loadNotes();
+            Qt.callLater(scratchpad.focusEditor);
         }
     }
 

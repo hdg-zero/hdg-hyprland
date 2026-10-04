@@ -22,8 +22,17 @@ ColumnLayout {
         }
     }
 
+    // Activation directe du focus et positionnement du curseur à la fin du texte.
+    // Doc Qt Quick TextEdit (https://doc.qt.io/qt-6/qml-qtquick-textedit.html) :
+    // forceActiveFocus() prend le focus d'entrée clavier et cursorPosition place le point d'insertion.
+    function focusEditor() {
+        notesEdit.forceActiveFocus();
+        notesEdit.cursorPosition = notesEdit.text.length;
+    }
+
     Component.onCompleted: {
         loadNotes();
+        Qt.callLater(focusEditor);
     }
 
     Component.onDestruction: {
@@ -132,6 +141,7 @@ ColumnLayout {
 
             TextEdit {
                 id: notesEdit
+                focus: true
                 width: notesFlickable.width
                 height: Math.max(notesFlickable.height, contentHeight)
                 font.family: Theme.fontFamily
