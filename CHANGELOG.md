@@ -7,6 +7,14 @@ et ce projet adhère au versionnage sémantique.
 
 ## [Unreleased]
 
+### Corrigé
+- **Correction de la détection Wi-Fi dans la barre supérieure et réactivité du toggle Wi-Fi dans le centre de contrôle** (`NetworkModule.qml`, `NetworkPopup.qml`, `QuickSettings.qml`) :
+  - *Module barre et popup* : remplacement de l'énumération inexistante `DeviceType.Ethernet` par `DeviceType.Wired` (conforme doc officielle Quickshell v0.3.1), sélection intelligente de l'interface active priorisant le Wi-Fi connecté face aux interfaces virtuelles/VPN, et résolution robuste du SSID et du signal via l'itération de `activeDevice.networks.values` (`net.connected`, `net.name`, `net.signalStrength`) éliminant le repli systématique sur l'icône et le libellé « Filaire » causé par l'accès à la propriété inexistante `activeDevice.network`.
+  - *Centre de contrôle* : remplacement du sous-processus `nmcli radio wifi` (inopérant en l'absence de `nmcli`) par le singleton natif réactif `Quickshell.Networking.Networking.wifiEnabled` en lecture et écriture directe sur le commutateur logiciel rfkill, complété d'un repli défensif système `rfkill`.
+- **Focus automatique et saisie directe dans le bloc-notes à l'ouverture du centre de contrôle** (`NotificationCenter.qml`, `Scratchpad.qml`) : attribution du focus clavier exclusif (`WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive`) sur l'écran actif (`isCurrentMonitor` via `Quickshell.Hyprland`) dès l'ouverture du panneau par raccourci (<kbd>SUPER</kbd> + <kbd>F</kbd>), et activation automatique différée du focus (`Qt.callLater(scratchpad.focusEditor)`) avec curseur placé en fin de texte (`notesEdit.cursorPosition = notesEdit.text.length`), permettant la saisie immédiate sans nécessiter de clic souris préalable.
+
+## [v0.2.3] - 2026-09-05
+
 ### Ajouté
 - **Mode Caféine complet et réactif (anti-sommeil / maintien de l'écran allumé)** :
   - **Inhibition Wayland native (`Quickshell.Wayland.IdleInhibitor`)** : couplage direct avec le compositeur Hyprland via le protocole standard `idle-inhibit-unstable-v1` sur la surface permanente `BarWindow.qml`, empêchant la mise en veille, l'atténuation du rétroéclairage, l'extinction d'écran (DPMS) et le verrouillage automatique de session lors de présentations, lectures ou visionnages.
