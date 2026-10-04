@@ -95,168 +95,109 @@ PanelWindow {
         }
     }
 
-    // Carte principale centrée horizontalement en haut de l'écran en Glassmorphism Obsidian Glass
     Rectangle {
         id: panelCard
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: Math.round(Theme.relHeight(Theme.barHeightRatio, root.screen) + Theme.spacingSm)
-        width: Theme.notificationPanelWidth
-        implicitHeight: panelCol.implicitHeight + Theme.spacingMd * 2
-        radius: Theme.radiusXLarge
-        color: Qt.rgba(0.043, 0.059, 0.078, 0.94) // Obsidian Glass haute opacité
-        border.color: Theme.glassBorder
+        width: Math.min(Theme.notificationPanelWidth, Math.max(0, parent.width - Theme.spacingLg * 2))
+        height: Math.min(panelCol.implicitHeight + Theme.spacingLg * 2,
+            Math.max(0, parent.height - anchors.topMargin - Theme.spacingLg))
+        radius: 22
+        border.color: Qt.rgba(1, 1, 1, 0.09)
         border.width: 1
+        gradient: Gradient {
+            GradientStop { position: 0; color: "#f516202a" }
+            GradientStop { position: 1; color: "#fa0b0f14" }
+        }
         clip: true
 
-        ColumnLayout {
-            id: panelCol
-            anchors {
-                left: parent.left
-                right: parent.right
-                top: parent.top
-                margins: Theme.spacingMd
-            }
-            spacing: Theme.spacingSm
+        // Les clics dans les espaces de la carte ne ferment pas le panneau.
+        MouseArea { anchors.fill: parent }
 
-            // ==========================================
-            // 1. BOUTONS D'ACTION HAUT (DND, Effacer, Fermer)
-            // ==========================================
-            RowLayout {
-                Layout.fillWidth: true
+        Flickable {
+            id: panelScroll
+            anchors.fill: parent
+            anchors.margins: Theme.spacingLg
+            contentWidth: width
+            contentHeight: panelCol.implicitHeight
+            interactive: contentHeight > height
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
+            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+            ColumnLayout {
+                id: panelCol
+                width: panelScroll.width
                 spacing: Theme.spacingSm
 
-                Item { Layout.fillWidth: true }
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.spacingXs
 
-                // Bouton Ne Pas Déranger (DND)
-                Rectangle {
-                    width: 30
-                    height: 30
-                    radius: 15
-                    color: NotificationService.dnd ? Qt.rgba(1.0, 0.72, 0.42, 0.3) : (dndMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.08))
-                    border.color: NotificationService.dnd ? Theme.warning : Qt.rgba(1.0, 1.0, 1.0, 0.12)
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: NotificationService.dnd ? Theme.warning : Theme.textSecondary
-                        text: NotificationService.dnd ? "󰂛" : "󰂚"
+                    PanelIconButton {
+                        glyph: "󰌾"
+                        description: "Verrouiller"
+                        onClicked: {
+                            NotificationService.panelVisible = false;
+                            SessionService.lock();
+                        }
                     }
-
-                    MouseArea {
-                        id: dndMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: { NotificationService.toggleDnd(); }
+                    PanelIconButton {
+                        glyph: "⏻"
+                        description: "Éteindre"
+                        onClicked: {
+                            NotificationService.panelVisible = false;
+                            SessionService.shutdown();
+                        }
                     }
-                }
-
-                // Bouton Effacer tout
-                Rectangle {
-                    visible: NotificationService.unreadCount > 0
-                    width: 30
-                    height: 30
-                    radius: 15
-                    color: clearMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.3) : Qt.rgba(1, 1, 1, 0.08)
-                    border.color: clearMouse.containsMouse ? Theme.destructive : Qt.rgba(1.0, 1.0, 1.0, 0.12)
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: clearMouse.containsMouse ? Theme.destructive : Theme.textSecondary
-                        text: "󰃢"
+                    Item { Layout.fillWidth: true }
+                    PanelIconButton {
+                        glyph: NotificationService.dnd ? "󰂛" : "󰂚"
+                        description: "Ne pas déranger"
+                        selected: NotificationService.dnd
+                        onClicked: NotificationService.toggleDnd()
                     }
-
-                    MouseArea {
-                        id: clearMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: { NotificationService.clearAll(); }
+                    PanelIconButton {
+                        glyph: "󰃢"
+                        description: "Effacer les notifications"
+                        enabled: NotificationService.unreadCount > 0
+                        onClicked: NotificationService.clearAll()
+                    }
+                    PanelIconButton {
+                        glyph: "󰅖"
+                        description: "Fermer"
+                        onClicked: NotificationService.panelVisible = false
                     }
                 }
 
-                // Bouton Fermer le panneau
-                Rectangle {
-                    width: 30
-                    height: 30
-                    radius: 15
-                    color: closePanelMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.20) : Qt.rgba(1, 1, 1, 0.08)
-                    border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: closePanelMouse.containsMouse ? Theme.textPrimary : Theme.textSecondary
-                        text: "󰅖"
-                    }
-
-                    MouseArea {
-                        id: closePanelMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: { NotificationService.panelVisible = false; }
-                    }
+                QuickSettings {
+                    id: quickSettings
+                    targetScreen: root.screen
+                    Layout.fillWidth: true
                 }
-            }
 
-            // ==========================================
-            // 2. TOGGLES RAPIDES & ACTIONS SYSTÈME
-            // ==========================================
-            QuickSettings {
-                id: quickSettings
-                targetScreen: root.screen
-                Layout.fillWidth: true
-            }
+                VolumeBrightnessSliders {
+                    id: sliders
+                    targetScreen: root.screen
+                    Layout.fillWidth: true
+                    audioMuted: quickSettings.audioMuted
+                }
 
-            // ==========================================
-            // 3. CURSEURS EN CAPSULE (Volume & Luminosité)
-            // ==========================================
-            VolumeBrightnessSliders {
-                id: sliders
-                targetScreen: root.screen
-                Layout.fillWidth: true
-                audioMuted: quickSettings.audioMuted
-            }
+                NotificationList {
+                    id: notifList
+                    targetScreen: root.screen
+                    Layout.fillWidth: true
+                    // Le bloc-notes garde ses 40 % ; l'historique absorbe la variation.
+                    maximumHeight: Math.max(80, Math.min(200,
+                        Theme.relHeight(0.60, root.screen) - 450))
+                }
 
-            // Séparateur fin
-            Rectangle {
-                Layout.fillWidth: true
-                height: 1
-                color: Qt.rgba(1.0, 1.0, 1.0, 0.10)
-            }
-
-            // ==========================================
-            // 4. HISTORIQUE DES NOTIFICATIONS
-            // ==========================================
-            NotificationList {
-                id: notifList
-                targetScreen: root.screen
-                Layout.fillWidth: true
-            }
-
-            // Séparateur fin
-            Rectangle {
-                Layout.fillWidth: true
-                height: 1
-                color: Qt.rgba(1.0, 1.0, 1.0, 0.10)
-            }
-
-            // ==========================================
-            // 5. MINI BLOC-NOTES RAPIDE (Scratchpad)
-            // ==========================================
-            Scratchpad {
-                id: scratchpad
-                targetScreen: root.screen
-                Layout.fillWidth: true
+                Scratchpad {
+                    id: scratchpad
+                    targetScreen: root.screen
+                    Layout.fillWidth: true
+                }
             }
         }
     }
