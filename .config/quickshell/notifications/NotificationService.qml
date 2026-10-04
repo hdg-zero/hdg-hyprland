@@ -10,6 +10,7 @@ Singleton {
     property bool dnd: false
     property bool panelVisible: false
     property var activeToasts: []
+    property var receivedAt: ({})
 
     // Validation stricte du contenu textuel d'une notification :
     // Élimine les notifications vides, les balises HTML orphelines (<p></p>, <span>),
@@ -68,6 +69,19 @@ Singleton {
 
             notif.tracked = true;
 
+            // L'horodatage reste disponible dans l'historique, y compris en DND.
+            var receivedId = notif.id;
+            var times = Object.assign({}, root.receivedAt);
+            times[receivedId] = Date.now();
+            root.receivedAt = times;
+
+            notif.closed.connect(function() {
+                var remainingTimes = Object.assign({}, root.receivedAt);
+                delete remainingTimes[receivedId];
+                root.receivedAt = remainingTimes;
+                root.dismissToast(receivedId);
+            });
+
             // Si en mode Ne Pas Déranger, ne pas afficher de toast flottant (sauvegardé directement dans l'historique)
             if (root.dnd) return;
 
@@ -86,15 +100,6 @@ Singleton {
                 timeout: timeoutMs,
                 createdAt: Date.now()
             };
-
-            // Surveillance de la fermeture de la notification (ex: fermée à distance par le client D-Bus
-            // ou expirée) : suppression immédiate du toast pour éviter toute carte orpheline vide.
-            // Doc Quickshell v0.3.1 : signal closed(reason) sur Notification.
-            if (typeof notif.closed !== "undefined" && typeof notif.closed.connect === "function") {
-                notif.closed.connect(function() {
-                    root.dismissToast(toastId);
-                });
-            }
 
             var list = root.activeToasts.slice();
             list.unshift(toastObj);
@@ -127,10 +132,12 @@ Singleton {
     }
 
     function dismissNotification(notif) {
+        if (!notif) return;
+        var id = notif.id;
         if (notif && typeof notif.dismiss === "function") {
             notif.dismiss();
         }
-        root.dismissToast(notif.id);
+        root.dismissToast(id);
     }
 
     function dismissToast(toastId) {
