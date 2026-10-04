@@ -39,72 +39,33 @@ ColumnLayout {
         NotificationService.flushNotes(notesEdit.text);
     }
 
-    // ==========================================
-    // EN-TÊTE DU BLOC-NOTES (Titre, Copier, Effacer)
-    // ==========================================
     RowLayout {
         Layout.fillWidth: true
+        spacing: Theme.spacingXs
 
         Text {
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSmall
-            font.bold: true
+            font.family: NotificationStyle.fontFamily
+            font.pixelSize: Theme.fontSizeTiny
             color: Theme.textSecondary
-            text: "Bloc-Notes"
+            text: "Bloc-notes"
         }
-
         Item { Layout.fillWidth: true }
-
-        // Bouton Copier dans le presse-papier
-        Rectangle {
-            width: Math.round(Theme.fontSizeLarge)
-            height: width
-            radius: width / 2
-            color: copyNotesMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.18) : "transparent"
-
-            Text {
-                anchors.centerIn: parent
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeTiny
-                color: copyNotesMouse.containsMouse ? Theme.accent : Theme.textSecondary
-                text: "󰆏"
-            }
-
-            MouseArea {
-                id: copyNotesMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: {
-                    Quickshell.execDetached(["sh", "-c", "printf '%s' \"$1\" | wl-copy", "--", notesEdit.text]);
-                }
-            }
+        PanelIconButton {
+            implicitWidth: 28
+            implicitHeight: 28
+            glyph: "󰆏"
+            description: "Copier les notes"
+            onClicked: Quickshell.execDetached(["sh", "-c", "printf '%s' \"$1\" | wl-copy", "--", notesEdit.text])
         }
-
-        // Bouton Effacer notes
-        Rectangle {
-            width: Math.round(Theme.fontSizeLarge)
-            height: width
-            radius: width / 2
-            color: clearNotesMouse.containsMouse ? Qt.rgba(1.0, 0.42, 0.42, 0.3) : "transparent"
-
-            Text {
-                anchors.centerIn: parent
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeTiny
-                color: clearNotesMouse.containsMouse ? Theme.destructive : Theme.textDisabled
-                text: "󰃢"
-            }
-
-            MouseArea {
-                id: clearNotesMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: {
-                    notesEdit.text = "";
-                    NotificationService.flushNotes("");
-                }
+        PanelIconButton {
+            implicitWidth: 28
+            implicitHeight: 28
+            glyph: "󰃢"
+            description: "Effacer les notes"
+            onClicked: {
+                notesEdit.text = "";
+                NotificationService.flushNotes("");
+                root.focusEditor();
             }
         }
     }
@@ -114,10 +75,12 @@ ColumnLayout {
     // ==========================================
     Rectangle {
         Layout.fillWidth: true
-        height: Theme.relHeight(Theme.scratchpadHeightRatio, root.targetScreen)
+        implicitHeight: Theme.relHeight(Theme.scratchpadHeightRatio, root.targetScreen)
+        Layout.minimumHeight: implicitHeight
+        Layout.maximumHeight: implicitHeight
         radius: Theme.radiusMedium
-        color: Qt.rgba(1, 1, 1, 0.05)
-        border.color: notesEdit.activeFocus ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.10)
+        color: NotificationStyle.surface
+        border.color: notesEdit.activeFocus ? NotificationStyle.activeBorder : NotificationStyle.border
         border.width: 1
 
         Behavior on border.color { ColorAnimation { duration: Theme.animDurationFast } }
@@ -147,7 +110,7 @@ ColumnLayout {
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSizeTiny
                 color: Theme.textPrimary
-                selectionColor: Theme.accent
+                selectionColor: NotificationStyle.accent
                 selectedTextColor: Theme.backgroundSolid
                 wrapMode: TextEdit.Wrap
                 selectByMouse: true

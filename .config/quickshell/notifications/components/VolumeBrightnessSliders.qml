@@ -1,15 +1,19 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 import "../../theme"
+import "../"
 
-ColumnLayout {
+Rectangle {
     id: root
 
     property var targetScreen: null
-    spacing: Theme.spacingSm
+    implicitHeight: 84
+    radius: Theme.radiusLarge
+    color: NotificationStyle.surface
 
     // Suivi réactif natif PipeWire pour le volume
     PwObjectTracker {
@@ -53,140 +57,109 @@ ColumnLayout {
         if (!getBrightVal.running) getBrightVal.running = true;
     }
 
-    // Capsule Slider 1 : Volume
-    Rectangle {
-        id: volCapsule
-        Layout.fillWidth: true
-        height: 42
-        radius: height / 2
-        color: Qt.rgba(1, 1, 1, 0.08)
-        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
-        border.width: 1
-        clip: true
-
-        // Remplissage progressif
-        Rectangle {
-            anchors {
-                left: parent.left
-                top: parent.top
-                bottom: parent.bottom
-            }
-            width: parent.width * Math.min(1.0, root.currentVolume / 100.0)
-            radius: parent.radius
-            color: root.audioMuted ? Qt.rgba(1.0, 0.42, 0.42, 0.8) : Qt.rgba(0.365, 0.678, 0.886, 0.85)
-
-            Behavior on width { NumberAnimation { duration: Theme.animDurationFast / 2 } }
-        }
-
-        // Éléments superposés (icône + pourcentage)
-        RowLayout {
-            anchors {
-                fill: parent
-                leftMargin: Theme.spacingMd
-                rightMargin: Theme.spacingMd
-            }
-
-            Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
-                font.bold: true
-                color: root.currentVolume > 15 ? Theme.backgroundSolid : Theme.textPrimary
-                text: root.audioMuted ? "󰝟" : (root.currentVolume > 50 ? "󰕾" : "󰖀")
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
-                font.bold: true
-                color: root.currentVolume > 85 ? Theme.backgroundSolid : Theme.textPrimary
-                text: root.currentVolume + "%"
+    component PanelSlider: Slider {
+        id: control
+        from: 0
+        to: 100
+        stepSize: 1
+        implicitHeight: 34
+        leftPadding: 6
+        rightPadding: 6
+        focusPolicy: Qt.StrongFocus
+        background: Rectangle {
+            x: control.leftPadding
+            y: control.topPadding + control.availableHeight / 2 - height / 2
+            width: control.availableWidth
+            height: 5
+            radius: 3
+            color: Qt.rgba(1, 1, 1, 0.07)
+            Rectangle {
+                width: control.visualPosition * parent.width
+                height: parent.height
+                radius: parent.radius
+                color: NotificationStyle.accent
             }
         }
-
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            function setVol(mouseX) {
-                var pct = Math.max(0, Math.min(100, Math.round((mouseX / width) * 100)));
-                if (root.audio && root.audio.volume !== undefined) {
-                    root.audio.volume = pct / 100.0;
-                } else {
-                    root.fallbackVolume = pct;
-                    Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", pct + "%"]);
-                }
-            }
-            onPressed: function(mouse) { setVol(mouse.x); }
-            onPositionChanged: function(mouse) { if (pressed) setVol(mouse.x); }
+        handle: Rectangle {
+            x: control.leftPadding + control.visualPosition * (control.availableWidth - width)
+            y: control.topPadding + control.availableHeight / 2 - height / 2
+            width: 12
+            height: 12
+            radius: 6
+            color: NotificationStyle.handle
+            border.width: control.activeFocus ? 2 : 0
+            border.color: NotificationStyle.accent
         }
     }
 
-    // Capsule Slider 2 : Luminosité
-    Rectangle {
-        id: brightCapsule
-        Layout.fillWidth: true
-        height: 42
-        radius: height / 2
-        color: Qt.rgba(1, 1, 1, 0.08)
-        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
-        border.width: 1
-        clip: true
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.leftMargin: Theme.spacingMd
+        anchors.rightMargin: Theme.spacingMd
+        anchors.topMargin: Theme.spacingSm
+        anchors.bottomMargin: Theme.spacingSm
+        spacing: 0
 
-        // Remplissage progressif
-        Rectangle {
-            anchors {
-                left: parent.left
-                top: parent.top
-                bottom: parent.bottom
-            }
-            width: parent.width * Math.min(1.0, root.currentBrightness / 100.0)
-            radius: parent.radius
-            color: Qt.rgba(0.365, 0.678, 0.886, 0.85)
-
-            Behavior on width { NumberAnimation { duration: Theme.animDurationFast / 2 } }
-        }
-
-        // Éléments superposés (icône + pourcentage)
         RowLayout {
-            anchors {
-                fill: parent
-                leftMargin: Theme.spacingMd
-                rightMargin: Theme.spacingMd
-            }
-
+            Layout.fillWidth: true
+            spacing: Theme.spacingSm
             Text {
                 font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
-                font.bold: true
-                color: root.currentBrightness > 15 ? Theme.backgroundSolid : Theme.textPrimary
+                font.pixelSize: Theme.fontSizeLarge
+                color: root.audioMuted ? Theme.destructive : Theme.textSecondary
+                text: root.audioMuted ? "󰝟" : "󰕾"
+            }
+            PanelSlider {
+                Layout.fillWidth: true
+                value: root.currentVolume
+                Accessible.name: "Volume"
+                onMoved: {
+                    if (root.audio && root.audio.volume !== undefined) {
+                        root.audio.volume = value / 100.0;
+                    } else {
+                        root.fallbackVolume = Math.round(value);
+                        Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", Math.round(value) + "%"]);
+                    }
+                }
+            }
+            Text {
+                Layout.preferredWidth: 38
+                horizontalAlignment: Text.AlignRight
+                font.family: NotificationStyle.fontFamily
+                font.pixelSize: Theme.fontSizeMicro
+                color: Theme.textSecondary
+                text: root.currentVolume + " %"
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Theme.spacingSm
+            Text {
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontSizeLarge
+                color: Theme.textSecondary
                 text: "󰃠"
             }
-
-            Item { Layout.fillWidth: true }
-
+            PanelSlider {
+                Layout.fillWidth: true
+                from: 5
+                value: root.currentBrightness
+                Accessible.name: "Luminosité"
+                onMoved: {
+                    root.currentBrightness = Math.round(value);
+                    brightDebounce.pendingPct = Math.round(value);
+                    brightDebounce.restart();
+                }
+            }
             Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
-                font.bold: true
-                color: root.currentBrightness > 85 ? Theme.backgroundSolid : Theme.textPrimary
-                text: root.currentBrightness + "%"
+                Layout.preferredWidth: 38
+                horizontalAlignment: Text.AlignRight
+                font.family: NotificationStyle.fontFamily
+                font.pixelSize: Theme.fontSizeMicro
+                color: Theme.textSecondary
+                text: root.currentBrightness + " %"
             }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            function setBright(mouseX) {
-                var pct = Math.max(5, Math.min(100, Math.round((mouseX / width) * 100)));
-                root.currentBrightness = pct;
-                brightDebounce.pendingPct = pct;
-                brightDebounce.restart();
-            }
-            onPressed: function(mouse) { setBright(mouse.x); }
-            onPositionChanged: function(mouse) { if (pressed) setBright(mouse.x); }
         }
     }
 }
