@@ -31,7 +31,14 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
 
-    visible: NotificationService.activeToasts.length > 0
+    // Fenêtre visible uniquement tant qu'au moins un toast valide avec contenu textuel réel est actif
+    visible: {
+        for (var i = 0; i < NotificationService.activeToasts.length; i++) {
+            var t = NotificationService.activeToasts[i];
+            if (t && NotificationService.isValidNotification(t.notification)) return true;
+        }
+        return false;
+    }
 
     function getNotificationActions(n) {
         if (!n || !n.actions) return [];
@@ -55,9 +62,11 @@ PanelWindow {
                 readonly property var notif: modelData.notification
                 readonly property bool isCritical: notif && notif.urgency === Notifs.NotificationUrgency.Critical
                 readonly property bool isHovered: cardMouse.containsMouse
+                readonly property bool hasValidContent: NotificationService.isValidNotification(notif)
 
+                visible: hasValidContent
                 Layout.fillWidth: true
-                implicitHeight: cardLayout.implicitHeight + Theme.spacingSm * 2 + 3
+                implicitHeight: hasValidContent ? (cardLayout.implicitHeight + Theme.spacingSm * 2 + 3) : 0
                 radius: Theme.radiusMedium
                 color: Theme.cardBackgroundSolid
                 border.color: isCritical ? Theme.destructive : Theme.glassBorder
