@@ -60,9 +60,11 @@ Singleton {
 
     // --- Ratios & Dimensions Relatifs d'Écran ---
     readonly property real barHeightRatio: 0.024       // ~25-26px sur 1080p, ~34px sur 1440p
+    readonly property real scratchpadHeightRatio: 0.40 // 40% de la hauteur d'écran (~432px sur 1080p, ~576px sur 1440p)
 
     // Pourcentages de largeur pour modules de la barre
-    readonly property real moduleWidthPercentMetrics: 0.038   // CPU, RAM, Réseau
+    readonly property real moduleWidthPercentMetrics: 0.038   // CPU, RAM
+    readonly property real moduleWidthPercentNetwork: 0.068   // Réseau (+3% de largeur d'écran pour lisibilité des débits)
     readonly property real moduleWidthPercentMpris: 0.12      // Musique
 
     // Pourcentages de largeur pour popups

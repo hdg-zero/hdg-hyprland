@@ -70,19 +70,6 @@ ShellRoot {
         }
     }
 
-    // Menu de session plein écran (pas d'animation de sortie : destruction immédiate).
-    Variants {
-        model: Quickshell.screens
-
-        Loader {
-            required property var modelData
-            active: SessionService.sessionVisible && root.isFocusedScreen(modelData)
-            sourceComponent: SessionWindow {
-                targetScreen: modelData
-            }
-        }
-    }
-
     // Centre de contrôle & notifications.
     Variants {
         model: Quickshell.screens

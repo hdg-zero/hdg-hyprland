@@ -3,7 +3,6 @@ return function(programs)
 
     hl.bind(main_mod .. " + Q", hl.dsp.exec_cmd(programs.terminal), { description = "Ouvrir le terminal" })
     hl.bind(main_mod .. " + C", hl.dsp.window.close(), { description = "Fermer la fenêtre active" })
-    hl.bind(main_mod .. " + M", hl.dsp.exec_cmd("quickshell ipc call session toggle || qs ipc call session toggle"), { description = "Ouvrir le menu de session" })
     hl.bind(main_mod .. " + E", hl.dsp.exec_cmd(programs.file_manager), { description = "Ouvrir le gestionnaire de fichiers" })
     hl.bind(main_mod .. " + V", hl.dsp.window.float({ action = "toggle" }), { description = "Basculer la fenêtre en flottant" })
     hl.bind(main_mod .. " + SPACE", hl.dsp.exec_cmd(programs.menu), { description = "Ouvrir le lanceur d'applications" })

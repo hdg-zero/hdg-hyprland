@@ -187,8 +187,8 @@ RowLayout {
                             if (typeof taskItem.toplevel.workspace.activate === "function") {
                                 taskItem.toplevel.workspace.activate();
                             } else if (taskItem.toplevel.workspace.id !== undefined) {
+                                // Doc Quickshell v0.3.1 : dispatch direct par socket IPC
                                 Hyprland.dispatch("workspace " + taskItem.toplevel.workspace.id);
-                                Quickshell.execDetached(["hyprctl", "dispatch", "workspace", "" + taskItem.toplevel.workspace.id]);
                             }
                         }
 
@@ -197,19 +197,17 @@ RowLayout {
                             taskItem.toplevel.wayland.activate();
                         }
 
-                        // 3. Focus explicite Hyprland par adresse mémoire
+                        // 3. Focus explicite Hyprland par adresse mémoire via socket IPC natif
                         if (addr) {
                             Hyprland.dispatch("focuswindow address:" + addr);
-                            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + addr]);
                         }
                     } else if (mouse.button === Qt.MiddleButton) {
-                        // Fermeture au clic milieu
+                        // Fermeture au clic milieu via activation Wayland et socket IPC
                         if (taskItem.toplevel.wayland && typeof taskItem.toplevel.wayland.close === "function") {
                             taskItem.toplevel.wayland.close();
                         }
                         if (addr) {
                             Hyprland.dispatch("closewindow address:" + addr);
-                            Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
                         }
                     }
                 }

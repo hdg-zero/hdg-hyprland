@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 
 Singleton {
     id: root
@@ -31,8 +32,9 @@ Singleton {
         Quickshell.execDetached(["sh", "-c", "mkdir -p \"${XDG_RUNTIME_DIR:-/tmp}\" && printf '%s' " + stateStr + " > \"${XDG_RUNTIME_DIR:-/tmp}/caffeine.state\""]);
 
         if (root.active) {
-            // Rétablissement de l'affichage si l'écran était atténué ou éteint
-            Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.dpms({ action = 'enable' })"]);
+            // Rétablissement de l'affichage si l'écran était atténué ou éteint via socket IPC direct
+            // Doc Hyprland Dispatchers : `dpms on` rétablit immédiatement les sorties vidéo
+            Hyprland.dispatch("dpms on");
             Quickshell.execDetached(["brightnessctl", "-r"]);
             Quickshell.execDetached(["notify-send", "-a", "Caffeine", "-u", "normal", "☕ Mode Caféine activé", "L'écran ne se mettra plus en veille."]);
         } else {

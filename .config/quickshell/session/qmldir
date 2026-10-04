@@ -1,2 +1,1 @@
 singleton SessionService 1.0 SessionService.qml
-SessionWindow 1.0 SessionWindow.qml

@@ -15,7 +15,9 @@ Rectangle {
     border.width: 1
 
     // Changement d'espace de travail résilient : activation d'objet Quickshell native
-    // et dispatch Hyprland socket / hyprctl garantissant le basculement même lors du défilement molette.
+    // et dispatch Hyprland direct par socket IPC (zéro fork de sous-processus).
+    // Doc officielle Quickshell v0.3.1 (https://quickshell.org/docs/v0.3.1/types/Quickshell.Hyprland/Hyprland/#dispatch) :
+    // Hyprland.dispatch() communique directement via le socket IPC sans fork de processus externe.
     function changeWorkspace(target) {
         var str = target.toString();
         if (typeof target === "number") {
@@ -25,7 +27,6 @@ Rectangle {
             }
         }
         Hyprland.dispatch("workspace " + str);
-        Quickshell.execDetached(["hyprctl", "dispatch", "workspace", str]);
     }
 
     function handleWheel(wheel) {

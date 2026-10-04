@@ -129,7 +129,7 @@ graph TD
     │   │   │   ├── QuickSettings.qml    # Toggles 64px carrés (Wi-Fi, BT, Caféine, Micro, Audio) & Actions
     │   │   │   ├── VolumeBrightnessSliders.qml # Curseurs 42px en capsule de verre
     │   │   │   ├── NotificationList.qml # Liste des notifications (360px max) et état vide
-    │   │   │   └── Scratchpad.qml       # Mini bloc-notes 150px persistant (scratchpad.txt)
+    │   │   │   └── Scratchpad.qml       # Mini bloc-notes persistant à hauteur relative 40% (scratchpad.txt)
     │   │   └── qmldir                   # Déclaration de module
     │   ├── session/                     # Menu de session plein écran (Power Menu)
     │   │   ├── SessionService.qml       # Singleton d'actions système et IpcHandler

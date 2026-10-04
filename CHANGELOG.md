@@ -7,7 +7,18 @@ et ce projet adhère au versionnage sémantique.
 
 ## [Unreleased]
 
+### Modifié
+- **Dimensionnement relatif en pourcentage de la zone de texte du bloc-notes** (`Theme.qml`, `Scratchpad.qml`, `docs/quickshell-notifications.md`, `README.md`) : remplacement de la hauteur fixe en pixels par un ratio adaptatif basé sur la hauteur de l'écran (40% via le token `scratchpadHeightRatio: 0.40`), garantissant une surface de saisie quadruple, ergonomique et proportionnelle sur toutes les résolutions d'écran (1080p, 1440p, 4K).
+- **Élargissement du module réseau dans la barre supérieure** (`Theme.qml`, `NetworkModule.qml`, `docs/quickshell-bar.md`) : passage de la largeur relative de 3.8% à 6.8% de l'écran (+3% de largeur d'écran, token `moduleWidthPercentNetwork`), offrant l'espace nécessaire pour afficher confortablement les débits réseau et le statut sans troncature.
+- **Épuration et allègement de la popup Caféine** (`CaffeinePopup.qml`) : suppression du sous-titre redondant « Anti-sommeil actif » et du paragraphe descriptif d'inhibition Hypridle, recentrant la popup sur son en-tête épuré et son bouton d'activation/désactivation immédiat.
+- **Optimisation des sous-processus et timers périodiques** (`NetworkPopup.qml`, `BacklightModule.qml`) : espacement de la requête d'IP locale dans la popup réseau à 15s (au lieu de 1,5s), et allègement du timer d'arrière-plan de luminosité à 30s (au lieu de 10s), éliminant les réveils CPU et forks de processus superflus.
+
+### Supprimé
+- **Suppression du menu de session plein écran et de son raccourci** (`binds.lua`, `shell.qml`, `PowerButton.qml`, `QuickSettings.qml`) : retrait du raccourci <kbd>SUPER</kbd> + <kbd>M</kbd>, suppression du Loader d'overlay `SessionWindow` dans `shell.qml`, réassignation du clic droit sur le bouton Power vers la popup rapide compacte, et remplacement du raccourci « Session » par un bouton direct « Éteindre » dans le centre de contrôle.
+- **Élimination du code mort de la fenêtre de session** (`SessionWindow.qml`, `SessionService.qml`, `session/qmldir`) : suppression définitive du composant `SessionWindow.qml`, mise à jour du `qmldir` pour n'exposer que `SessionService`, et nettoyage des méthodes d'interface de session obsolètes au profit exclusif des actions système réelles (`lock`, `suspend`, `shutdown`, etc.).
+
 ### Corrigé
+- **Élimination intégrale des doubles dispatches IPC et forks `hyprctl`** (`Workspaces.qml`, `TaskbarModule.qml`, `CaffeineService.qml`) : suppression des invocations externes redondantes `Quickshell.execDetached(["hyprctl", "dispatch", ...])` au profit exclusif des appels directs par socket IPC `Hyprland.dispatch()` pour le changement d'espace de travail, l'activation et la fermeture de fenêtres de la barre des tâches, et correction du dispatcher d'activation d'écran en `Hyprland.dispatch("dpms on")`.
 - **Élimination définitive des notifications vides et des toasts orphelins** (`NotificationService.qml`, `NotificationToastWindow.qml`, `NotificationList.qml`) :
   - *Filtrage sémantique strict* (`isValidNotification`) : assainissement des résumés et corps de messages via suppression des balises HTML (<p>, <span>), des entités (&nbsp;) et des séparateurs invisibles Unicode, avec rejet immédiat (`notif.dismiss()`, `notif.tracked = false`) de toute notification sans contenu textuel réel dès la réception D-Bus.
   - *Suppression des toasts fantômes* : écoute réactive du signal natif Quickshell `notif.closed` détruisant instantanément le toast associé (`dismissToast`) lors de la fermeture distante par le client D-Bus, évitant l'affichage persistant de cartes orphelines vidées de leurs données C++.
