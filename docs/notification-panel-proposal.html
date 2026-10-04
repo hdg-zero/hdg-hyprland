@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proposition 03 — Centre de notifications</title>
+<style>
+:root{color-scheme:dark;--text:#f8fafc;--muted:#94a3b8;--blue:#8297a6;--line:#ffffff0e}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 20% 80%,#222d34 0,transparent 48%),radial-gradient(ellipse at 86% 24%,#2a3039 0,transparent 48%),#080d13;color:var(--text);font:14px/1.5 system-ui,sans-serif}
+button,input,textarea{font:inherit}button{cursor:pointer;color:inherit;border:0;background:none;transition:background .15s,color .15s}button:hover{background:#ffffff0c}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+svg.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}.library{display:none}
+.bar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0b0f14d9;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}.workspace{display:flex;gap:7px}.workspace i{width:6px;height:6px;border-radius:50%;background:#526171}.workspace i:first-child{width:22px;border-radius:8px;background:var(--blue)}
+.stage{display:flex;justify-content:center;padding:14px 16px 28px}.panel{width:480px;max-width:100%;max-height:calc(100dvh - 76px);overflow:auto;scrollbar-width:thin;scrollbar-color:#3a434b transparent;background:linear-gradient(145deg,#16202af2,#0b0f14fa 50%);border:1px solid #ffffff16;border-radius:22px;box-shadow:0 24px 80px #0009;padding:16px}
+.toolbar{display:flex;align-items:center;gap:4px;margin-bottom:12px}.spacer{flex:1}.icon-button{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;color:var(--muted)}.icon-button .icon{width:17px;height:17px}.icon-button[aria-pressed=true]{color:#b1bec8;background:#8297a61c}.icon-button:disabled{opacity:.3;cursor:default}
+.toggles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:12px}.tile{display:grid;place-items:center;height:64px;background:#ffffff05;border:1px solid var(--line);border-radius:14px}.tile .icon{color:var(--muted);width:24px;height:24px}.tile[aria-pressed=true]{background:#8297a616;border-color:#8297a61c}.tile[aria-pressed=true] .icon{color:#b1bec8}.tile:hover{background:#ffffff0c}
+.levels{padding:8px 12px;background:#ffffff04;border-radius:14px}.level{display:flex;align-items:center;gap:12px;height:34px}.level .icon{width:18px;height:18px;color:var(--muted)}.level output{width:38px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;font-size:11px}.range{appearance:none;display:block;flex:1;min-width:0;height:24px;margin:0;background:transparent;cursor:pointer}.range::-webkit-slider-runnable-track{height:5px;border-radius:5px;background:linear-gradient(to right,var(--blue) var(--pct),#ffffff12 var(--pct))}.range::-moz-range-track{height:5px;border-radius:5px;background:#ffffff12}.range::-moz-range-progress{height:5px;background:var(--blue);border-radius:5px}.range::-webkit-slider-thumb{appearance:none;height:12px;width:12px;border-radius:50%;background:#c6ced5;margin-top:-3.5px}.range::-moz-range-thumb{height:12px;width:12px;border:0;border-radius:50%;background:#c6ced5}
+.section-head{display:flex;gap:8px;align-items:center;margin:12px 0 8px;min-height:24px}.section-head h2{font-size:12px;font-weight:500;color:var(--muted);margin:0}.count{font-size:10px;color:#b1bec8;background:#8297a61c;padding:1px 6px;border-radius:6px}.section-head .icon-button{width:28px;height:28px}
+.notifications{max-height:clamp(80px,calc(60dvh - 450px),200px);overflow:auto;scrollbar-width:thin;scrollbar-color:#3a434b transparent}
+.app-group{background:#ffffff04;border-radius:12px;overflow:hidden}.app-group+.app-group{margin-top:8px}.group-head{display:flex;align-items:center;padding:5px 8px 0 12px}.group-toggle{display:flex;align-items:center;gap:7px;flex:1;min-width:0;text-align:left;padding:4px 0;color:var(--muted);font-size:11px;border-radius:6px}.group-count{color:var(--muted);font-size:10px}.chevron{width:13px!important;height:13px!important;margin-left:auto;transition:transform .15s}.group-toggle[aria-expanded=true] .chevron{transform:rotate(180deg)}.group-dismiss{margin-left:4px}.app-icon{width:20px;height:20px;border-radius:6px;background:#8297a618;color:#b1bec8;display:grid;place-items:center}.app-icon .icon{width:13px;height:13px}
+.notification{position:relative;padding:3px 12px 10px}.notification+.notification{padding-top:9px;border-top:1px solid var(--line)}.app-group:not(.expanded) .notification~.notification{display:none}.notification:hover{background:#ffffff03}.message-head{display:flex;align-items:center;gap:6px}.message-head h4{flex:1;min-width:0;font-size:12px;font-weight:600;margin:0}.message-head time{font-size:10px;color:var(--muted);white-space:nowrap}.dismiss{width:24px;height:24px;border-radius:7px;font-size:17px;color:var(--muted);line-height:1;flex-shrink:0}.notification p{font-size:11px;line-height:1.5;color:var(--muted);margin:1px 0 0}.action{background:#8297a617;color:#bac6cf;font-size:11px;padding:4px 9px;border-radius:7px;margin-top:7px}.empty{text-align:center;color:var(--muted);padding:18px;font-size:12px}
+.notes{width:100%;height:40dvh;min-height:40dvh;resize:none;border:1px solid var(--line);background:#ffffff03;border-radius:12px;padding:12px;color:#d7e1ed;font:12px/1.65 'JetBrainsMono Nerd Font',monospace;display:block}.notes::placeholder{color:var(--muted)}
+.reopen{display:none;background:#16202a;border:1px solid var(--line);border-radius:14px;padding:14px 22px;margin-top:80px}.proposal-note{position:absolute;left:32px;top:64px;color:var(--muted);font-size:11px;max-width:230px}.proposal-note strong{display:block;color:#b1bec8;font-weight:500;margin-bottom:6px}.proposal-note button{color:var(--muted);padding:0;text-decoration:underline}.demo-message:empty{display:none}.demo-message{margin-top:8px;color:var(--muted);font-size:11px}[hidden]{display:none!important}
+@media(max-width:1000px){.proposal-note{position:static;margin:0 auto 20px;max-width:480px;padding:0 16px}.bar{padding:0 16px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<svg class="library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="moon" viewBox="0 0 24 24"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4a8.5 8.5 0 1 0 11.5 11.5Z"/></symbol>
+<symbol id="wifi" viewBox="0 0 24 24"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r=".6"/></symbol>
+<symbol id="bluetooth" viewBox="0 0 24 24"><path d="m7 7 10 10-5 5V2l5 5L7 17"/></symbol>
+<symbol id="coffee" viewBox="0 0 24 24"><path d="M4 9h12v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3ZM16 10h2a3 3 0 0 1 0 6h-2M7 3v2m4-2v2M2 22h17"/></symbol>
+<symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></symbol>
+<symbol id="volume" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3ZM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+<symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></symbol>
+<symbol id="bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8M10 21h4"/></symbol>
+<symbol id="message" viewBox="0 0 24 24"><path d="M4 3h16v14H9l-5 4ZM8 8h8m-8 4h5"/></symbol>
+<symbol id="download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+<symbol id="note" viewBox="0 0 24 24"><path d="M5 3h14v14l-4 4H5ZM9 8h6m-6 4h6m0 9v-4h4"/></symbol>
+<symbol id="lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/></symbol>
+<symbol id="power" viewBox="0 0 24 24"><path d="M12 2v10m-6-7a9 9 0 1 0 12 0"/></symbol>
+<symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+<symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></symbol><symbol id="chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol></defs></svg>
+<div class="bar" aria-hidden="true"><div class="workspace"><i></i><i></i><i></i><i></i></div><span>Lundi 5 octobre · 16:42</span><span>Hyprland</span></div>
+<main class="stage">
+<section class="panel" aria-label="Centre de notifications">
+<div class="toolbar">
+<button class="icon-button" data-demo="Verrouiller" title="Verrouiller" aria-label="Verrouiller"><svg class="icon"><use href="#lock"/></svg></button>
+<button class="icon-button" data-demo="Session" title="Session" aria-label="Session"><svg class="icon"><use href="#power"/></svg></button>
+<div class="spacer"></div>
+<button class="icon-button" id="dnd" title="Ne pas déranger" aria-label="Ne pas déranger" aria-pressed="false"><svg class="icon"><use href="#moon"/></svg></button>
+<button class="icon-button" id="clear" title="Effacer les notifications" aria-label="Effacer les notifications"><svg class="icon"><use href="#trash"/></svg></button>
+<button class="icon-button" id="close-panel" title="Fermer" aria-label="Fermer le panneau"><svg class="icon"><use href="#close"/></svg></button>
+</div>
+<div class="toggles" aria-label="Commandes rapides">
+<button class="tile" aria-label="Wi-Fi" title="Wi-Fi" aria-pressed="true"><svg class="icon"><use href="#wifi"/></svg></button>
+<button class="tile" aria-label="Bluetooth" title="Bluetooth" aria-pressed="true"><svg class="icon"><use href="#bluetooth"/></svg></button>
+<button class="tile" aria-label="Caféine" title="Caféine" aria-pressed="false"><svg class="icon"><use href="#coffee"/></svg></button>
+<button class="tile" aria-label="Micro actif" title="Micro actif" aria-pressed="true"><svg class="icon"><use href="#mic"/></svg></button>
+<button class="tile" aria-label="Audio actif" title="Audio actif" aria-pressed="true"><svg class="icon"><use href="#volume"/></svg></button>
+</div>
+<div class="levels">
+<div class="level"><svg class="icon" aria-hidden="true"><use href="#volume"/></svg><input class="range" id="volume" aria-label="Volume" type="range" min="0" max="100" value="64" style="--pct:64%"><output for="volume" id="volume-value">64 %</output></div>
+<div class="level"><svg class="icon" aria-hidden="true"><use href="#sun"/></svg><input class="range" id="brightness" aria-label="Luminosité" type="range" min="5" max="100" value="80" style="--pct:80%"><output for="brightness" id="brightness-value">80 %</output></div>
+</div>
+<div class="section-head"><h2>Notifications</h2><span class="count" id="count">4</span></div>
+<div class="notifications" aria-label="Notifications récentes">
+<section class="app-group" aria-label="Notifications Messages">
+<div class="group-head"><button class="group-toggle" aria-expanded="false" aria-controls="messages-items" title="Déplier les notifications Messages"><span class="app-icon"><svg class="icon"><use href="#message"/></svg></span><span>Messages</span><span class="group-count">2</span><svg class="icon chevron" aria-hidden="true"><use href="#chevron"/></svg></button><button class="dismiss group-dismiss" aria-label="Effacer toutes les notifications Messages" title="Effacer le groupe">×</button></div>
+<div id="messages-items">
+<article class="notification"><div class="message-head"><h4>On se retrouve à 18 h ?</h4><time>2 min</time><button class="dismiss" aria-label="Supprimer On se retrouve à 18 h">×</button></div><p>Je serai au café un peu en avance.</p></article>
+<article class="notification"><div class="message-head"><h4>Les photos sont arrivées</h4><time>8 min</time><button class="dismiss" aria-label="Supprimer Les photos sont arrivées">×</button></div><p>Je t’ai envoyé l’album du week-end.</p><button class="action">Ouvrir la conversation</button></article>
+</div></section>
+<section class="app-group" aria-label="Notifications Firefox">
+<div class="group-head"><button class="group-toggle" aria-expanded="false" aria-controls="firefox-items" title="Déplier les notifications Firefox"><span class="app-icon"><svg class="icon"><use href="#download"/></svg></span><span>Firefox</span><span class="group-count">2</span><svg class="icon chevron" aria-hidden="true"><use href="#chevron"/></svg></button><button class="dismiss group-dismiss" aria-label="Effacer toutes les notifications Firefox" title="Effacer le groupe">×</button></div>
+<div id="firefox-items">
+<article class="notification"><div class="message-head"><h4>Téléchargement terminé</h4><time>12 min</time><button class="dismiss" aria-label="Supprimer Téléchargement terminé">×</button></div><p>Les fichiers sont prêts dans Téléchargements.</p></article>
+<article class="notification"><div class="message-head"><h4>Export enregistré</h4><time>18 min</time><button class="dismiss" aria-label="Supprimer Export enregistré">×</button></div><p>Ton document a été téléchargé.</p></article>
+</div></section>
+<div class="empty" hidden>Aucune notification</div>
+</div>
+<div class="section-head"><h2><label for="notes">Bloc-notes</label></h2><div class="spacer"></div>
+<button class="icon-button" data-demo="Copier les notes" aria-label="Copier les notes" title="Copier les notes"><svg class="icon"><use href="#copy"/></svg></button>
+<button class="icon-button" id="clear-notes" aria-label="Effacer les notes" title="Effacer les notes"><svg class="icon"><use href="#trash"/></svg></button></div>
+<textarea class="notes" id="notes" placeholder="Noter rapidement quelque chose…">Tester le nouveau panneau de notifications.
+Préparer les idées pour la prochaine version.</textarea>
+</section>
+<button class="reopen">Rouvrir le panneau</button>
+</main>
+<aside class="proposal-note"><strong>Proposition 03</strong>Groupes par application · bleu ardoise.<br>Bloc-notes : 40 % de la hauteur d’écran.<br><br>Maquette · actions simulées · notes temporaires.<br><button id="reset">Réinitialiser</button><div class="demo-message" role="status" aria-live="polite"></div></aside>
+<script>
+const panel=document.querySelector('.panel'),reopen=document.querySelector('.reopen'),status=document.querySelector('.demo-message');
+function say(message){status.textContent=message;}
+function showPanel(visible){panel.hidden=!visible;reopen.style.display=visible?'none':'block';if(!visible)reopen.focus();else document.querySelector('#notes').focus();}
+document.querySelector('#close-panel').onclick=()=>showPanel(false);reopen.onclick=()=>showPanel(true);
+document.addEventListener('keydown',event=>{if(event.key==='Escape')showPanel(false);});
+document.querySelector('#dnd').onclick=function(){this.setAttribute('aria-pressed',String(this.getAttribute('aria-pressed')!=='true'));};
+document.querySelectorAll('.tile').forEach(button=>button.onclick=()=>{button.setAttribute('aria-pressed',String(button.getAttribute('aria-pressed')!=='true'));});
+document.querySelectorAll('.range').forEach(input=>input.oninput=()=>{input.style.setProperty('--pct',input.value+'%');document.getElementById(input.id+'-value').value=input.value+' %';});
+function updateCount(){
+ document.querySelectorAll('.app-group').forEach(group=>{const count=group.querySelectorAll('.notification').length;if(!count){group.remove();return;}group.querySelector('.group-count').textContent=count;});
+ const count=document.querySelectorAll('.notification').length;
+ document.querySelector('#count').textContent=count;
+ document.querySelector('.empty').hidden=count>0;
+ document.querySelector('#clear').disabled=count===0;
+}
+document.querySelectorAll('.group-toggle').forEach(button=>button.onclick=()=>{const expanded=button.closest('.app-group').classList.toggle('expanded');button.setAttribute('aria-expanded',String(expanded));button.title=(expanded?'Replier':'Déplier')+' les notifications';});
+document.querySelectorAll('.notification .dismiss').forEach(button=>button.onclick=()=>{button.closest('.notification').remove();updateCount();});
+document.querySelectorAll('.group-dismiss').forEach(button=>button.onclick=()=>{button.closest('.app-group').remove();updateCount();});
+document.querySelector('#clear').onclick=()=>{document.querySelectorAll('.app-group').forEach(group=>group.remove());updateCount();};
+document.querySelector('#clear-notes').onclick=()=>{document.querySelector('#notes').value='';document.querySelector('#notes').focus();};
+document.querySelectorAll('[data-demo],.action').forEach(button=>button.onclick=()=>say((button.dataset.demo||'Conversation')+' : aperçu uniquement'));
+document.querySelector('#reset').onclick=()=>location.reload();
+</script>
+</html>

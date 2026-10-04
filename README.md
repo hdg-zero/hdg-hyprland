@@ -126,11 +126,14 @@ graph TD
     │   ├── notifications/               # Serveur D-Bus & Centre de Contrôle
     │   │   ├── NotificationService.qml  # Démon D-Bus, filtrage des alertes vides, état DND
     │   │   ├── NotificationToastWindow.qml # Toasts flottants 380px avec jauge fluide à 60fps
-    │   │   ├── NotificationCenter.qml   # Centre de Contrôle haut-centré (480px, 94% opacité)
+    │   │   ├── NotificationCenter.qml   # Centre de Contrôle haut-centré (480px max, ardoise)
+    │   │   ├── NotificationStyle.qml    # Palette bleu ardoise et typographie du panneau
+    │   │   ├── NotificationGroups.js    # Regroupement, tri et temps relatifs
     │   │   ├── components/              # Sous-composants modulaires du centre
-    │   │   │   ├── QuickSettings.qml    # Toggles 64px carrés (Wi-Fi, BT, Caféine, Micro, Audio) & Actions
-    │   │   │   ├── VolumeBrightnessSliders.qml # Curseurs 42px en capsule de verre
-    │   │   │   ├── NotificationList.qml # Liste des notifications (360px max) et état vide
+    │   │   │   ├── PanelIconButton.qml  # Commandes par icônes avec infobulles
+    │   │   │   ├── QuickSettings.qml    # Toggles 64px carrés (Wi-Fi, BT, Caféine, Micro, Audio)
+    │   │   │   ├── VolumeBrightnessSliders.qml # Curseurs fins, volume et luminosité
+    │   │   │   ├── NotificationList.qml # Notifications groupées par application (200px max)
     │   │   │   └── Scratchpad.qml       # Mini bloc-notes persistant à hauteur relative 40% (scratchpad.txt)
     │   │   └── qmldir                   # Déclaration de module
     │   ├── session/                     # Menu de session plein écran (Power Menu)
@@ -307,7 +310,7 @@ ln -sf "$REPO_PATH/.bashrc" "$HOME/.bashrc"
 ## 🔮 9. Dette Technique & Vision Moyen Terme
 
 - [x] Barre d'état Quickshell interactive multi-écrans et popups détaillées avec `LazyPopup.qml`.
-- [x] Serveur de notifications D-Bus et Centre de Contrôle haut-centré (480px, 94% opacité, toggles 64px carrés).
+- [x] Serveur de notifications D-Bus et Centre de Contrôle haut-centré (480px max, accent ardoise, toggles 64px, notifications groupées par application et bloc-notes à 40% de la hauteur d’écran).
 - [x] Menu de Session plein écran natif Quickshell sous UWSM.
 - [x] Lanceur d'applications natif Quickshell avec mode terminal `>` et Top 5 des commandes shell.
 - [x] Lazy loading intégral et cycle de vie destroy-on-close sur toutes les fenêtres secondaires et popups.
