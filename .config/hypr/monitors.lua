@@ -5,13 +5,13 @@ if not ok or not profile then
     profile = {
         internal_monitor = "eDP-1",
         internal_mode = "2880x1800@90",
-        internal_scale = 1.25,
+        internal_scale = 1.5,
         internal_bitdepth = 10,
         external_fallback = {
             mode = "preferred",
             position = "auto",
             scale = "auto",
-            bitdepth = 10,
+            bitdepth = 8,
         },
     }
 end
@@ -24,6 +24,11 @@ hl.monitor({
     scale = profile.internal_scale,
     bitdepth = profile.internal_bitdepth,
 })
+
+-- Écrans externes connus (prioritaires sur la règle par défaut)
+for _, monitor in ipairs(profile.external_monitors or {}) do
+    hl.monitor(monitor)
+end
 
 -- Règle par défaut pour tout écran externe connecté
 if profile.external_fallback then
