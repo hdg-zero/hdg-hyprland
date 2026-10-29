@@ -18,21 +18,30 @@ REQUIRED_DEPS=(
   wl-copy
   wl-paste
   wpctl
+  # Outils des alias du .bashrc
+  bat
+  eza
+  fd
+  rg
 )
 
 OPTIONAL_DEPS=(
-  acpi
   bitwarden-desktop
+  blueman-applet
   bluetoothctl
   btop
   gnome-system-monitor
+  hyprsunset
   jq
+  libinput-gestures
   mullvad-gui
+  nautilus
   nm-connection-editor
   nmcli
   pavucontrol
   powerprofilesctl
   starship
+  udiskie
 )
 
 missing_required=0
@@ -50,6 +59,14 @@ for dep in "${REQUIRED_DEPS[@]}"; do
     missing_required=$((missing_required + 1))
   fi
 done
+
+# Agent polkit : hors du PATH (/usr/lib/hyprpolkitagent), on vérifie son service utilisateur.
+if systemctl --user is-enabled --quiet hyprpolkitagent.service 2>/dev/null; then
+  printf '  [OK]       %s\n' "hyprpolkitagent (service utilisateur)"
+else
+  printf '  [MANQUANT] %s\n' "hyprpolkitagent (systemctl --user enable --now hyprpolkitagent.service)"
+  missing_required=$((missing_required + 1))
+fi
 
 echo ""
 echo "-- Dépendances optionnelles --"

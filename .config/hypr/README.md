@@ -22,7 +22,6 @@ Ce dossier `~/.config/hypr` contient la configuration principale de la session H
 | `hypridle.conf` | Gestionnaire d'inactivité avec `inhibit_sleep = true` pour sécuriser le verrouillage avant suspension. |
 | `hyprlock.conf` | Écran de verrouillage. |
 | `hyprpaper.conf` | Fond d'écran. |
-| `scripts/battery-level.sh` | Notification de batterie faible. |
 | `scripts/check-dependencies.sh` | Validation des dépendances obligatoires et optionnelles (retourne un code d'erreur non-nul en cas de manque). |
 
 ---

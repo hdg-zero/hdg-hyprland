@@ -1,1 +1,2 @@
 singleton SessionService 1.0 SessionService.qml
+BatteryAlert 1.0 BatteryAlert.qml

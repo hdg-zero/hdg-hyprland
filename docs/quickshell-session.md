@@ -31,7 +31,6 @@ Le module de session réside dans `.config/quickshell/session/` et remplace int�
 | <kbd>L</kbd> | Verrouiller | `uwsm app -- hyprlock` |
 | <kbd>U</kbd> | Veille | `loginctl lock-session && systemctl suspend` |
 | <kbd>E</kbd> | Déconnexion | `uwsm stop` |
-| <kbd>H</kbd> | Hiberner | `systemctl hibernate` |
 | <kbd>R</kbd> | Redémarrer | `systemctl reboot` |
 | <kbd>S</kbd> | Éteindre | `systemctl poweroff` |
 | <kbd>Échap</kbd> | Annuler / Fermer | `SessionService.close()` |

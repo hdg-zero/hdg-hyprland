@@ -41,6 +41,9 @@ ShellRoot {
         }
     }
 
+    // Alerte de batterie faible (une seule instance, quel que soit le nombre d'écrans).
+    BatteryAlert {}
+
     // La barre d'état reste permanente : surface visible en continu, une destruction/
     // recréation n'amortirait rien et ferait scintiller les écrans à chaque reload.
     Variants {

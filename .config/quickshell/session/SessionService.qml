@@ -21,10 +21,6 @@ Singleton {
         Quickshell.execDetached(["uwsm", "stop"]);
     }
 
-    function hibernate() {
-        Quickshell.execDetached(["systemctl", "hibernate"]);
-    }
-
     function reboot() {
         Quickshell.execDetached(["systemctl", "reboot"]);
     }
@@ -47,10 +43,6 @@ Singleton {
 
         function logout(): void {
             root.logout();
-        }
-
-        function hibernate(): void {
-            root.hibernate();
         }
 
         function reboot(): void {
