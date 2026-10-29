@@ -297,53 +297,47 @@ PanelWindow {
         return entries.slice(0, 5);
     }
 
-    // Liste filtrée et triée par fréquence d'utilisation (MRU) et pertinence
-    readonly property var filteredApps: {
+    // Normalisation recalculée uniquement quand les métadonnées des applications changent.
+    readonly property var applicationIndex: {
         if (!DesktopEntries.applications) return [];
-        var list = DesktopEntries.applications.values ? DesktopEntries.applications.values : DesktopEntries.applications;
+        var list = DesktopEntries.applications.values || DesktopEntries.applications;
         if (!list) return [];
-
-        var q = root.searchQuery.toLowerCase().trim();
-        var res = [];
-
-        for (var i = 0; i < list.length; i++) {
-            var app = list[i];
-            if (!app) continue;
-            var name = (app.name || "").toLowerCase();
-            var comment = (app.comment || "").toLowerCase();
-            var exec = (app.execString || app.command || "").toLowerCase();
-            var id = (app.id || "").toLowerCase();
-
-            if (!q || name.indexOf(q) !== -1 || comment.indexOf(q) !== -1 || exec.indexOf(q) !== -1 || id.indexOf(q) !== -1) {
-                res.push(app);
-            }
-        }
-
-        res.sort(function(a, b) {
-            var idA = a.id || a.name || "";
-            var idB = b.id || b.name || "";
-            var countA = (root.appHistory && root.appHistory[idA]) ? root.appHistory[idA] : 0;
-            var countB = (root.appHistory && root.appHistory[idB]) ? root.appHistory[idB] : 0;
-
-            if (q) {
-                var nameA = (a.name || "").toLowerCase();
-                var nameB = (b.name || "").toLowerCase();
-                var startsA = (nameA.indexOf(q) === 0);
-                var startsB = (nameB.indexOf(q) === 0);
-                if (startsA && !startsB) return -1;
-                if (!startsA && startsB) return 1;
-
-                // À pertinence égale, trier par fréquence d'utilisation
-                if (countA !== countB) return countB - countA;
-                return nameA.localeCompare(nameB);
-            }
-
-            // Vue par défaut sans recherche : trier strictement par fréquence d'utilisation décroissante
-            if (countA !== countB) return countB - countA;
-            return (a.name || "").localeCompare(b.name || "");
+        return list.filter(function(app) { return !!app; }).map(function(app) {
+            var displayName = app.name || "";
+            return {
+                app: app,
+                key: app.id || displayName,
+                displayName: displayName,
+                name: displayName.toLowerCase(),
+                comment: (app.comment || "").toLowerCase(),
+                exec: (app.execString || app.command || "").toLowerCase(),
+                id: (app.id || "").toLowerCase()
+            };
         });
+    }
 
-        return res;
+    // Liste filtrée et triée par fréquence d'utilisation (MRU) et pertinence.
+    readonly property var filteredApps: {
+        var q = root.searchQuery.toLowerCase().trim();
+        var history = root.appHistory || {};
+        var res = root.applicationIndex.filter(function(entry) {
+            return !q || entry.name.indexOf(q) !== -1 || entry.comment.indexOf(q) !== -1
+                || entry.exec.indexOf(q) !== -1 || entry.id.indexOf(q) !== -1;
+        });
+        res.sort(function(a, b) {
+            var countA = history[a.key] || 0;
+            var countB = history[b.key] || 0;
+            if (q) {
+                var startsA = a.name.indexOf(q) === 0;
+                var startsB = b.name.indexOf(q) === 0;
+                if (startsA !== startsB) return startsA ? -1 : 1;
+                if (countA !== countB) return countB - countA;
+                return a.name.localeCompare(b.name);
+            }
+            if (countA !== countB) return countB - countA;
+            return a.displayName.localeCompare(b.displayName);
+        });
+        return res.map(function(entry) { return entry.app; });
     }
 
     function launchApp(app) {
