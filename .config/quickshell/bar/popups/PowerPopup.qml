@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import "../../theme"
@@ -7,71 +8,37 @@ import "../../session"
 
 ModulePopup {
     id: root
-
-    widthPercent: Theme.popupWidthPercentNarrow
-    cardHeight: pwrCol.implicitHeight + Theme.spacingMd * 2
-
+    cardWidth: 220
+    cardHeight: contentColumn.implicitHeight + PopupStyle.padding * 2
     ColumnLayout {
-        id: pwrCol
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: parent.top
-        }
+        id: contentColumn
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
         spacing: Theme.spacingXs
-
         Repeater {
             model: [
-                { label: "Verrouiller", icon: "󰌾", color: Theme.accent, action: function() { SessionService.lock(); } },
-                { label: "Veille", icon: "󰤄", color: Theme.accentSecondary, action: function() { SessionService.suspend(); } },
-                { label: "Déconnexion", icon: "󰍃", color: Theme.warning, action: function() { SessionService.logout(); } },
-                { label: "Redémarrer", icon: "󰜉", color: Theme.warning, action: function() { SessionService.reboot(); } },
-                { label: "Éteindre", icon: "⏻", color: Theme.destructive, action: function() { SessionService.shutdown(); } }
+                { label: "Verrouiller", glyph: "󰌾", action: function() { SessionService.lock(); } },
+                { label: "Veille", glyph: "󰤄", action: function() { SessionService.suspend(); } },
+                { label: "Déconnexion", glyph: "󰍃", action: function() { SessionService.logout(); } },
+                { label: "Redémarrer", glyph: "󰜉", action: function() { SessionService.reboot(); } },
+                { label: "Éteindre", glyph: "⏻", action: function() { SessionService.shutdown(); } }
             ]
-
-            delegate: Rectangle {
+            delegate: Button {
+                id: action
                 required property var modelData
+                required property int index
                 Layout.fillWidth: true
-                height: Theme.spacingLg * 1.6
-                radius: Theme.radiusSmall
-                color: actMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
-                border.color: actMouse.containsMouse ? Theme.glassBorder : "transparent"
-                border.width: 1
-
-                RowLayout {
-                    anchors {
-                        fill: parent
-                        leftMargin: Theme.spacingSm
-                        rightMargin: Theme.spacingSm
-                    }
-                    spacing: Theme.spacingSm
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: modelData.color
-                        text: modelData.icon
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textPrimary
-                        text: modelData.label
-                    }
+                implicitHeight: 34
+                padding: 7
+                Accessible.name: modelData.label
+                onClicked: { root.close(); modelData.action(); }
+                contentItem: RowLayout {
+                    spacing: Theme.spacingMd
+                    PopupGlyph { text: action.modelData.glyph; font.pixelSize: 17; color: action.index === 4 ? PopupStyle.destructive : Theme.textSecondary }
+                    PopupText { Layout.fillWidth: true; text: action.modelData.label; font.pixelSize: 12; color: action.index === 4 ? PopupStyle.destructive : Theme.textPrimary }
                 }
-
-                MouseArea {
-                    id: actMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        root.close();
-                        modelData.action();
-                    }
-                }
+                background: Rectangle { radius: 8; color: action.hovered ? PopupStyle.hoverSurface : "transparent"; border.width: action.activeFocus ? 1 : 0; border.color: PopupStyle.accent }
             }
         }
     }

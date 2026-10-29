@@ -4,10 +4,12 @@ import Quickshell.Networking
 import Quickshell.Io
 import Quickshell.Hyprland
 import "../../theme"
+import ".."
+import "../components"
 import "../../components"
 import "../popups"
 
-PillButton {
+BarPillButton {
     id: root
 
     property var lastRx: 0
@@ -15,7 +17,7 @@ PillButton {
     property var lastTime: 0
     property string totalSpeedFormatted: "0 o/s"
 
-    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
+    // Popup chargée à la demande par LazyPopup.
     LazyPopup {
         id: netLazy
         targetWindow: root.parentWindow
@@ -96,7 +98,49 @@ PillButton {
         id: netDevFile
         path: "/proc/net/dev"
         watchChanges: false
-        blockAllReads: true
+        preload: true
+        onLoaded: root.consumeNetworkStats()
+    }
+
+    function consumeNetworkStats() {
+        var content = netDevFile.text();
+        if (!content) return;
+
+        var now = Date.now();
+        var totalRx = 0;
+        var totalTx = 0;
+
+        var lines = content.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            var colonIdx = line.indexOf(":");
+            if (colonIdx === -1) continue;
+
+            var iface = line.substring(0, colonIdx).trim();
+            if (iface === "lo") continue;
+
+            var statsStr = line.substring(colonIdx + 1).trim();
+            var parts = statsStr.split(/\s+/);
+            if (parts.length >= 9) {
+                var rx = parseInt(parts[0]) || 0;
+                var tx = parseInt(parts[8]) || 0;
+                totalRx += rx;
+                totalTx += tx;
+            }
+        }
+
+        if (root.lastTime > 0 && now > root.lastTime) {
+            var deltaSec = (now - root.lastTime) / 1000.0;
+            var rxDelta = Math.max(0, totalRx - root.lastRx);
+            var txDelta = Math.max(0, totalTx - root.lastTx);
+
+            var totalBytesPerSec = (rxDelta + txDelta) / deltaSec;
+            root.totalSpeedFormatted = Theme.formatSpeed(totalBytesPerSec);
+        }
+
+        root.lastRx = totalRx;
+        root.lastTx = totalTx;
+        root.lastTime = now;
     }
 
     Timer {
@@ -105,55 +149,16 @@ PillButton {
         repeat: true
         triggeredOnStart: true
 
-        onTriggered: {
-            netDevFile.reload();
-            var content = netDevFile.text();
-            if (!content) return;
-
-            var now = Date.now();
-            var totalRx = 0;
-            var totalTx = 0;
-
-            var lines = content.split("\n");
-            for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].trim();
-                var colonIdx = line.indexOf(":");
-                if (colonIdx === -1) continue;
-
-                var iface = line.substring(0, colonIdx).trim();
-                if (iface === "lo") continue;
-
-                var statsStr = line.substring(colonIdx + 1).trim();
-                var parts = statsStr.split(/\s+/);
-                if (parts.length >= 9) {
-                    var rx = parseInt(parts[0]) || 0;
-                    var tx = parseInt(parts[8]) || 0;
-                    totalRx += rx;
-                    totalTx += tx;
-                }
-            }
-
-            if (root.lastTime > 0 && now > root.lastTime) {
-                var deltaSec = (now - root.lastTime) / 1000.0;
-                var rxDelta = Math.max(0, totalRx - root.lastRx);
-                var txDelta = Math.max(0, totalTx - root.lastTx);
-
-                var totalBytesPerSec = (rxDelta + txDelta) / deltaSec;
-                root.totalSpeedFormatted = Theme.formatSpeed(totalBytesPerSec);
-            }
-
-            root.lastRx = totalRx;
-            root.lastTx = totalTx;
-            root.lastTime = now;
-        }
+        onTriggered: netDevFile.reload()
     }
 
     icon: netIcon
-    iconColor: isConnected ? Theme.accent : Theme.textDisabled
+    iconColor: isConnected ? BarStyle.accentText : Theme.textDisabled
     text: isConnected ? totalSpeedFormatted : "Déconnecté"
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
-    widthPercent: Theme.moduleWidthPercentNetwork
+    customWidth: BarStyle.networkWidth(screenWidth)
+    description: "Réseau · " + text + " · clic droit : nmtui"
 
     onClicked: {
         netLazy.toggle();

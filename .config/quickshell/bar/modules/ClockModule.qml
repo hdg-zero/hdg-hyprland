@@ -1,11 +1,14 @@
 import QtQuick
 import Quickshell
 import "../../theme"
+import ".."
+import "../components"
 import "../../components"
 import "../popups"
 
-PillButton {
+BarPillButton {
     id: root
+    description: "Calendrier · " + text
 
     SystemClock {
         id: sysClock
@@ -26,7 +29,7 @@ PillButton {
     }
 
     icon: "󰥔"
-    iconColor: Theme.accent
+    iconColor: BarStyle.accentText
     text: Qt.formatDateTime(sysClock.date, "HH:mm")
     textColor: Theme.textPrimary
     customPaddingH: Theme.spacingSm

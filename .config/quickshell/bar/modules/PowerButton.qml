@@ -2,12 +2,15 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import "../../theme"
+import ".."
+import "../components"
 import "../../components"
 import "../../session"
 import "../popups"
 
-PillButton {
+BarPillButton {
     id: root
+    description: "Menu de session"
 
     // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
     LazyPopup {
@@ -23,7 +26,7 @@ PillButton {
     }
 
     icon: "⏻"
-    iconColor: Theme.destructive
+    iconColor: BarStyle.destructive
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
 

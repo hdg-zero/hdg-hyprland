@@ -1,14 +1,16 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.SystemTray
-import Quickshell.Widgets
 import "../../theme"
+import ".."
+import "../components"
+import "../../components"
+import "../popups"
 
-RowLayout {
+// Zone de notification système regroupée sous un seul symbole : le survol (ou le clic)
+// ouvre TrayPopup, qui liste les applis en arrière-plan avec leurs contrôles habituels.
+BarPillButton {
     id: root
-
-    spacing: Theme.spacingXs
 
     function isNetworkItem(item) {
         if (!item) return false;
@@ -17,65 +19,37 @@ RowLayout {
         return id.indexOf("nm-applet") !== -1 || id.indexOf("network") !== -1 || title.indexOf("network") !== -1 || title.indexOf("nm-applet") !== -1;
     }
 
-    readonly property var validTrayItems: {
-        if (!SystemTray.items || !SystemTray.items.values) return [];
-        return SystemTray.items.values.filter(function(item) {
-            return item && !root.isNetworkItem(item);
-        });
+    readonly property int itemCount: {
+        var values = SystemTray.items ? SystemTray.items.values : [];
+        var count = 0;
+        for (var i = 0; i < values.length; i++) {
+            if (values[i] && !isNetworkItem(values[i])) count++;
+        }
+        return count;
     }
 
-    visible: validTrayItems.length > 0
+    visible: itemCount > 0
+    description: itemCount + " application(s) en arrière-plan"
+    icon: "󰀻"
+    customPaddingH: Theme.spacingSm
+    customPaddingV: 1
 
-    Repeater {
-        model: root.validTrayItems
-
-        delegate: Rectangle {
-            id: trayItem
-            required property var modelData
-
-            readonly property var item: modelData
-
-            implicitWidth: 20
-            implicitHeight: 20
-            radius: Theme.radiusSmall
-            color: trayMouse.containsMouse ? Theme.cardBackgroundHover : "transparent"
-            border.color: trayMouse.containsMouse ? Theme.glassBorder : "transparent"
-            border.width: 1
-
-            Behavior on color {
-                ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
-            }
-
-            IconImage {
-                anchors.centerIn: parent
-                width: 16
-                height: 16
-                source: (trayItem.item && trayItem.item.icon) ? (Quickshell.iconPath(trayItem.item.icon, true) || trayItem.item.icon) : ""
-                visible: source !== ""
-            }
-
-            MouseArea {
-                id: trayMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-
-                onClicked: function(mouse) {
-                    if (!trayItem.item) return;
-                    if (mouse.button === Qt.LeftButton) {
-                        trayItem.item.activate();
-                    } else if (mouse.button === Qt.RightButton) {
-                        trayItem.item.secondaryActivate();
-                    }
-                }
-
-                onWheel: function(wheel) {
-                    if (trayItem.item) {
-                        trayItem.item.scroll(wheel.angleDelta.y, false);
-                    }
-                }
+    // keepAlive : la popup est survolée souvent, on garde sa fenêtre après la première ouverture
+    // au lieu de recréer surface Wayland + contexte GPU à chaque survol (audit §3).
+    LazyPopup {
+        id: trayLazy
+        targetWindow: root.parentWindow
+        anchor: root
+        keepAlive: true
+        popupComponent: Component {
+            TrayPopup {
+                parentWindow: root.parentWindow
+                anchorItem: root
+                isTrayItemVisible: function(item) { return item && !root.isNetworkItem(item); }
             }
         }
     }
+
+    onClicked: trayLazy.toggle()
+    onRightClicked: trayLazy.toggle()
 }

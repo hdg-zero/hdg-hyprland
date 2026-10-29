@@ -15,8 +15,8 @@ Configuration de bureau Linux moderne, sobre et unifiée sous **Hyprland 0.56+**
 
 Ce dépôt regroupe l'infrastructure complète d'un environnement de travail Wayland moderne, ultra-performant et esthétiquement soigné :
 - **Unification logicielle Quickshell :** Environnement réactif monolithique modulaire sous Quickshell v0.3.1+ (Barre d'état, Centre de Contrôle, Notifications D-Bus, Menu de Session et Lanceur d'applications).
-- **Design Obsidian Glass & Glacier Blue :** Identité visuelle sombre translucide inspirée du verre fumé, contrastée par des bordures subtiles et des lueurs bleu glacier.
-- **Sobriété énergétique & performances :** 0% CPU au repos, zéro polling permanent, exécutions système asynchrones non-bloquantes (`Quickshell.execDetached`) et empreinte RAM inférieure à 35 Mo pour l'ensemble du shell.
+- **Design Obsidian & ardoise :** Barre, popups et notifications sombres, accent bleu grisé et bordures discrètes. La topbar conserve sa hauteur, ses interactions et l’icône Arch du lanceur ; les nombreuses fenêtres restent accessibles par défilement horizontal.
+- **Sobriété énergétique & performances :** Fenêtres secondaires chargées à la demande, services natifs réactifs et métriques lues en asynchrone à intervalles espacés. La consommation réelle dépend du matériel et doit être mesurée ; voir le [diagnostic des ralentissements](docs/diagnostic-lags.md).
 - **Dimensionnement 100% relatif :** Aucune dimension en pixels codée en dur ; adaptation instantanée et mathématique à toutes les résolutions et facteurs d'échelle (FHD, 2.8K 90Hz, 4K multi-écrans).
 
 ### Matrice Scope & Out-of-Scope
@@ -99,7 +99,6 @@ graph TD
     │   ├── profiles/                    # Profils de configuration matérielle
     │   │   └── default.lua              # Profil écran principal (2.8K 90Hz, scale 1.25, 10-bit)
     │   └── scripts/                     # Scripts utilitaires idempotents
-    │       ├── battery-level.sh         # Surveillance batterie avec parsing sécurisé
     │       ├── caffeine.sh              # Contrôle du mode caféine (anti-sommeil, inhibition Wayland)
     │       └── check-dependencies.sh    # Validation automatisée de l'environnement (exit code)
     ├── kitty/
@@ -167,16 +166,10 @@ graph TD
     │       │   └── qmldir               # Déclaration de module
     │       └── popups/                  # Popups détaillées au survol / clic
     │           ├── AppPopup.qml         # Aperçu de fenêtre, statut et action Fermer
-    │           ├── BacklightPopup.qml   # Curseur de luminosité et presets rapides
-    │           ├── BatteryPopup.qml     # Débit Watts, autonomie estimée et profils UPower
-    │           ├── CaffeinePopup.qml    # État anti-sommeil et contrôle d'inhibition
     │           ├── ClockPopup.qml       # Calendrier dynamique du mois, secondes et uptime
-    │           ├── CpuPopup.qml         # Charge globale, charge par cœur et température
-    │           ├── MemoryPopup.qml      # RAM et Swap détaillés (Go et pourcentages)
     │           ├── MprisPopup.qml       # Pochette HD centrée et contrôles multimédias
     │           ├── NetworkPopup.qml     # IP, passerelle, débits et boutons nmtui/VPN
     │           ├── PowerPopup.qml       # Menu compact d'extinction rapide
-    │           ├── VolumePopup.qml      # Curseur 0-150%, muet et raccourci pavucontrol
     │           └── qmldir               # Déclaration de module
     └── starship.toml                    # Configuration du prompt Starship
 ```
@@ -238,12 +231,14 @@ graph TD
 
 - **Lazy Loading des Fenêtres Secondaires :**
   - Le lanceur, le menu de session, le centre de contrôle et les toasts ne sont pas préchargés en mémoire. Ils sont instanciés via des `Loader` déclaratifs dans `shell.qml` uniquement lors de leur activation et détruits à la fermeture.
+- **Popups et toasts ardoise :**
+  - Onze popups compactes (220–300 px), contrôles natifs et bleu grisé partagé avec le panneau. Les toasts conservent leur temps restant pendant le survol et les changements de la pile. Voir [le design A](docs/floating-popups-design.md).
 - **Cycle de Vie Destroy-on-Close des Popups (`LazyPopup.qml`) :**
-  - Les 10 popups de la barre d'état détruisent leur surface Wayland et buffers GPU dès l'animation de fermeture terminée, libérant intégralement la mémoire vive.
+  - Les 11 popups de la barre d'état détruisent leur surface Wayland et buffers GPU dès l'animation de fermeture terminée, libérant intégralement la mémoire vive.
 - **Élimination Intégrale du Polling :**
   - Volume audio PipeWire suivi réactivement par `PwObjectTracker`.
   - Horloge cadencée à la minute (`SystemClock.Minutes`).
-  - Débit réseau et monitoring système désactivés tant que les popups associées ne sont pas ouvertes (`running: root.visible`).
+  - Débit réseau et monitoring système désactivés tant que les popups associées ne sont pas ouvertes (`running: root.isOpen`).
 - **Maintien du Thread Graphique Dédié :**
   - Utilisation exclusive du composant natif et thread-safe `IconImage` (`Quickshell.Widgets`) pour éviter tout risque de crash de texture sous Qt 6 / Wayland.
   - Exécutions externes toujours asynchrones via `Quickshell.execDetached`.

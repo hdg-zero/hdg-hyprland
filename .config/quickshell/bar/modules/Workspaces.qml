@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import "../../theme"
+import ".."
 
 Rectangle {
     id: root
@@ -10,8 +11,8 @@ Rectangle {
     implicitHeight: 22
     implicitWidth: wsRow.implicitWidth + Theme.spacingXs * 2
     radius: Theme.radiusSmall
-    color: Qt.rgba(1, 1, 1, 0.04)
-    border.color: Theme.glassBorderSubtle
+    color: "#08ffffff"
+    border.color: BarStyle.border
     border.width: 1
 
     // Changement d'espace de travail résilient : activation d'objet Quickshell native
@@ -26,7 +27,8 @@ Rectangle {
                 ws.activate();
             }
         }
-        Hyprland.dispatch("workspace " + str);
+        // Hyprland 0.56 (config Lua) : `dispatch` attend une expression Lua, plus l'ancienne syntaxe.
+        Hyprland.dispatch("hl.dsp.focus({ workspace = " + (typeof target === "number" ? str : JSON.stringify(str)) + " })");
     }
 
     function handleWheel(wheel) {
@@ -99,8 +101,8 @@ Rectangle {
                 implicitHeight: 18
                 radius: Theme.radiusSmall
 
-                color: isFocused ? Qt.rgba(0.365, 0.678, 0.886, 0.25) : (wsMouse.containsMouse ? Theme.cardBackgroundHover : "transparent")
-                border.color: isFocused ? Theme.accent : (wsMouse.containsMouse ? Theme.glassBorder : "transparent")
+                color: isFocused ? BarStyle.activeSurface : (wsMouse.containsMouse ? BarStyle.hoverSurface : "transparent")
+                border.color: isFocused ? BarStyle.activeBorder : (wsMouse.containsMouse ? BarStyle.border : "transparent")
                 border.width: 1
 
                 Behavior on color {
@@ -113,10 +115,10 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: isFocused ? "" : (hasWindows ? "" : wsId.toString())
-                    font.family: Theme.fontFamily
+                    font.family: isFocused || hasWindows ? Theme.fontFamily : BarStyle.fontFamily
                     font.pixelSize: isFocused || hasWindows ? Theme.fontSizeSmall : Theme.fontSizeTiny
                     font.bold: isFocused
-                    color: isFocused ? Theme.accent : (hasWindows ? Theme.textPrimary : Theme.textDisabled)
+                    color: isFocused ? BarStyle.accentText : (hasWindows ? Theme.textPrimary : Theme.textDisabled)
 
                     Behavior on color {
                         ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }

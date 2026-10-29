@@ -3,11 +3,12 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import "../../theme"
-import "../../components"
-import "../popups"
+import ".."
+import "../components"
 
-PillButton {
+BarPillButton {
     id: root
+    description: "Luminosité · " + text
 
     property int brightnessPercent: 100
 
@@ -19,25 +20,13 @@ PillButton {
         return icons[idx];
     }
 
-    iconColor: Theme.accent
+    iconColor: BarStyle.accentText
     text: brightnessPercent + "%"
     textColor: Theme.textPrimary
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
 
-    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
-    LazyPopup {
-        id: lightLazy
-        targetWindow: root.parentWindow
-        anchor: root
-        popupComponent: Component {
-            BacklightPopup {
-                parentWindow: root.parentWindow
-                anchorItem: root
-                brightnessPercent: root.brightnessPercent
-            }
-        }
-    }
+
 
     Process {
         id: getBrightness
@@ -93,7 +82,4 @@ PillButton {
         }
     }
 
-    onClicked: {
-        lightLazy.toggle();
-    }
 }

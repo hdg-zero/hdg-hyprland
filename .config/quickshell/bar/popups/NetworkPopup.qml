@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Networking
@@ -6,15 +7,14 @@ import Quickshell.Io
 import "../../theme"
 import "../../components"
 
-ModulePopup {
+MetricPopup {
     id: root
 
-    property string ipAddress: "127.0.0.1"
-    property string rxRate: "0 o/s"
-    property string txRate: "0 o/s"
+    property string ipAddress: ""
+    property string rxRate: "—"
+    property string txRate: "—"
 
-    widthPercent: Theme.popupWidthPercentStandard
-    cardHeight: netCol.implicitHeight + Theme.spacingMd * 2
+    contentHeight: Math.max(implicitHeight, contentColumn.implicitHeight + root.contentPadding * 2)
 
     // Sélection intelligente de l'interface réseau active :
     // Priorité au Wi-Fi connecté (attente utilisateur pour ce module), puis au Filaire connecté,
@@ -75,306 +75,151 @@ ModulePopup {
         ? Math.round(Math.max(0, Math.min(1, connectedWifiNetwork.signalStrength)) * 100)
         : 100
 
+    readonly property string interfaceName: activeDevice ? activeDevice.name : ""
+
     property var lastRx: 0
     property var lastTx: 0
     property var lastTime: 0
 
     Process {
         id: getNetDetails
-        command: ["sh", "-c", "ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' || echo '127.0.0.1'"]
+        property string queryInterface: ""
+        command: ["sh", "-c", "ip -o addr show dev \"$1\" scope global 2>/dev/null | awk '{split($4,a,\"/\");print a[1];exit}'", "--", getNetDetails.queryInterface]
         stdout: StdioCollector {
             id: netIpOut
         }
         onExited: function(exitCode, exitStatus) {
             var str = netIpOut.text.trim();
-            if (str) root.ipAddress = str;
+            if (queryInterface === root.interfaceName && root.isConnected) root.ipAddress = str;
+            else if (root.isOpen) Qt.callLater(root.refreshIp);
         }
+    }
+
+    function refreshIp() {
+        if (!isOpen || !isConnected || !interfaceName || getNetDetails.running) return;
+        getNetDetails.queryInterface = interfaceName;
+        getNetDetails.running = true;
     }
 
     FileView {
         id: netDevFile
         path: "/proc/net/dev"
         watchChanges: false
-        blockAllReads: true
+        preload: true
+        onLoaded: root.consumeNetworkStats()
     }
 
     // Rafraîchissement périodique de l'adresse IP espacé à 15s (l'adresse locale ne varie pas en continu)
-    Timer {
-        interval: 15000
-        running: root.visible
-        repeat: true
-        onTriggered: {
-            if (!getNetDetails.running) {
-                getNetDetails.running = true;
+    function consumeNetworkStats() {
+        var content = netDevFile.text();
+        if (!content) return;
+
+        var now = Date.now();
+        var totalRx = 0;
+        var totalTx = 0;
+
+        var lines = content.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            var colonIdx = line.indexOf(":");
+            if (colonIdx === -1) continue;
+
+            var iface = line.substring(0, colonIdx).trim();
+            if (iface !== root.interfaceName) continue;
+
+            var statsStr = line.substring(colonIdx + 1).trim();
+            var parts = statsStr.split(/\s+/);
+            if (parts.length >= 9) {
+                var rx = parseInt(parts[0]) || 0;
+                var tx = parseInt(parts[8]) || 0;
+                totalRx += rx;
+                totalTx += tx;
             }
         }
+
+        if (root.lastTime > 0 && now > root.lastTime) {
+            var deltaSec = (now - root.lastTime) / 1000.0;
+            var rxDelta = Math.max(0, totalRx - root.lastRx);
+            var txDelta = Math.max(0, totalTx - root.lastTx);
+
+            root.rxRate = Theme.formatSpeed(rxDelta / deltaSec);
+            root.txRate = Theme.formatSpeed(txDelta / deltaSec);
+        }
+
+        root.lastRx = totalRx;
+        root.lastTx = totalTx;
+        root.lastTime = now;
+    }
+
+    Timer {
+        interval: 15000
+        running: root.isOpen && root.isConnected
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: root.refreshIp()
     }
 
     Timer {
         interval: 1500
-        running: root.visible
+        running: root.isOpen && root.isConnected
         repeat: true
         triggeredOnStart: true
-        onTriggered: {
-            netDevFile.reload();
-            var content = netDevFile.text();
-            if (!content) return;
-
-            var now = Date.now();
-            var totalRx = 0;
-            var totalTx = 0;
-
-            var lines = content.split("\n");
-            for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].trim();
-                var colonIdx = line.indexOf(":");
-                if (colonIdx === -1) continue;
-
-                var iface = line.substring(0, colonIdx).trim();
-                if (iface === "lo") continue;
-
-                var statsStr = line.substring(colonIdx + 1).trim();
-                var parts = statsStr.split(/\s+/);
-                if (parts.length >= 9) {
-                    var rx = parseInt(parts[0]) || 0;
-                    var tx = parseInt(parts[8]) || 0;
-                    totalRx += rx;
-                    totalTx += tx;
-                }
-            }
-
-            if (root.lastTime > 0 && now > root.lastTime) {
-                var deltaSec = (now - root.lastTime) / 1000.0;
-                var rxDelta = Math.max(0, totalRx - root.lastRx);
-                var txDelta = Math.max(0, totalTx - root.lastTx);
-
-                root.rxRate = Theme.formatSpeed(rxDelta / deltaSec);
-                root.txRate = Theme.formatSpeed(txDelta / deltaSec);
-            }
-
-            root.lastRx = totalRx;
-            root.lastTx = totalTx;
-            root.lastTime = now;
-        }
+        onTriggered: netDevFile.reload()
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            getNetDetails.running = true;
-        }
+    onIsConnectedChanged: {
+        lastTime = 0;
+        rxRate = "—";
+        txRate = "—";
+        ipAddress = "";
+        root.refreshIp();
+    }
+    onInterfaceNameChanged: {
+        lastTime = 0;
+        lastRx = 0;
+        lastTx = 0;
+        rxRate = "—";
+        txRate = "—";
+        ipAddress = "";
+        root.refreshIp();
     }
 
     ColumnLayout {
-        id: netCol
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: parent.top
-        }
-        spacing: Theme.spacingSm
-
-        // En-tête
+        id: contentColumn
+        height: Math.max(implicitHeight, root.implicitHeight - root.contentPadding * 2)
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        spacing: 4
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingXs
-
-            Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
-                color: root.isConnected ? Theme.accent : Theme.textDisabled
-                text: root.isWifi ? (root.isConnected ? "󰤨" : "󰤮") : (root.isWired ? (root.isConnected ? "󰌘" : "󰌙") : "󰌙")
-            }
-
-            Text {
+            PopupGlyph { text: root.isWifi ? "󰖩" : "󰌘"; color: root.isConnected ? PopupStyle.accentText : Theme.textDisabled }
+            PopupText { Layout.fillWidth: true; text: root.isConnected ? root.ssid : "Déconnecté"; font.pixelSize: 12; color: Theme.textSecondary }
+            PopupText { visible: root.isConnected && root.isWifi; text: root.signal + " %"; font.pixelSize: 11; color: Theme.textSecondary }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            visible: root.isConnected
+            spacing: Theme.spacingLg
+            PopupText { Layout.fillWidth: true; text: "↓ " + root.rxRate; font.pixelSize: 16; Accessible.name: "Réception : " + root.rxRate }
+            PopupText { Layout.fillWidth: true; text: "↑ " + root.txRate; font.pixelSize: 16; Accessible.name: "Envoi : " + root.txRate }
+        }
+        Item { Layout.fillHeight: true; Layout.minimumHeight: 0 }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 4
+            PopupText {
                 Layout.fillWidth: true
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
-                font.bold: true
-                color: Theme.textPrimary
-                text: root.isConnected ? (root.isWifi ? root.ssid : (root.isWired ? "Filaire" : "Connecté")) : (root.isWifi ? "Non connecté" : "Déconnecté")
-                elide: Text.ElideRight
-            }
-
-            Text {
-                visible: root.isWifi && root.isConnected
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
+                Layout.alignment: Qt.AlignVCenter
+                visible: root.isConnected
+                text: root.ipAddress || "Indisponible"
+                font.pixelSize: 11
                 color: Theme.textSecondary
-                text: root.signal + "%"
+                Accessible.name: "Adresse locale : " + text
             }
-        }
-
-        // Séparateur fin
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorder
-        }
-
-        // IP & Débits
-        RowLayout {
-            Layout.fillWidth: true
-
-            Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.textSecondary
-                text: "IP " + root.ipAddress
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Text {
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.accent
-                text: "↓" + root.rxRate + "  ↑" + root.txRate
-            }
-        }
-
-        // Séparateur fin
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.glassBorder
-        }
-
-        // Actions rapides (Connexions, nmtui, VPN)
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: Theme.spacingSm
-
-            // Bouton Gestionnaire (nm-connection-editor)
-            Rectangle {
-                Layout.fillWidth: true
-                height: Theme.spacingLg * 1.6
-                radius: Theme.radiusSmall
-                color: nmMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
-                border.color: nmMouse.containsMouse ? Theme.accent : Theme.glassBorder
-                border.width: 1
-
-                Behavior on color {
-                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
-                }
-
-                RowLayout {
-                    anchors.centerIn: parent
-                    spacing: Theme.spacingXs
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.accent
-                        text: "󰛳"
-                    }
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textPrimary
-                        text: "Connexions"
-                    }
-                }
-
-                MouseArea {
-                    id: nmMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        Quickshell.execDetached(["nm-connection-editor"]);
-                        root.close();
-                    }
-                }
-            }
-
-            // Bouton nmtui (Terminal)
-            Rectangle {
-                Layout.fillWidth: true
-                height: Theme.spacingLg * 1.6
-                radius: Theme.radiusSmall
-                color: nmtuiMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
-                border.color: nmtuiMouse.containsMouse ? Theme.accent : Theme.glassBorder
-                border.width: 1
-
-                Behavior on color {
-                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
-                }
-
-                RowLayout {
-                    anchors.centerIn: parent
-                    spacing: Theme.spacingXs
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.accent
-                        text: "󰆍"
-                    }
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textPrimary
-                        text: "nmtui"
-                    }
-                }
-
-                MouseArea {
-                    id: nmtuiMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        Quickshell.execDetached(["kitty", "-e", "nmtui"]);
-                        root.close();
-                    }
-                }
-            }
-
-            // Bouton VPN (Mullvad)
-            Rectangle {
-                Layout.fillWidth: true
-                height: Theme.spacingLg * 1.6
-                radius: Theme.radiusSmall
-                color: vpnMouse.containsMouse ? Theme.cardBackgroundHover : Qt.rgba(1, 1, 1, 0.05)
-                border.color: vpnMouse.containsMouse ? Theme.accent : Theme.glassBorder
-                border.width: 1
-
-                Behavior on color {
-                    ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
-                }
-
-                RowLayout {
-                    anchors.centerIn: parent
-                    spacing: Theme.spacingXs
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.accent
-                        text: "󰒄"
-                    }
-
-                    Text {
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textPrimary
-                        text: "VPN"
-                    }
-                }
-
-                MouseArea {
-                    id: vpnMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        Quickshell.execDetached(["sh", "-c", "command -v mullvad-gui >/dev/null 2>&1 && mullvad-gui || mullvad status"]);
-                        root.close();
-                    }
-                }
-            }
+            PopupIconButton { Layout.alignment: Qt.AlignTop; implicitWidth: 28; implicitHeight: 28; glyph: "󰛳"; description: "Connexions"; onClicked: { Quickshell.execDetached(["nm-connection-editor"]); root.close(); } }
+            PopupIconButton { Layout.alignment: Qt.AlignTop; implicitWidth: 28; implicitHeight: 28; glyph: "󰆍"; description: "nmtui"; onClicked: { Quickshell.execDetached(["kitty", "-e", "nmtui"]); root.close(); } }
+            PopupIconButton { Layout.alignment: Qt.AlignTop; implicitWidth: 28; implicitHeight: 28; glyph: "󰒄"; description: "VPN"; onClicked: { Quickshell.execDetached(["sh", "-c", "command -v mullvad-gui >/dev/null 2>&1 && mullvad-gui || mullvad status"]); root.close(); } }
         }
     }
 }

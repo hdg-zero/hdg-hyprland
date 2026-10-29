@@ -3,6 +3,8 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Mpris
 import "../../theme"
+import ".."
+import "../components"
 import "../../components"
 import "../popups"
 
@@ -46,7 +48,7 @@ Item {
     implicitWidth: visible ? pill.implicitWidth : 0
     implicitHeight: visible ? pill.implicitHeight : 0
 
-    PillButton {
+    BarPillButton {
         id: pill
         anchors.fill: parent
 
@@ -62,13 +64,14 @@ Item {
         }
 
         icon: isPlaying ? "󰐊" : "󰏤"
-        iconColor: isPlaying ? Theme.accent : Theme.textDisabled
+        iconColor: isPlaying ? BarStyle.accentText : Theme.textDisabled
         text: trackText
         textColor: Theme.textSecondary
         customPaddingH: Theme.spacingMd
         customPaddingV: 1
         parentWindow: root.parentWindow
-        widthPercent: Theme.moduleWidthPercentMpris
+        customWidth: BarStyle.musicWidth(screenWidth)
+        description: trackText + " · clic : lecture/pause ; droit : détails ; milieu : suivant"
 
         onClicked: {
             if (root.activePlayer) {

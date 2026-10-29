@@ -1,8 +1,8 @@
 import QtQuick
 import Quickshell.Services.UPower
 import "../../theme"
-import "../../components"
-import "../popups"
+import ".."
+import "../components"
 
 Item {
     id: root
@@ -25,21 +25,12 @@ Item {
     readonly property bool isCritical: rawPercentage <= 15
     readonly property bool isWarning: rawPercentage <= 30
 
-    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
-    LazyPopup {
-        id: batLazy
-        targetWindow: root.parentWindow
-        anchor: pill
-        popupComponent: Component {
-            BatteryPopup {
-                parentWindow: root.parentWindow
-                anchorItem: pill
-            }
-        }
-    }
 
-    PillButton {
+
+    BarPillButton {
         id: pill
+        parentWindow: root.parentWindow
+        description: "Batterie · " + text
         anchors.fill: parent
 
         icon: {
@@ -56,14 +47,11 @@ Item {
             return "󰂎";
         }
 
-        iconColor: root.isCharging ? Theme.success : (root.isCritical ? Theme.destructive : (root.isWarning ? Theme.warning : Theme.accent))
+        iconColor: root.isCharging ? BarStyle.success : (root.isCritical ? BarStyle.destructive : (root.isWarning ? BarStyle.warning : BarStyle.accentText))
         text: root.rawPercentage + "%"
-        textColor: root.isCritical ? Theme.destructive : Theme.textPrimary
+        textColor: root.isCritical ? BarStyle.destructive : Theme.textPrimary
         customPaddingH: Theme.spacingSm
         customPaddingV: 1
 
-        onClicked: {
-            batLazy.toggle();
-        }
     }
 }

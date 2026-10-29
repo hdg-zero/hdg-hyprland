@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
@@ -40,125 +41,35 @@ ModulePopup {
         return "";
     }
 
-    widthPercent: Theme.popupWidthPercentStandard
-    cardHeight: contentLayout.implicitHeight + (Theme.spacingMd * 2)
-
+    cardWidth: 280
+    cardHeight: contentColumn.implicitHeight + PopupStyle.padding * 2
     ColumnLayout {
-        id: contentLayout
-        anchors.fill: parent
+        id: contentColumn
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
         spacing: Theme.spacingSm
-
-        // Header : Icône + Nom App + Badge Workspace
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingXs
-
-            IconImage {
-                id: popupIcon
-                width: Theme.spacingLg * 1.3
-                height: Theme.spacingLg * 1.3
-                source: root.iconSource
-                visible: root.iconSource !== "" && status === Image.Ready
-            }
-
-            Text {
-                visible: !popupIcon.visible
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeMedium
-                color: Theme.accent
-                text: "󰣆"
-            }
-
-            Text {
-                Layout.fillWidth: true
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSizeSmall
-                font.bold: true
-                color: Theme.textPrimary
-                text: root.appName
-                elide: Text.ElideRight
-            }
-
-            // Badge Workspace
-            Rectangle {
-                visible: root.workspaceName !== ""
-                height: Theme.spacingLg
-                width: wsLabel.implicitWidth + Theme.spacingSm
-                radius: Theme.radiusSmall / 2
-                color: Qt.rgba(0.365, 0.678, 0.886, 0.15)
-
-                Text {
-                    id: wsLabel
-                    anchors.centerIn: parent
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeTiny
-                    font.bold: true
-                    color: Theme.accent
-                    text: "WS " + root.workspaceName
-                }
-            }
+            Image { id: appIcon; Layout.preferredWidth: 20; Layout.preferredHeight: 20; source: root.iconSource; asynchronous: true; sourceSize: Qt.size(20, 20); fillMode: Image.PreserveAspectFit; visible: status === Image.Ready }
+            PopupGlyph { visible: !appIcon.visible; text: "󰣆" }
+            PopupText { Layout.fillWidth: true; text: root.appName; font.pixelSize: 12; color: Theme.textSecondary }
+            PopupText { visible: root.workspaceName !== ""; text: "WS " + root.workspaceName; font.pixelSize: 10; color: Theme.textSecondary }
         }
-
-        // Titre de la fenêtre
-        Text {
+        PopupText { Layout.fillWidth: true; text: root.winTitle; wrapMode: Text.Wrap; maximumLineCount: 2 }
+        RowLayout {
             Layout.fillWidth: true
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeSmall
-            color: Theme.textSecondary
-            text: root.winTitle
-            elide: Text.ElideRight
-            maximumLineCount: 1
-        }
-
-        // Bouton d'action unique : Fermer l'application (le déplacement se faisant directement au clic sur l'icône)
-        Rectangle {
-            Layout.fillWidth: true
-            height: Theme.spacingLg * 1.6
-            radius: Theme.radiusSmall
-            color: closeBtnMouse.containsMouse ? Qt.rgba(0.906, 0.298, 0.235, 0.35) : Qt.rgba(1, 1, 1, 0.05)
-            border.color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.glassBorder
-            border.width: 1
-
-            Behavior on color {
-                ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
-            }
-
-            RowLayout {
-                anchors.centerIn: parent
-                spacing: Theme.spacingXs
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
-                    color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
-                    text: "󰅖"
-                }
-
-                Text {
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
-                    font.bold: true
-                    color: closeBtnMouse.containsMouse ? Theme.destructive : Theme.textSecondary
-                    text: "Fermer"
-                }
-            }
-
-            MouseArea {
-                id: closeBtnMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
+            Item { Layout.fillWidth: true }
+            PopupIconButton {
+                glyph: "󰅖"
+                description: "Fermer la fenêtre"
+                enabled: root.toplevel !== null
                 onClicked: {
                     if (!root.toplevel) return;
                     var addr = root.toplevel.address || "";
                     if (addr && addr.indexOf("0x") !== 0) addr = "0x" + addr;
-                    if (root.toplevel.wayland && typeof root.toplevel.wayland.close === "function") {
-                        root.toplevel.wayland.close();
-                    }
-                    if (addr) {
-                        Hyprland.dispatch("closewindow address:" + addr);
-                        Quickshell.execDetached(["hyprctl", "dispatch", "closewindow", "address:" + addr]);
-                    }
+                    if (root.toplevel.wayland && typeof root.toplevel.wayland.close === "function") root.toplevel.wayland.close();
+                    else if (addr) Hyprland.dispatch("hl.dsp.window.close({ window = \"address:" + addr + "\" })");
                     root.close();
                 }
             }

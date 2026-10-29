@@ -4,11 +4,12 @@ import Quickshell.Services.Pipewire
 import Quickshell.Hyprland
 import Quickshell.Io
 import "../../theme"
-import "../../components"
-import "../popups"
+import ".."
+import "../components"
 
-PillButton {
+BarPillButton {
     id: root
+    description: "Volume · " + text + " · clic droit : pavucontrol"
 
     property int wpVolumePercent: 0
     property bool wpMuted: false
@@ -46,21 +47,7 @@ PillButton {
     readonly property real volumeLevel: (audio && audio.volume !== undefined) ? audio.volume : (wpVolumePercent / 100.0)
     readonly property int volumePercent: (audio && audio.volume !== undefined) ? Math.round(audio.volume * 100) : wpVolumePercent
 
-    // Popup paresseuse : voir CpuModule pour le détail du mécanisme LazyPopup.
-    LazyPopup {
-        id: volLazy
-        targetWindow: root.parentWindow
-        anchor: root
-        popupComponent: Component {
-            VolumePopup {
-                parentWindow: root.parentWindow
-                anchorItem: root
-                volumePercent: root.volumePercent
-                isMuted: root.isMuted
-                isBluetooth: root.isBluetooth
-            }
-        }
-    }
+
 
     Process {
         id: getWpVolume
@@ -104,15 +91,12 @@ PillButton {
         return "󰕿";
     }
 
-    iconColor: isMuted ? Theme.destructive : (volumePercent > 100 ? Theme.warning : Theme.accent)
+    iconColor: isMuted ? BarStyle.destructive : (volumePercent > 100 ? BarStyle.warning : BarStyle.accentText)
     text: isMuted ? "Muet" : volumePercent + "%"
     textColor: isMuted ? Theme.textDisabled : Theme.textPrimary
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
 
-    onClicked: {
-        volLazy.toggle();
-    }
 
     onRightClicked: {
         Quickshell.execDetached(["pavucontrol", "-t", "3"]);

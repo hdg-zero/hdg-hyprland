@@ -1,27 +1,25 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell.Hyprland
 import "../../theme"
+import ".."
 
-RowLayout {
+Item {
     id: root
-
+    property real maximumWidth: 350
     readonly property string windowTitle: Hyprland.activeToplevel ? Hyprland.activeToplevel.title : ""
-    visible: windowTitle.length > 0
-    spacing: Theme.spacingSm
-
+    visible: windowTitle.length > 0 && maximumWidth > 0
+    implicitWidth: Math.max(0, Math.min(titleText.implicitWidth, maximumWidth))
+    implicitHeight: 18
+    Accessible.name: windowTitle
     Text {
         id: titleText
+        anchors.fill: parent
         text: root.windowTitle
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSizeRegular
-        font.bold: false
+        textFormat: Text.PlainText
+        font.family: BarStyle.fontFamily
+        font.pixelSize: Theme.fontSizeSmall
         color: Theme.textSecondary
         elide: Text.ElideRight
-        Layout.maximumWidth: 350
-
-        Behavior on color {
-            ColorAnimation { duration: Theme.animDurationFast; easing.type: Theme.easingType }
-        }
+        verticalAlignment: Text.AlignVCenter
     }
 }

@@ -1,14 +1,17 @@
 import QtQuick
 import Quickshell
 import "../../theme"
+import ".."
+import "../components"
 import "../../components"
 import "../../launcher"
 
-PillButton {
+BarPillButton {
     id: root
+    description: "Lanceur"
 
     icon: "󰣇"
-    iconColor: Theme.accent
+    iconColor: BarStyle.accentText
     customPaddingH: Theme.spacingSm
     customPaddingV: 1
     
