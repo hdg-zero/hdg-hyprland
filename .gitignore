@@ -21,3 +21,6 @@ crash/
 .env.*
 local.properties
 credentials
+
+# Idées locales à explorer
+/roadmap.md
