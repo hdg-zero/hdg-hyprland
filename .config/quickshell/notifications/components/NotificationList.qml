@@ -94,6 +94,7 @@ ColumnLayout {
 
         ListView {
             id: groupList
+            reuseItems: true
             anchors.fill: parent
             visible: root.groups.length > 0
             model: root.groups
@@ -148,6 +149,8 @@ ColumnLayout {
                                     Image {
                                         id: appIcon
                                         anchors.fill: parent
+                                        asynchronous: true
+                                        sourceSize: Qt.size(20, 20)
                                         fillMode: Image.PreserveAspectFit
                                         source: groupCard.modelData.appIcon
                                             ? Quickshell.iconPath(groupCard.modelData.appIcon, true) || groupCard.modelData.appIcon : ""

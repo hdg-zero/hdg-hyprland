@@ -2,3 +2,4 @@ singleton NotificationService 1.0 NotificationService.qml
 singleton NotificationStyle 1.0 NotificationStyle.qml
 NotificationCenter 1.0 NotificationCenter.qml
 NotificationToastWindow 1.0 NotificationToastWindow.qml
+ToastLifetime 1.0 ToastLifetime.qml

@@ -50,6 +50,7 @@ PanelWindow {
         }
     }
 
+    property bool initialized: false
     visible: NotificationService.panelVisible
 
     function refreshStatus() {
@@ -58,6 +59,7 @@ PanelWindow {
     }
 
     onVisibleChanged: {
+        if (!initialized) return;
         if (visible) {
             refreshStatus();
             scratchpad.loadNotes();
@@ -71,6 +73,7 @@ PanelWindow {
     // onVisibleChanged(false→true) ne part pas toujours. On rafraîchit donc aussi à la fin
     // de l'instanciation (états Wi-Fi/BT/micro, curseurs, notes et focus immédiat du scratchpad).
     Component.onCompleted: {
+        initialized = true;
         if (visible) {
             refreshStatus();
             scratchpad.loadNotes();

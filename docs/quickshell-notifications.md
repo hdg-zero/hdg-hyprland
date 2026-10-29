@@ -9,15 +9,15 @@ Documentation technique du sous-système de notifications D-Bus et du Centre de 
 Le sous-système de notifications réside dans `.config/quickshell/notifications/` et remplace intégralement SwayNC :
 - **Serveur D-Bus Natif :** Implémentation complète de la spécification standard `org.freedesktop.Notifications`.
 - **Centre de Contrôle Inspiré d'Apple :** Positionné en **haut au milieu** de l'écran (centré horizontalement sur l'axe X, calé sous la barre d'état sur l'axe Y), avec fond assombri dismissible au clic (`backdrop`) ou via la touche <kbd>Échap</kbd>.
-- **Design Obsidian & Ardoise :** Fond sombre en dégradé discret, bordure neutre et accent bleu grisé `#8297a6`. La palette et la typographie sans-serif du panneau sont locales à `NotificationStyle.qml` ; la barre et les toasts conservent leur thème existant.
+- **Design Obsidian & Ardoise :** Fond sombre en dégradé discret, bordure neutre et accent bleu grisé `#8297a6`. La palette et la typographie sans-serif de `NotificationStyle.qml` sont reprises par les toasts et les popups via `PopupStyle.qml`. La barre conserve son thème propre.
 - **Dimensions Fixes & Proportions Carrées :**
   - **Largeur standardisée :** 480 px (`Theme.notificationPanelWidth: 480`) avec réduction uniquement si la largeur disponible est inférieure. La carte est bornée à la hauteur disponible et défile sur les petits écrans.
-  - **Toggles tactiles rapides :** Pavés quasi carrés de 64 px de hauteur (Wi-Fi, Bluetooth, Caféine, Micro, Audio), sans libellés permanents ; infobulles au survol et commandes accessibles au clavier.
+  - **Toggles tactiles rapides :** Pavés quasi carrés de 64 px de hauteur (Wi-Fi, Bluetooth, Caféine, Micro, Audio), sans libellés permanents ; noms accessibles et commandes accessibles au clavier, sans infobulles au survol.
   - **Curseurs fins :** Volume et luminosité regroupés dans une surface de 84 px, avec icônes, poignées et pourcentages en direct. Réglage par glissement ou au clavier.
   - **Barre d'actions par icônes :** Verrouiller, Éteindre, Ne pas déranger, Effacer les notifications et Fermer (32 px).
   - **Bloc-notes persistant (Scratchpad) :** Zone de saisie proportionnelle à 40% de la hauteur d'écran (`Theme.scratchpadHeightRatio: 0.40`).
   - **Historique groupé par application :** Une notification récente visible par groupe, compteur et dépliage. Suppression individuelle, par groupe ou globale. Hauteur de défilement adaptative de 80 à 200 px pour préserver la place du bloc-notes.
-- **Toasts OSD Éphémères :** Alertes visuelles animées de 380 px de large avec jauge de compte à rebours fluide à 60fps et pause au survol.
+- **Toasts OSD Éphémères :** Alertes visuelles animées de 380 px de large avec ligne de compte à rebours de 1 px, mise à jour à 10 Hz et pause réelle au survol. Quatre cartes au maximum ; une notification remplacée sous le même identifiant n’est pas dupliquée.
 - **Lazy Loading & Destructibilité :** Instanciation à la demande par `Loader` dans `shell.qml` et destruction à la fermeture pour une consommation mémoire nulle hors utilisation.
 - **Filtrage Anti-Spam :** Rejet immédiat des notifications fantômes sans résumé ni corps issues des mises à jour D-Bus.
 
@@ -28,13 +28,15 @@ Le sous-système de notifications réside dans `.config/quickshell/notifications
 ```
 .config/quickshell/notifications/
 ├── NotificationService.qml      # Singleton D-Bus (NotificationServer), état DND, historique, IPC
-├── NotificationToastWindow.qml  # Fenêtre de toasts flottants OSD avec jauge fluide 60fps
+├── NotificationToastWindow.qml  # Fenêtre de toasts flottants OSD avec placement adapté aux popups
 ├── NotificationCenter.qml       # Carte haut-centrée (480px max), barre d’actions et défilement
-├── NotificationStyle.qml        # Palette ardoise et typographie locales au panneau
+├── NotificationStyle.qml        # Palette ardoise et typographie partagées
 ├── NotificationGroups.js        # Regroupement, tri par réception et temps relatifs
+├── ToastLifetime.qml            # Compte à rebours indépendant des cartes
 ├── qmldir                       # Déclaration de module
 └── components/                  # Sous-composants modulaires à responsabilité unique
-    ├── PanelIconButton.qml      # Bouton par icône, focus clavier et infobulle
+    ├── ToastCard.qml            # Carte ardoise, actions qui reviennent à la ligne
+    ├── PanelIconButton.qml      # Bouton par icône, focus clavier et nom accessible
     ├── QuickSettings.qml        # 5 toggles de 64px (Wi-Fi, BT, Caféine, Micro, Audio)
     ├── VolumeBrightnessSliders.qml # Deux curseurs fins dans une surface de 84px
     ├── NotificationList.qml     # Groupes dépliables (200px max), actions et état vide
@@ -57,10 +59,13 @@ Le sous-système de notifications réside dans `.config/quickshell/notifications
   ```
 
 ### 2. `NotificationToastWindow.qml` (Toasts OSD)
-- Surface Layer-Shell `Overlay` dans le coin supérieur droit (largeur 380 px).
-- Progression d'expiration visuelle animée via `NumberAnimation` fluide à 60fps.
-- Pause automatique du compte à rebours au survol de la souris.
-- Rendu d'icône d'application via `IconImage` avec repli automatique sur la cloche.
+- Surface Layer-Shell `Overlay` dans le coin supérieur droit, largeur maximale de 380 px et hauteur bornée avec défilement.
+- Cartes ardoise aux coins de 18 px, application et date discrètes, titre puis message, actions natives focalisables revenant à la ligne.
+- `ToastLifetime.qml` est créé par le service : une seule animation pilote le temps restant et sa ligne de progression. Le survol suspend puis reprend ce temps ; l’arrivée d’une autre carte ne le réinitialise pas.
+- Expiration normale à 6 s, faible urgence à 3,5 s ; les alertes critiques restent jusqu’à leur fermeture et portent un repère ambre discret.
+- La fermeture du toast conserve la notification dans l’historique. Les actions appellent seulement `invoke()` pour respecter les notifications résidentes ; la fermeture distante nettoie aussi le toast.
+- Si une popup occupe le coin droit, les toasts passent à gauche lorsque la place le permet, sinon sous la popup.
+- Rendu d’icône via `IconImage`, avec repli sur la cloche.
 
 ### 3. `NotificationCenter.qml` & Sous-Composants
 - **`QuickSettings.qml` :** 5 pavés de 64 px, état actif teinté ardoise et icônes sans libellés. Les commandes système se trouvent dans la barre supérieure du panneau.

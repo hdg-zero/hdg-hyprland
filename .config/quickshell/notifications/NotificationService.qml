@@ -93,22 +93,31 @@ Singleton {
                 timeoutMs = 0; // Infini pour les alertes critiques
             }
 
-            var toastId = notif.id || (Date.now() + Math.random());
-            var toastObj = {
-                id: toastId,
-                notification: notif,
-                timeout: timeoutMs,
-                createdAt: Date.now()
-            };
-
-            var list = root.activeToasts.slice();
-            list.unshift(toastObj);
-            // Limiter à 4 toasts simultanés à l'écran pour préserver l'ergonomie
-            if (list.length > 4) {
-                list.pop();
-            }
-            root.activeToasts = list;
+            root.addToast(notif, timeoutMs);
         }
+    }
+
+    Component { id: lifetimeFactory; ToastLifetime {} }
+
+    function releaseToast(toast) {
+        if (!toast.lifetime) return;
+        toast.lifetime.stop();
+        toast.lifetime.destroy();
+    }
+
+    function addToast(notif, timeoutMs) {
+        root.dismissToast(notif.id);
+        var lifetime = lifetimeFactory.createObject(root, {durationMs: timeoutMs});
+        var toast = {id: notif.id, notification: notif, timeout: timeoutMs,
+            createdAt: Date.now(), lifetime: lifetime};
+        lifetime.expired.connect(function() {
+            if (root.activeToasts.some(function(t) { return t.lifetime === lifetime; }))
+                root.dismissToast(toast.id);
+        });
+        var list = root.activeToasts.slice();
+        list.unshift(toast);
+        while (list.length > 4) root.releaseToast(list.pop());
+        root.activeToasts = list;
     }
 
     function togglePanel() {
@@ -128,6 +137,7 @@ Singleton {
                 }
             }
         }
+        root.activeToasts.forEach(root.releaseToast);
         root.activeToasts = [];
     }
 
@@ -141,8 +151,11 @@ Singleton {
     }
 
     function dismissToast(toastId) {
+        if (!root.activeToasts.some(function(t) { return t.id === toastId; })) return;
         var list = root.activeToasts.filter(function(t) {
-            return t.id !== toastId && (!t.notification || t.notification.id !== toastId);
+            var keep = t.id !== toastId && (!t.notification || t.notification.id !== toastId);
+            if (!keep) root.releaseToast(t);
+            return keep;
         });
         root.activeToasts = list;
     }

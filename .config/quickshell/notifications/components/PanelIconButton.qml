@@ -11,6 +11,7 @@ Button {
     property bool selected: false
     property bool tile: false
     property bool destructive: false
+    property int glyphSize: tile ? 24 : 17
 
     implicitWidth: 32
     implicitHeight: tile ? 64 : 32
@@ -18,14 +19,11 @@ Button {
     hoverEnabled: true
     focusPolicy: Qt.StrongFocus
     Accessible.name: description
-    ToolTip.visible: hovered && description !== ""
-    ToolTip.text: description
-    ToolTip.delay: 600
 
     contentItem: Text {
         text: root.glyph
         font.family: Theme.fontFamily
-        font.pixelSize: root.tile ? 24 : 17
+        font.pixelSize: root.glyphSize
         color: !root.enabled ? Theme.textDisabled
             : root.destructive ? Theme.destructive
             : root.selected ? NotificationStyle.accentText : Theme.textSecondary
