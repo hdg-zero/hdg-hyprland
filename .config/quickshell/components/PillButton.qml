@@ -7,6 +7,10 @@ Rectangle {
 
     property string icon: ""
     property string text: ""
+    property string labelFontFamily: Theme.fontFamily
+    property color hoverIconColor: Theme.accent
+    property color idleBorderColor: "transparent"
+    property color hoverBorderColor: Theme.glassBorder
     property color iconColor: active ? Theme.accent : Theme.textSecondary
     property color textColor: active ? Theme.textPrimary : Theme.textSecondary
     property color baseColor: "transparent"
@@ -48,7 +52,7 @@ Rectangle {
 
     radius: customRadius
     color: mouseArea.pressed ? activeColor : (mouseArea.containsMouse ? hoverColor : baseColor)
-    border.color: mouseArea.containsMouse ? Theme.glassBorder : "transparent"
+    border.color: mouseArea.containsMouse ? hoverBorderColor : idleBorderColor
     border.width: 1
 
     Behavior on color {
@@ -69,7 +73,7 @@ Rectangle {
             text: root.icon
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSizeMedium
-            color: mouseArea.containsMouse ? Theme.accent : root.iconColor
+            color: mouseArea.containsMouse ? root.hoverIconColor : root.iconColor
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
 
@@ -81,7 +85,7 @@ Rectangle {
         Text {
             visible: root.text !== ""
             text: root.text
-            font.family: Theme.fontFamily
+            font.family: root.labelFontFamily
             font.pixelSize: Theme.fontSizeSmall
             font.bold: root.active
             color: mouseArea.containsMouse ? Theme.textPrimary : root.textColor

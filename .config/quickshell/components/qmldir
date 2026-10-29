@@ -2,4 +2,13 @@ GlassCard 1.0 GlassCard.qml
 IconLabel 1.0 IconLabel.qml
 PillButton 1.0 PillButton.qml
 ModulePopup 1.0 ModulePopup.qml
+MetricPopup 1.0 MetricPopup.qml
 LazyPopup 1.0 LazyPopup.qml
+singleton PopupStyle 1.0 PopupStyle.qml
+singleton PopupState 1.0 PopupState.qml
+PopupText 1.0 PopupText.qml
+PopupGlyph 1.0 PopupGlyph.qml
+PopupIconButton 1.0 PopupIconButton.qml
+PopupMeter 1.0 PopupMeter.qml
+PopupSlider 1.0 PopupSlider.qml
+PopupDisclosure 1.0 PopupDisclosure.qml

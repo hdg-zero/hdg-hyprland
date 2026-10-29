@@ -30,12 +30,18 @@ Loader {
     property Item anchor: null
     /** Ouvrir au survol prolongé (défaut : oui, comme avant le lazy loading). */
     property bool openOnHover: true
+    /**
+     * Garder la popup instanciée après sa première ouverture (fermeture = simple démappage,
+     * le contexte GPU reste). Pour les popups survolées souvent (audit perf §3).
+     */
+    property bool keepAlive: false
+    property bool loadedOnce: false
 
     // État interne : demande d'instanciation en cours (survol validé ou clic).
     property bool hoverRequested: false
     property bool clickRequested: false
 
-    active: hoverRequested || clickRequested
+    active: hoverRequested || clickRequested || (keepAlive && loadedOnce)
     sourceComponent: popupComponent
 
     /** État de survol de l'item d'ancrage (module de la barre). */
@@ -46,7 +52,7 @@ Loader {
     onAnchorHoveredChanged: {
         if (anchorHovered) {
             closeDelay.stop();
-            if (openOnHover) {
+            if (openOnHover && !clickRequested) {
                 hoverDelay.restart();
             }
         } else {
@@ -57,31 +63,34 @@ Loader {
 
     /** Bascule ouverte/fermée — point d'entrée des clics du module. */
     function toggle() {
-        if (active && item && item.isOpen) {
+        hoverDelay.stop();
+        closeDelay.stop();
+        if (item && item.isOpen && clickRequested) {
             item.close();
         } else {
             clickRequested = true;
             if (item) {
+                item.pinned = true;
                 item.open();
             }
         }
     }
 
     function close() {
-        hoverRequested = false;
-        clickRequested = false;
-        if (item) {
-            item.close();
-        }
+        hoverDelay.stop();
+        closeDelay.stop();
+        if (item) item.close();
+        else { hoverRequested = false; clickRequested = false; }
     }
 
     /**
      * Réconcilie l'état du curseur avec la temporisation de fermeture : démarre le délai de
-     * 320 ms si ni l'ancre ni la popup ne sont survolées, l'arrête sinon (réplique exacte de
-     * la logique des anciens timers internes à ModulePopup).
+     * 320 ms si ni l'ancre ni la popup ne sont survolées, l'arrête sinon.
+     * Une popup épinglée par clic reste ouverte jusqu'à une fermeture explicite.
      */
     function scheduleCloseIfIdle() {
-        if (!active) return;
+        if (!hoverRequested && !clickRequested) return;
+        if (clickRequested) { closeDelay.stop(); return; }
         if (!anchorHovered && !(item && item.isHovered)) {
             closeDelay.restart();
         } else {
@@ -91,9 +100,11 @@ Loader {
 
     // Câblage de la popup fraîchement instanciée puis ouverture immédiate.
     onLoaded: {
+        if (keepAlive) loadedOnce = true;
         if (item) {
             if (!item.parentWindow) item.parentWindow = loaderRoot.targetWindow;
             if (!item.anchorItem) item.anchorItem = loaderRoot.anchor;
+            item.pinned = clickRequested;
             item.open();
         }
         scheduleCloseIfIdle();
@@ -114,9 +125,8 @@ Loader {
             loaderRoot.hoverRequested = false;
             // NB : Ne JAMAIS assigner active=false de façon impérative car cela brise le binding QML !
             // La mise à 0 de clickRequested et hoverRequested réévalue active automatiquement.
-            if (loaderRoot.anchorHovered && loaderRoot.openOnHover) {
-                hoverDelay.restart();
-            }
+            hoverDelay.stop();
+            closeDelay.stop();
         }
     }
 
@@ -129,6 +139,7 @@ Loader {
             if (loaderRoot.anchorHovered) {
                 loaderRoot.hoverRequested = true;
                 if (loaderRoot.item) {
+                    loaderRoot.item.pinned = loaderRoot.clickRequested;
                     loaderRoot.item.open();
                 }
             }
@@ -142,7 +153,7 @@ Loader {
         repeat: false
         onTriggered: {
             // On ne referme que si le curseur n'est ni sur le module ni dans la popup.
-            if (!(loaderRoot.item && loaderRoot.item.isHovered) && !loaderRoot.anchorHovered) {
+            if (!loaderRoot.clickRequested && !(loaderRoot.item && loaderRoot.item.isHovered) && !loaderRoot.anchorHovered) {
                 if (loaderRoot.item) {
                     loaderRoot.item.close();  // anime puis émet fullyClosed
                 }
