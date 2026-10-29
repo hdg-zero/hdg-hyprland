@@ -5,16 +5,15 @@
 
 umask 0002
 
-# Démarrage automatique du portail GTK pour les applications Wayland (sélecteurs de fichiers)
-if [ -n "${WAYLAND_DISPLAY:-}" ] && [ -x /usr/lib/xdg-desktop-portal-gtk ] && ! pgrep -u "$USER" -f "/usr/lib/xdg-desktop-portal-[g]tk" >/dev/null 2>&1; then
-  /usr/lib/xdg-desktop-portal-gtk -r >/dev/null 2>&1 &
-fi
+# Désactivé : lancé d'ici, le portail GTK mourait avec le premier terminal fermé. Il est
+# normalement activé à la demande par D-Bus/systemd (xdg-desktop-portal-gtk.service).
+# if [ -n "${WAYLAND_DISPLAY:-}" ] && [ -x /usr/lib/xdg-desktop-portal-gtk ] && ! pgrep -u "$USER" -f "/usr/lib/xdg-desktop-portal-[g]tk" >/dev/null 2>&1; then
+#   /usr/lib/xdg-desktop-portal-gtk -r >/dev/null 2>&1 &
+# fi
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
 
 # BASH HISTORY
@@ -45,8 +44,13 @@ alias convert="magick"
 alias compress-pdf="gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf"
 
 alias cat="bat"
-alias find="fd"
 alias grep="rg"
+
+# Rappel plutôt qu'alias : un alias find=fd casserait la syntaxe des commandes find collées.
+find() {
+  [ -t 2 ] && printf '\e[2m(rappel : fd fait la même chose en plus simple)\e[0m\n' >&2
+  command find "$@"
+}
 
 # Réinitialise le pilote btusb (noyau) et relance bluetoothd en cas de gel matériel
 # ou de plantage du contrôleur Bluetooth au réveil (suspend/resume).
