@@ -11,10 +11,6 @@ hl.config({
         gaps_in = 0,
         gaps_out = 0,
         border_size = 0,
-        col = {
-            active_border = { colors = { "rgba(33ccffee)", "rgba(00ff99ee)" }, angle = 45 },
-            inactive_border = "rgba(595959aa)",
-        },
         resize_on_border = false,
         allow_tearing = false,
         layout = "dwindle",
@@ -46,8 +42,8 @@ hl.config({
         new_status = "master",
     },
     misc = {
-        force_default_wallpaper = -1,
-        disable_hyprland_logo = false,
+        force_default_wallpaper = 0,
+        disable_hyprland_logo = true,
         vrr = 1,
     },
     input = {
@@ -90,11 +86,6 @@ hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.39, bezier = "a
 hl.animation({ leaf = "workspaces", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "workspacesIn", enabled = true, speed = 1.21, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
-
-hl.device({
-    name = "epic-mouse-v1",
-    sensitivity = -0.5,
-})
 
 hl.window_rule({
     name = "suppress-maximize-events",

@@ -70,12 +70,10 @@ return function(programs)
     })
     hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), {
         locked = true,
-        repeating = true,
         description = "Couper/rétablir la sortie audio",
     })
     hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), {
         locked = true,
-        repeating = true,
         description = "Couper/rétablir le micro",
     })
     hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl s 10%+"), {
@@ -94,7 +92,7 @@ return function(programs)
     hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true, description = "Lecture/pause media" })
     hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true, description = "Media précédent" })
 
-    hl.bind(main_mod .. " + SHIFT + l", hl.dsp.exec_cmd("hyprlock"), { locked = true, description = "Verrouiller la session" })
+    hl.bind(main_mod .. " + SHIFT + l", hl.dsp.exec_cmd("loginctl lock-session"), { locked = true, description = "Verrouiller la session" })
 
     local SCREENSHOT_DIR = "$HOME/Pictures/Screenshots"
 
